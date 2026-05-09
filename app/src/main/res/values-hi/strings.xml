@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Human Art</string>
+    <string name="hello_blank_fragment">नमस्ते खाली फ्रैगमेंट</string>
+    <string name="generate">जनरेट करें</string>
+
+    <string name="privacy_policy"><u>गोपनीयता नीति</u></string>
+    <string name="terms_of_service"><u>सेवा की शर्तें</u></string>
+    <string name="privacy_policy_premium"><u>गोपनीयता नीति</u></string>
+    <string name="cancel_anytime"><u>कभी भी रद्द करें</u></string>
+    <string name="subscription_details"><u>सब्सक्रिप्शन विवरण</u></string>
+
+    <string name="subscription_details_n_by_subscribing_to_the_human_body_generator_app_you_can_enjoy_an_ad_free_experience_n_upon_confirmation_of_your_purchase_the_subscription_fee_will_be_charged_via_the_google_play_store_choose_from_weekly_monthly_or_a_one_time_payment_plan_based_on_your_preference_after_cancellation_your_subscription_will_remain_active_until_the_end_of_the_current_billing_period_weekly_or_monthly_depending_on_your_plan_subscriptions_automatically_renew_on_the_same_date_each_week_or_month_as_your_initial_subscription_unless_auto_renewal_is_turned_off_at_least_24_hours_before_the_end_of_the_current_billing_period_you_can_update_your_plan_disable_auto_renewal_or_manage_your_subscription_anytime_through_your_google_play_store_account_settings_enjoy_seamless_drawing_experiences_with_the_human_body_generator_app">
+        <b><u>सब्सक्रिप्शन विवरण</u></b>
+        \n मानव शरीर जनरेटर ऐप को सब्सक्राइब करके आप बिना विज्ञापन का अनुभव प्राप्त कर सकते हैं।
+        \n आपकी खरीद की पुष्टि होने पर सब्सक्रिप्शन शुल्क Google Play Store के माध्यम से लिया जाएगा।
+        अपनी पसंद के अनुसार साप्ताहिक, मासिक या एक-बार भुगतान योजना चुनें।
+        रद्द करने के बाद, आपका सब्सक्रिप्शन वर्तमान बिलिंग अवधि के अंत तक सक्रिय रहेगा (योजना के अनुसार साप्ताहिक या मासिक)।
+        सब्सक्रिप्शन स्वतः उसी तारीख़ को नवीनीकृत हो जाएगा जिस दिन आपने पहली बार सब्सक्राइब किया था, जब तक कि वर्तमान अवधि के समाप्त होने से कम से कम 24 घंटे पहले ऑटो-रिन्यू बंद न कर दिया जाए।
+        आप कभी भी Google Play Store अकाउंट सेटिंग्स से अपनी योजना अपडेट कर सकते हैं, ऑटो-रिन्यू बंद कर सकते हैं या अपना सब्सक्रिप्शन प्रबंधित कर सकते हैं।
+        मानव शरीर जनरेटर ऐप के साथ सहज ड्रॉइंग अनुभव का आनंद लें!
+    </string>
+
+    <item name="radioIcon" type="id" />
+    <string name="ad_attribution" translatable="false">विज्ञापन</string>
+
+    <string name="get_pro">प्रो प्राप्त करें</string>
+    <string name="text_to_image">टेक्स्ट से इमेज</string>
+    <string name="reset">रीसेट</string>
+    <string name="watch_an_ad">विज्ञापन देखें</string>
+    <string name="randomize">रैंडम</string>
+
+    <string name="select_gender">लिंग चुनें</string>
+    <string name="age">आयु</string>
+    <string name="clothing">कपड़े</string>
+    <string name="more_options">अधिक विकल्प</string>
+    <string name="describe">विवरण दें</string>
+    <string name="upload_face">चेहरा अपलोड करें</string>
+    <string name="pose">पोज़</string>
+    <string name="remove_watermark">वॉटरमार्क हटाएं</string>
+    <string name="generate_human">मानव जनरेट करें</string>
+    <string name="upload_your_image">अपनी इमेज अपलोड करें</string>
+
+    <string name="human_body_generator">मानव शरीर जनरेटर</string>
+    <string name="get_started">शुरू करें</string>
+    <string name="this_action_may_contain_ads">इस क्रिया में विज्ञापन हो सकते हैं</string>
+    <string name="ad">विज्ञापन</string>
+
+    <string name="next"><u>आगे</u></string>
+    <string name="finish">समाप्त</string>
+
+    <string name="boost_marketing_with_ai_generated_photos">AI-जनरेटेड फ़ोटो से अपने मार्केटिंग को बढ़ाएं</string>
+    <string name="unleash_your_imagination_with_synthetic_graphics">सिंथेटिक ग्राफ़िक्स के साथ अपनी कल्पना को मुक्त करें</string>
+    <string name="generate_photos_for_ecommerce">ई-कॉमर्स के लिए फ़ोटो जनरेट करें</string>
+    <string name="explore_face_perception_with_generated_images">जनरेटेड इमेज के साथ फेस परसेप्शन को समझें</string>
+
+    <string name="language">भाषा</string>
+    <string name="done">हो गया</string>
+    <string name="continue_with_ads">विज्ञापनों के साथ जारी रखें</string>
+
+    <string name="by_continuing_you_agree_to_our_terms_and_privacy_policies">
+        जारी रखने से आप हमारी शर्तों और गोपनीयता नीतियों से सहमत होते हैं।
+    </string>
+
+    <string name="purchase">खरीदें</string>
+    <string name="enjoy_unlimited_access_to_all_content_premium_features">सभी प्रीमियम फीचर्स तक असीमित पहुंच प्राप्त करें</string>
+    <string name="get_premium_access">प्रीमियम\nएक्सेस</string>
+
+    <string name="terms_amp_conditions"><u><![CDATA[नियम और शर्तें]]></u></string>
+
+    <string name="ad_free_experience">विज्ञापन-मुक्त अनुभव</string>
+    <string name="settings">सेटिंग्स</string>
+    <string name="unlock_premium">प्रीमियम अनलॉक करें</string>
+    <string name="share_app">ऐप साझा करें</string>
+    <string name="rate_us">हमें रेट करें</string>
+    <string name="feedback">फीडबैक</string>
+    <string name="clear">क्लियर</string>
+    <string name="loading_ad">विज्ञापन लोड हो रहा है...</string>
+    <string name="ok">ठीक है</string>
+
+    <string name="unleash_your_ncreativity">अपनी\nरचनात्मकता को मुक्त करें</string>
+    <string name="continue1">जारी रखें</string>
+
+    <string name="gender">लिंग</string>
+    <string name="select_pose">पोज़ चुनें</string>
+    <string name="photo_editor">फोटो एडिटर</string>
+    <string name="face_style">चेहरे की शैली</string>
+    <string name="image_to_image">इमेज से इमेज</string>
+    <string name="camera">कैमरा</string>
+    <string name="templates">टेम्पलेट्स</string>
+    <string name="re_styler">री-स्टाइल</string>
+    <string name="image_variation">इमेज वैरिएशन</string>
+    <string name="bg_remover">बैकग्राउंड हटाएं</string>
+    <string name="ai_resizer">AI रिसाइज़र</string>
+
+    <string name="crop_un_crop">क्रॉप / अन-क्रॉप</string>
+    <string name="upscale_image">इमेज अपस्केल करें</string>
+    <string name="save">सेव करें</string>
+    <string name="adjust">एडजस्ट</string>
+    <string name="filters">फिल्टर्स</string>
+    <string name="text">टेक्स्ट</string>
+    <string name="face_swap">फेस स्वैप</string>
+
+    <string name="human_body_generator_pro">मानव शरीर जनरेटर PRO!</string>
+    <string name="access_to_all_premium_features">सभी प्रीमियम फीचर्स तक पहुंच</string>
+    <string name="faster_processing">तेज़ प्रोसेसिंग</string>
+    <string name="no_watermark">कोई वॉटरमार्क नहीं</string>
+
+    <string name="most_popular">सबसे लोकप्रिय</string>
+    <string name="life_time">लाइफटाइम</string>
+    <string name="one_time_purchase_the_price_may_increase_later">एक-बार की खरीद। कीमत बाद में बढ़ सकती है</string>
+    <string name="cancel_any_time_for_any_reason">किसी भी कारण से कभी भी रद्द करें</string>
+
+    <string name="add_target">टारगेट जोड़ें</string>
+    <string name="crop">क्रॉप</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="original">मूल</string>
+    <string name="square">स्क्वायर</string>
+
+    <string name="rotate">घुमाएं</string>
+    <string name="remove">हटाएं</string>
+    <string name="background">बैकग्राउंड</string>
+    <string name="edit">एडिट</string>
+
+    <string name="number_of_variations">वैरिएशन्स की संख्या:</string>
+    <string name="yearly_access">वार्षिक एक्सेस</string>
+    <string name="best_offer">सबसे अच्छा ऑफर</string>
+    <string name="unlock_all_features">सभी फीचर्स अनलॉक करें</string>
+
+    <string name="six_month">छह महीने</string>
+    <string name="yearly">वार्षिक</string>
+    <string name="monthly">मासिक</string>
+    <string name="weekly_access">साप्ताहिक एक्सेस</string>
+
+    <string name="subscription_terms">सब्सक्रिप्शन शर्तें</string>
+    <string name="replicate_body_pose">बॉडी पोज़ दोहराएं</string>
+    <string name="ghibli_photo">घिबली फोटो</string>
+    <string name="ai_photo_editor">AI फोटो एडिटर</string>
+    <string name="set_language">भाषा सेट करें</string>
+    <string name="upload_image_first">कृपया पहले इमेज अपलोड करें</string>
+    <string name="update_human">मानव अपडेट करें</string>
+    <string name="enjoy_unlimited_access_to_top_tier_content_and_exclusive_premium_features">
+उच्च गुणवत्ता वाली सामग्री और विशेष प्रीमियम फीचर्स तक असीमित पहुंच का आनंद लें
+</string>
+
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+जब आप हमारी प्रीमियम सामग्री को सब्सक्राइब करते हैं, तो आपकी सदस्यता स्वतः नवीनीकृत हो जाएगी और हर बिलिंग चक्र की शुरुआत में शुल्क लिया जाएगा जब तक आप रद्द नहीं करते
+</string>
+
+    <string name="no_trial_period_included_nyour_subscription_will_automatically_renew_based_on_your_selected_plan_weekly_monthly_or_yearly_unless_canceled_at_24_hours_befor_the_end_of_the_current_period">
+कोई ट्रायल अवधि शामिल नहीं है\nआपकी सदस्यता आपके चुने गए प्लान (साप्ताहिक, मासिक या वार्षिक) के अनुसार स्वतः नवीनीकृत होगी, जब तक कि वर्तमान अवधि समाप्त होने से 24 घंटे पहले रद्द न की जाए
+</string>
+
+    <string name="replicate_any_pose_within_your_own_photo">
+अपनी ही फोटो में किसी भी पोज़ को दोहराएं
+</string>
+
+    <string name="turn_your_photo_to_ghibli_style_selfie_for_social_media">
+अपनी फोटो को सोशल मीडिया के लिए घिबली-स्टाइल सेल्फी में बदलें
+</string>
+
+    <string name="easily_swap_your_face_into_any_photo">
+किसी भी फोटो में आसानी से अपना चेहरा बदलें
+</string>
+
+    <string name="edit_your_photo_with_effects_restyle_and_more">
+इफेक्ट्स, रिस्टाइल और अधिक के साथ अपनी फोटो एडिट करें
+</string>
+    <string name="free">मुफ़्त</string>
+    <string name="unlock_all_premium_features_and_take_your_experience_to_the_next_level_enjoy_an_ad_free_interface_subscribe_now_for_just_rs_2_240_weekly_after_3_days_free_trial">
+सभी प्रीमियम फीचर्स अनलॉक करें और अपने अनुभव को अगले स्तर पर ले जाएँ, विज्ञापन-मुक्त इंटरफेस का आनंद लें। केवल ₹2,240/सप्ताह में सब्सक्राइब करें, 3 दिन की मुफ्त ट्रायल के बाद।
+</string>
+    <string name="unlock_all_templates">सभी टेम्पलेट अनलॉक करें</string>
+    <string name="unlimited_body_pose">असीमित बॉडी पोज़</string>
+    <string name="custom_face_swap">कस्टम फेस स्वैप</string>
+    <string name="start_free_trial_for_0_0">0.0 के लिए मुफ्त ट्रायल शुरू करें</string>
+    <string name="this_item_locked">यह आइटम लॉक है</string>
+    <string name="reshape_body">शरीर को नया रूप दें</string>
+    <string name="try_now">अभी आज़माएँ</string>
+    <string name="create_unlimited_styles">असीमित स्टाइल बनाएं</string>
+    <string name="reshape_perfect_your_curves">• अपने कर्व्स को नया आकार दें और परफेक्ट बनाएं</string>
+    <string name="pro_face_swap_hyper_real_ai">• प्रो फेस स्वैप हाइपर-रियल एआई के साथ</string>
+    <string name="face_stylist_smile_hire_style_age">• फेस स्टाइलिस्ट, स्माइल, हेयर स्टाइल, उम्र</string>
+    <string name="ai_upscale_bg_remover">• एआई अपस्केल और बैकग्राउंड रिमूवर</string>
+    <string name="image_variation_ai_restyler">• इमेज वैरिएशन और एआई रीस्टाइलर</string>
+    <string name="v_shape_curves">• वी-शेप / कर्व्स</string>
+    <string name="worth_a_try">एक बार ज़रूर आज़माएँ</string>
+    <string name="ad_is_loading">विज्ञापन लोड हो रहा है…</string>
+    <string name="swap_hairstyle">हेयरस्टाइल बदलें</string>
+    <string name="swipe_to_continue">जारी रखने के लिए स्वाइپ करें</string>
+    <string name="notification_channel_name">सामान्य सूचनाएं</string>
+</resources>

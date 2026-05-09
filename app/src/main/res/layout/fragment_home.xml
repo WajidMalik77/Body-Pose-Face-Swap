@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_home_new">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/ll_banner_top" />
+
+    <LinearLayout
+        android:id="@+id/ll_banner_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include layout="@layout/layout_ad_banner" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/ll_native_bottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/layoutCardTextToImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutCardBodyReshap"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_85sdp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_text_to_image"
+                    android:clipChildren="true"
+                    android:clipToPadding="true">
+
+                    <ImageView
+                        android:id="@+id/imgTextBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_15sdp"
+                        android:layout_marginTop="@dimen/_12sdp"
+                        android:contentDescription="Text input"
+                        android:src="@drawable/bg_text_home"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/imgArrow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_6sdp"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="Arrow"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/bg_text_arrow"
+                        app:layout_constraintEnd_toStartOf="@+id/bodyReshapeImg"
+                        app:layout_constraintStart_toEndOf="@+id/imgTextBox"
+                        app:layout_constraintTop_toTopOf="@+id/imgTextBox" />
+
+                    <TextView
+                        android:id="@+id/tvBodyReshapeTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_8sdp"
+                        android:layout_marginTop="@dimen/_15sdp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="Create Human Art"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_9ssp"
+                        app:layout_constraintEnd_toStartOf="@+id/bodyReshapeImg"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/imgTextBox" />
+
+                    <TextView
+                        android:id="@+id/tvBodyReshapeSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_8sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_medium"
+                        android:maxLines="2"
+                        android:text="Generate high-end AI human \nscenes and poses"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_7ssp"
+                        app:layout_constraintEnd_toStartOf="@+id/bodyReshapeImg"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvBodyReshapeTitle" />
+
+                    <ImageView
+                        android:id="@+id/bodyReshapeImg"
+                        android:layout_width="@dimen/_90sdp"
+                        android:layout_height="@dimen/_60sdp"
+                        android:layout_marginEnd="@dimen/_10sdp"
+                        android:contentDescription="Human figures"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/img_end"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutFaceStudioCards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutCardTextToImage">
+
+                <!-- Row 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <!-- Card 1: Text To Image -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/layoutCardBodyReshape"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_text_to_image"
+                        android:clipChildren="true"
+                        android:clipToPadding="true">
+
+                        <TextView
+                            android:id="@+id/tvTextToImageTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_15sdp"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:maxLines="2"
+                            android:text="Body Swap \n&amp; Reshape"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_12ssp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/imgTextToImage"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_3sdp"
+                            android:contentDescription="Text To Image Icon"
+                            android:src="@drawable/reshape_icon"
+                            app:layout_constraintBottom_toTopOf="@+id/tvTextToImageSubtitle"
+                            app:layout_constraintStart_toStartOf="@+id/tvTextToImageTitle"
+                            app:layout_constraintTop_toBottomOf="@+id/tvTextToImageTitle" />
+
+                        <TextView
+                            android:id="@+id/tvTextToImageSubtitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_3sdp"
+                            android:layout_marginBottom="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_medium"
+                            android:gravity="start"
+                            android:maxLines="2"
+                            android:text="Swap Body shapes and \nrefine proportions"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_8ssp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/tvTextToImageTitle"
+                            app:layout_constraintStart_toStartOf="@+id/imgTextToImage"
+                            app:layout_constraintTop_toBottomOf="@id/imgTextToImage" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <!-- Card 2: Face Swap -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/layoutCardPoseSelection"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pose_card"
+                        android:clipChildren="true"
+                        android:clipToPadding="true">
+
+                        <TextView
+                            android:id="@+id/tvFaceSwapTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_15sdp"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:maxLines="2"
+                            android:text="Pose Select &amp; \nImplement"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_12ssp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/imgFaceSwap"
+                            android:layout_width="@dimen/_65sdp"
+                            android:layout_height="@dimen/_28sdp"
+                            android:layout_marginTop="@dimen/_3sdp"
+                            android:contentDescription="Face Swap Icon"
+                            android:src="@drawable/pose_impl"
+                            app:layout_constraintStart_toStartOf="@+id/tvFaceSwapTitle"
+                            app:layout_constraintTop_toBottomOf="@+id/tvFaceSwapTitle" />
+
+                        <TextView
+                            android:id="@+id/tvFaceSwapSubtitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_3sdp"
+                            android:layout_marginBottom="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_medium"
+                            android:gravity="start"
+                            android:maxLines="2"
+                            android:text="find and apply perfect \nhuman poses for your models"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_8ssp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/tvFaceSwapTitle"
+                            app:layout_constraintStart_toStartOf="@+id/tvFaceSwapTitle"
+                            app:layout_constraintTop_toBottomOf="@+id/imgFaceSwap" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <!-- Card 3: Face Style -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/layoutCardFaceSwap"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_face_swapper"
+                        android:clipChildren="true"
+                        android:clipToPadding="true">
+
+                        <TextView
+                            android:id="@+id/tvFaceStyleTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_15sdp"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:maxLines="2"
+                            android:text="Face Swapping"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_12ssp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/imgFaceStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/_28sdp"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:contentDescription="Face Style Icon"
+                            android:src="@drawable/img_face_swapper"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/tvFaceStyleTitle" />
+
+                        <TextView
+                            android:id="@+id/tvFaceStyleSubtitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_10sdp"
+                            android:layout_marginBottom="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_medium"
+                            android:gravity="start"
+                            android:maxLines="2"
+                            android:text="Seamlessly replace faces \nacross images"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_8ssp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/tvFaceStyleTitle"
+                            app:layout_constraintStart_toStartOf="@+id/tvFaceStyleTitle"
+                            app:layout_constraintTop_toBottomOf="@+id/imgFaceStyle" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <!-- Card 4: Body Swap -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/layoutCardFaceStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_face_style_card"
+                        android:clipChildren="true"
+                        android:clipToPadding="true">
+
+                        <TextView
+                            android:id="@+id/tvBodySwapTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_15sdp"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:maxLines="2"
+                            android:text="Face Styling"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_12ssp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/imgBodySwap"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/_30sdp"
+                            android:layout_marginTop="@dimen/_3sdp"
+                            android:contentDescription="Body Swap Icon"
+                            android:src="@drawable/ic_face_styling"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/tvBodySwapTitle" />
+
+                        <TextView
+                            android:id="@+id/tvBodySwapSubtitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_10sdp"
+                            android:layout_marginBottom="@dimen/_6sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_medium"
+                            android:gravity="start"
+                            android:maxLines="2"
+                            android:text="Apply makeup, style and \nartistic effects"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_8ssp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/tvBodySwapTitle"
+                            app:layout_constraintStart_toStartOf="@+id/tvBodySwapTitle"
+                            app:layout_constraintTop_toBottomOf="@+id/imgBodySwap" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_native_center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutFaceStudioCards">
+
+                <include layout="@layout/layout_native" />
+            </LinearLayout>
+
+            <!-- ══════════════════════════════════════════════════ -->
+            <!--             SECTION: Advanced AI Editing           -->
+            <!-- ══════════════════════════════════════════════════ -->
+
+            <LinearLayout
+                android:id="@+id/layoutAdvancedAiCards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_15sdp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ll_native_center">
+
+                <!-- ── Row 1: 4 equal-width cards ── -->
+                <LinearLayout
+                    android:id="@+id/layoutAdvancedAiRow1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_3sdp"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <!-- Card 1: Image Editing -->
+                    <LinearLayout
+                        android:id="@+id/layoutCardAiTextToImage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_advance_card"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/_5sdp">
+
+                        <ImageView
+                            android:id="@+id/imgEdit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:contentDescription="Image Editing Icon"
+                            android:src="@drawable/ic_edit" />
+
+                        <TextView
+                            android:id="@+id/tvAiTextToImage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_5sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:gravity="center"
+                            android:maxLines="2"
+                            android:text="Image\nEditing"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10ssp" />
+
+                    </LinearLayout>
+
+                    <!-- Card 2: In Painting -->
+                    <LinearLayout
+                        android:id="@+id/layoutCardAiFaceSwap"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_advance_card"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/_5sdp">
+
+                        <ImageView
+                            android:id="@+id/imgAiFaceSwap"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:contentDescription="In Painting Icon"
+                            android:src="@drawable/ic_ai_restyler" />
+
+                        <TextView
+                            android:id="@+id/tvAiFaceSwap"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_5sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:gravity="center"
+                            android:maxLines="2"
+                            android:text="Ai\nRestyler"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10ssp" />
+
+                    </LinearLayout>
+
+                    <!-- Card 3: Upscaling Quality -->
+                    <LinearLayout
+                        android:id="@+id/layoutCardAiFaceStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_advance_card"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/_5sdp">
+
+                        <ImageView
+                            android:id="@+id/imgAiFaceStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:contentDescription="Upscaling Quality Icon"
+                            android:src="@drawable/ic_upscaling_home" />
+
+                        <TextView
+                            android:id="@+id/tvAiFaceStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_5sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:gravity="center"
+                            android:maxLines="2"
+                            android:text="Upscaling\nQuality"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10ssp" />
+
+                    </LinearLayout>
+
+                    <!-- Card 4: AI Resizing -->
+                    <LinearLayout
+                        android:id="@+id/layoutCardAiResizing"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_advance_card"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/_5sdp">
+
+                        <ImageView
+                            android:id="@+id/imgAiResizing"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:contentDescription="AI Resizing Icon"
+                            android:src="@drawable/ic_resizing_home" />
+
+                        <TextView
+                            android:id="@+id/tvAiResizing"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_5sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:gravity="center"
+                            android:maxLines="2"
+                            android:text="AI\nResizing"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10ssp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutAdvancedAiRow2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginBottom="@dimen/_3sdp"
+                    android:background="@drawable/bg_advance_home"
+                    android:orientation="horizontal"
+                    android:weightSum="3">
+
+                    <!-- Card 5: Removing Background -->
+                    <LinearLayout
+                        android:id="@+id/layoutCardAiRemoveBg"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/_8sdp">
+
+                        <ImageView
+                            android:id="@+id/imgAiRemoveBg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:contentDescription="Remove Background Icon"
+                            android:src="@drawable/ic_bg_remove_home" />
+
+                        <TextView
+                            android:id="@+id/tvAiRemoveBg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_5sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:gravity="center"
+                            android:maxLines="2"
+                            android:text="Removing\nBackground"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10ssp" />
+
+                    </LinearLayout>
+
+                    <!-- Card 6: Image Variation -->
+                    <LinearLayout
+                        android:id="@+id/layoutCardAiImageVariation"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/_8sdp">
+
+                        <ImageView
+                            android:id="@+id/imgAiImageVariation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:contentDescription="Image Variation Icon"
+                            android:src="@drawable/ic_variation_home" />
+
+                        <TextView
+                            android:id="@+id/tvAiImageVariation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_5sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:gravity="center"
+                            android:maxLines="2"
+                            android:text="Image\nVariation"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10ssp" />
+
+                    </LinearLayout>
+
+                    <!-- Card 7: Swapping Hairstyle -->
+                    <LinearLayout
+                        android:id="@+id/layoutCardAiSwapHairstyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/_8sdp">
+
+                        <ImageView
+                            android:id="@+id/imgAiSwapHairstyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:contentDescription="Swapping Hairstyle Icon"
+                            android:src="@drawable/ic_swapping_hair_home" />
+
+                        <TextView
+                            android:id="@+id/tvAiSwapHairstyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/_5sdp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:gravity="center"
+                            android:maxLines="2"
+                            android:text="Swapping\nHairstyle"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10ssp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/ll_native_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_12sdp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include layout="@layout/layout_native" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

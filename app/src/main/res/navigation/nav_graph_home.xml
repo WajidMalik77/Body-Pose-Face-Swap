@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_home"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.home.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_generatePictureFragment2"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_proFragment"
+            app:destination="@id/proFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  GALLERY — central hub                            -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <fragment
+        android:id="@+id/galleryFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.gallery.GalleryFragment">
+
+        <argument
+            android:name="featureType"
+            app:argType="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.FeatureType" />
+        <argument
+            android:name="imageSlot"
+            app:argType="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.ImageSlot" />
+
+        <action
+            android:id="@+id/action_galleryFragment_to_reshapeFragment"
+            app:destination="@id/reshapeFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_faceSwapFragment"
+            app:destination="@id/faceSwapFragment">
+
+            <action
+                android:id="@+id/action_faceSwapFragment_to_beforeAfterFragment"
+                app:destination="@id/beforeAfterFragment" />
+
+        </action>
+        <action
+            android:id="@+id/action_galleryFragment_to_selectPoseFragment"
+            app:destination="@id/selectPoseFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_textToImageFragment"
+            app:destination="@id/textToImageFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_faceStyleFragment"
+            app:destination="@id/faceStyleFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_photoEditorFragment"
+            app:destination="@id/photoEditorFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_reStyleFragment"
+            app:destination="@id/reStyleFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_upScaleFragment"
+            app:destination="@id/upScaleFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_aiResizerFragment"
+            app:destination="@id/aiResizerFragment">
+
+            <action
+                android:id="@+id/action_aiResizerFragment_to_beforeAfterFragment"
+                app:destination="@id/beforeAfterFragment" />
+
+        </action>
+        <action
+            android:id="@+id/action_galleryFragment_to_bgRemoverFragment"
+            app:destination="@id/bgRemoverFragment">
+
+            <action
+                android:id="@+id/action_bgRemoverFragment_to_beforeAfterFragment"
+                app:destination="@id/beforeAfterFragment" />
+
+        </action>
+        <action
+            android:id="@+id/action_galleryFragment_to_imageVariationFragment"
+            app:destination="@id/imageVariationFragment">
+
+            <action
+                android:id="@+id/action_imageVariationFragment_to_beforeAfterFragment"
+                app:destination="@id/beforeAfterFragment" />
+
+        </action>
+        <action
+            android:id="@+id/action_galleryFragment_to_faceUploadFragment"
+            app:destination="@id/faceUploadFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_imageToImageFragment"
+            app:destination="@id/imageToImageFragment" />
+    </fragment>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  FEATURE FRAGMENTS                                -->
+    <!-- ══════════════════════════════════════════════════ -->
+
+    <fragment
+        android:id="@+id/reshapeFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.bodyReshape.ReshapeFragment"
+        android:label="fragment_reshape"
+        tools:layout="@layout/fragment_reshape">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_reshapeFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_reshapeFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+
+        <action
+            android:id="@+id/action_reshapeFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/faceSwapFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.faceSwap.FaceSwapFragment"
+        android:label="fragment_face_swap"
+        tools:layout="@layout/fragment_face_swap">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_faceSwapFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_faceSwapFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+
+        <action
+            android:id="@+id/action_faceSwapFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/selectPoseFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.poseSelection.SelectPoseFragment"
+        android:label="fragment_select_pose"
+        tools:layout="@layout/fragment_select_pose">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_selectPoseFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_selectPoseFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+
+        <action
+            android:id="@+id/action_selectPoseFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/textToImageFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.textToImage.TextToImageFragment"
+        android:label="fragment_text_to_image"
+        tools:layout="@layout/fragment_text_to_image">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_textToImageFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_textToImageFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/faceStyleFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.faceStyle.FaceStyleFragment"
+        android:label="fragment_face_style"
+        tools:layout="@layout/fragment_face_style">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_faceStyleFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_faceStyleFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+
+        <action
+            android:id="@+id/action_faceStyleFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
+
+    </fragment>
+
+    <!-- IMAGE_EDITING now routes to PhotoEditorFragment -->
+    <fragment
+        android:id="@+id/photoEditorFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.editor.PhotoEditorFragment"
+        android:label="fragment_photo_editor"
+        tools:layout="@layout/fragment_photo_editor">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_photoEditorFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_photoEditorFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reStyleFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.reStyle.ReStyleFragment"
+        android:label="fragment_re_style"
+        tools:layout="@layout/fragment_re_style">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_reStyleFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_reStyleFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+
+        <action
+            android:id="@+id/action_reStyleFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/upScaleFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.upScale.UpScaleFragment"
+        android:label="fragment_up_scale"
+        tools:layout="@layout/fragment_up_scale">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_upScaleFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_upScaleFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+
+
+        <action
+            android:id="@+id/action_upScaleFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/aiResizerFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.aiResizer.AiResizerFragment"
+        android:label="fragment_ai_resizer"
+        tools:layout="@layout/fragment_ai_resizer">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_aiResizerFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_aiResizerFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bgRemoverFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.bgRemover.BgRemoverFragment"
+        android:label="fragment_bg_remover"
+        tools:layout="@layout/fragment_bg_remover">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_bgRemoverFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_bgRemoverFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/imageVariationFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.imageVariation.ImageVariationFragment"
+        android:label="fragment_image_variation"
+        tools:layout="@layout/fragment_image_variation">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_imageVariationFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_imageVariationFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/faceUploadFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.FaceUploadFragment"
+        android:label="fragment_face_upload"
+        tools:layout="@layout/fragment_face_upload">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_faceUploadFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_faceUploadFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+
+        <action
+            android:id="@+id/action_faceUploadFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/imageToImageFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.ImageToImageFragment"
+        android:label="fragment_image_to_image"
+        tools:layout="@layout/fragment_image_to_image">
+        <argument
+            android:name="selectedImageUri"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="selectedResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_imageToImageFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+        <action
+            android:id="@+id/action_imageToImageFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  UTILITY FRAGMENTS                                -->
+    <!-- ══════════════════════════════════════════════════ -->
+
+    <fragment
+        android:id="@+id/generatePictureFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.GeneratePictureFragment"
+        android:label="Generate Picture">
+        <argument
+            android:name="imageUrl"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_generatePictureFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
+        <action
+            android:id="@+id/action_generatePictureFragment_to_reshapeFragment"
+            app:destination="@id/reshapeFragment" />
+        <action
+            android:id="@+id/action_generatePictureFragment_to_imageVariationFragment"
+            app:destination="@id/imageVariationFragment" />
+        <action
+            android:id="@+id/action_generatePictureFragment_to_faceUploadFragment"
+            app:destination="@id/faceUploadFragment" />
+
+        <action
+            android:id="@+id/action_generatePictureFragment_to_savedFragment"
+            app:destination="@id/savedFragment" />
+
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/proFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.ProFragment"
+        android:label="fragment_pro"
+        tools:layout="@layout/fragment_pro" />
+
+    <fragment
+        android:id="@+id/poseFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.PoseFragment"
+        android:label="PoseFragment">
+        <action
+            android:id="@+id/action_poseFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/menuFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.MenuFragment"
+        android:label="fragment_menu"
+        tools:layout="@layout/fragment_menu" />
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.DashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboardFragment_to_selectPoseFragment"
+            app:destination="@id/selectPoseFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_templatesFragment"
+            app:destination="@id/templatesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.CameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_cameraFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cropFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.CropFragment"
+        android:label="fragment_crop"
+        tools:layout="@layout/fragment_crop">
+        <action
+            android:id="@+id/action_cropFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/templatesFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.TemplatesFragment"
+        android:label="fragment_templates"
+        tools:layout="@layout/fragment_templates">
+        <action
+            android:id="@+id/action_templatesFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/premiumFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.PremiumFragment"
+        android:label="fragment_premium"
+        tools:layout="@layout/fragment_premium" />
+    <fragment
+        android:id="@+id/beforeAfterFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.results.BeforeAfterFragment"
+        android:label="BeforeAfterFragment">
+
+        <action
+            android:id="@+id/action_beforeAfterFragment_to_generatePictureFragment"
+            app:destination="@id/generatePictureFragment" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/savedFragment"
+        android:name="com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.saved.SavedFragment"
+        android:label="fragment_saved"
+        tools:layout="@layout/fragment_saved" />
+
+</navigation>

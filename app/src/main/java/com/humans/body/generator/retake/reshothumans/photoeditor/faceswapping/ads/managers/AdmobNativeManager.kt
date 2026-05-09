@@ -1,0 +1,564 @@
+package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.managers
+
+import android.app.Activity
+import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.os.Bundle
+import android.util.LruCache
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.RatingBar
+import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.graphics.toColorInt
+import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.ads.mediation.admob.AdMobAdapter
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdOptions
+import com.google.android.gms.ads.nativead.NativeAdView
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.models.AdLoadParams
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.models.NativeAdColorConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
+import java.lang.ref.WeakReference
+
+class AdmobNativeManager(
+    activity: Activity,
+    private val adsPref: AdsPref,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+) {
+    private val activityRef = WeakReference(activity)
+    private val displayMetrics by lazy { Resources.getSystem().displayMetrics.density }
+    private var nativeAd: NativeAd? = null
+    private var preloadedAd: NativeAd? = null
+    private var adLoader: AdLoader? = null
+    @Volatile
+    private var isLoading = false
+    @Volatile
+    private var isPreloading = false
+    @Volatile
+    private var isDestroyed = false
+    private val colorCache = LruCache<String, Int>(20)
+    private val gradientCache = LruCache<String, Drawable>(10)
+    private val layoutInflater by lazy { LayoutInflater.from(activity) }
+    private var lastLoadParams: AdLoadParams? = null
+
+    fun loadNativeSmallAd(
+        adContainer: FrameLayout,
+        adUnitId: String,
+        shimmerContainer: FrameLayout? = null,
+        shimmerLayout: Int = R.layout.native_ad_shimmer_small,
+        colorConfig: NativeAdColorConfig? = null,
+        shouldPreloadNext: Boolean = true,
+        onLoaded: (() -> Unit)? = null,
+        onFailed: ((LoadAdError) -> Unit)? = null
+    ) {
+        showDebugToast("Native Small Ad: Load Called")
+        loadNativeAd(
+            AdLoadParams(
+                adContainer = adContainer,
+                shimmerContainer = shimmerContainer,
+                adUnitId = adUnitId,
+                layoutRes = R.layout.native_admob_small,
+                shimmerLayoutRes = shimmerLayout,
+                colorConfig = colorConfig,
+                shouldPreloadNext = shouldPreloadNext,
+                onLoaded = onLoaded,
+                onFailed = onFailed
+            )
+        )
+    }
+
+    fun loadNativeMediumAd(
+        adContainer: FrameLayout,
+        adUnitId: String,
+        shimmerContainer: FrameLayout? = null,
+        shimmerLayout: Int = R.layout.native_ad_shimmer_medium,
+        shouldPreloadNext: Boolean = true,
+        colorConfig: NativeAdColorConfig? = null,
+        onLoaded: (() -> Unit)? = null,
+        onFailed: ((LoadAdError) -> Unit)? = null
+    ) {
+        showDebugToast("Native Medium Ad: Load Called")
+        loadNativeAd(
+            AdLoadParams(
+                adContainer = adContainer,
+                shimmerContainer = shimmerContainer,
+                adUnitId = adUnitId,
+                layoutRes = R.layout.native_admob,
+                shimmerLayoutRes = shimmerLayout,
+                colorConfig = colorConfig,
+                shouldPreloadNext = shouldPreloadNext,
+                onLoaded = onLoaded,
+                onFailed = onFailed
+            )
+        )
+    }
+
+    fun loadNativeFullScreenIntroAd(
+        adContainer: FrameLayout,
+        adUnitId: String,
+        shimmerContainer: FrameLayout? = null,
+        colorConfig: NativeAdColorConfig? = null,
+        shouldPreloadNext: Boolean = true,
+        onLoaded: (() -> Unit)? = null,
+        onFailed: ((LoadAdError) -> Unit)? = null
+    ) {
+        showDebugToast("Native Fullscreen Ad: Load Called")
+        loadNativeAd(
+            AdLoadParams(
+                adContainer = adContainer,
+                shimmerContainer = shimmerContainer,
+                adUnitId = adUnitId,
+                layoutRes = R.layout.native_ad_fullscreen_intro,
+                shimmerLayoutRes = R.layout.native_ad_fullscreen_intro,
+                colorConfig = colorConfig,
+                shouldPreloadNext = shouldPreloadNext,
+                onLoaded = onLoaded,
+                onFailed = onFailed
+            )
+        )
+    }
+
+    fun cleanup() {
+        if (isDestroyed) return
+        isDestroyed = true
+        isLoading = false
+        isPreloading = false
+
+        scope.launch(Dispatchers.Main.immediate) {
+            adLoader = null
+            nativeAd?.destroy()
+            nativeAd = null
+            preloadedAd?.destroy()
+            preloadedAd = null
+            lastLoadParams = null
+            colorCache.evictAll()
+            gradientCache.evictAll()
+        }
+    }
+
+    private fun loadNativeAd(params: AdLoadParams) {
+        val activity = activityRef.get() ?: return
+
+        // Fast path: an ad is already loaded for this activity (e.g. fragment was popped
+        // and recreated). Re-bind it to the new empty container instead of running a
+        // fresh load + shimmer cycle.
+        // Layout must match — re-binding a NativeAd to a different NativeAdView size
+        // unregisters it from the previous view, which corrupts the other native render.
+        if (!isDestroyed && !activity.isFinishing && !activity.isDestroyed
+            && nativeAd != null && params.adContainer.childCount == 0
+            && lastLoadParams?.layoutRes == params.layoutRes
+        ) {
+            lastLoadParams = params
+            scope.launch(Dispatchers.Main.immediate) {
+                try {
+                    val adView = inflateAndPopulateAdView(nativeAd!!, params)
+                    displayAd(adView, params)
+                    params.onLoaded?.invoke()
+                } catch (e: Exception) {
+                    Timber.e(e, "Native ad reuse failed; falling back to fresh load")
+                    if (canLoadAd(activity)) {
+                        isLoading = true
+                        prepareContainers(params)
+                        startAdRequest(activity, params, isPreload = false)
+                    }
+                }
+            }
+            return
+        }
+
+        if (!canLoadAd(activity)) return
+
+        // Store params for preloading
+        lastLoadParams = params
+
+        // Check if we have a preloaded ad ready
+        if (preloadedAd != null) {
+            showDebugToast("Native Ad: Using Preloaded Ad")
+            handleAdReceived(preloadedAd!!, params, isPreloaded = true)
+            preloadedAd = null
+
+            // Start preloading next ad if enabled
+            if (params.shouldPreloadNext) {
+                preloadNextAd(params)
+            }
+            return
+        }
+
+        isLoading = true
+
+        scope.launch(Dispatchers.Main.immediate) {
+            prepareContainers(params)
+            startAdRequest(activity, params, isPreload = false)
+        }
+    }
+
+    private fun preloadNextAd(params: AdLoadParams) {
+        val activity = activityRef.get() ?: return
+        if (isPreloading || isDestroyed || activity.isFinishing || activity.isDestroyed) return
+
+        isPreloading = true
+        showDebugToast("Native Ad: Preloading Next Ad")
+
+        scope.launch(Dispatchers.Main.immediate) {
+            startAdRequest(activity, params, isPreload = true)
+        }
+    }
+
+    private fun canLoadAd(activity: Activity): Boolean =
+        !isLoading && !isDestroyed && !activity.isFinishing && !activity.isDestroyed
+
+    private suspend fun prepareContainers(params: AdLoadParams) {
+        withContext(Dispatchers.Main.immediate) {
+            params.adContainer.apply {
+                removeAllViews()
+                visibility = View.GONE
+            }
+
+            params.shimmerContainer?.let { shimmer ->
+                shimmer.removeAllViews()
+                layoutInflater.inflate(params.shimmerLayoutRes, shimmer, true)
+                (shimmer as? ShimmerFrameLayout)?.startShimmer()
+                shimmer.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun startAdRequest(activity: Activity, params: AdLoadParams, isPreload: Boolean) {
+        val loader = AdLoader.Builder(activity, params.adUnitId)
+            .forNativeAd { ad ->
+                if (isPreload) {
+                    handlePreloadedAdReceived(ad)
+                } else {
+                    handleAdReceived(ad, params, isPreloaded = true)
+                }
+            }
+            .withAdListener(createAdListener(params, isPreload))
+            .withNativeAdOptions(createNativeAdOptions())
+            .build()
+
+        if (!isPreload) {
+            adLoader = loader
+        }
+
+        loader.loadAd(buildAdRequest())
+    }
+
+    private fun handlePreloadedAdReceived(ad: NativeAd) {
+        isPreloading = false
+        preloadedAd?.destroy()
+        preloadedAd = ad
+        showDebugToast("Native Ad: Preload Success")
+    }
+
+    private fun handleAdReceived(ad: NativeAd, params: AdLoadParams, isPreloaded: Boolean) {
+        isLoading = false
+
+        // Don't destroy current ad if this is from preload
+        if (!isPreloaded) {
+            nativeAd?.destroy()
+        }
+        nativeAd = ad
+
+        scope.launch(Dispatchers.Main.immediate) {
+            try {
+                val adView = inflateAndPopulateAdView(ad, params)
+                displayAd(adView, params)
+
+                Timber.d("Should Preload: ${params.shouldPreloadNext}")
+                // Set up impression listener to preload next ad (only if enabled)
+                if (params.shouldPreloadNext) {
+                    ad.setOnPaidEventListener {
+                        showDebugToast("Native Ad: Impression - Preloading Next")
+                        // Preload next ad after impression
+                        lastLoadParams?.let { preloadNextAd(it) }
+                    }
+                } else {
+                    ad.setOnPaidEventListener {
+                        showDebugToast("Native Ad: Impression Recorded")
+                        // Don't preload when disabled
+                    }
+                }
+
+                showDebugToast("Native Ad: Load Success")
+                params.onLoaded?.invoke()
+            } catch (e: Exception) {
+                Timber.e(e, "Ad render failed")
+                showDebugToast("Native Ad: Render Failed - ${e.message}")
+                ad.destroy()
+                params.onFailed?.invoke(createRenderError())
+            }
+        }
+    }
+
+    private fun createAdListener(params: AdLoadParams, isPreload: Boolean) = object : AdListener() {
+        override fun onAdFailedToLoad(error: LoadAdError) {
+            if (isPreload) {
+                isPreloading = false
+                showDebugToast("Native Ad: Preload Failed - ${error.message}")
+            } else {
+                isLoading = false
+                showDebugToast("Native Ad: Load Failed - ${error.message}")
+                Timber.e("Ad load failed: ${error.message}")
+                params.onFailed?.invoke(error)
+            }
+        }
+
+        override fun onAdImpression() {}
+
+        override fun onAdClicked() {}
+
+        override fun onAdOpened() {}
+
+        override fun onAdClosed() {}
+    }
+
+    private fun inflateAndPopulateAdView(
+        ad: NativeAd,
+        params: AdLoadParams
+    ): NativeAdView {
+        val adView = layoutInflater.inflate(params.layoutRes, null) as NativeAdView
+
+        // Bind all views in one pass
+        bindAdViews(adView)
+
+        // Apply styling and content
+        val config = normalizeConfig(params.colorConfig ?: NativeAdColorConfig())
+        applyAdStyling(adView, config)
+        populateAdContent(adView, ad, config)
+
+        adView.setNativeAd(ad)
+        return adView
+    }
+
+    private fun bindAdViews(adView: NativeAdView) {
+        adView.apply {
+            mediaView = findViewById(R.id.ad_media)
+            headlineView = findViewById(R.id.ad_headline)
+            bodyView = findViewById(R.id.ad_body)
+            callToActionView = findViewById(R.id.ad_call_to_action)
+            iconView = findViewById(R.id.ad_app_icon)
+            advertiserView = findViewById(R.id.ad_advertiser)
+            starRatingView = findViewById(R.id.ad_star_rating)
+        }
+    }
+
+    private fun applyAdStyling(adView: NativeAdView, config: NativeAdColorConfig) {
+        val isTransparent = config.mode == 1
+
+        adView.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = config.cornerRadiusDp.toDp()
+
+            val bgColor = if (isTransparent) Color.TRANSPARENT
+            else getCachedColor(config.backgroundColorHex, Color.WHITE)
+            setColor(bgColor)
+
+            val strokeColor = if (isTransparent) Color.TRANSPARENT
+            else getCachedColor(config.strokeColorHex, Color.TRANSPARENT)
+            setStroke(config.strokeWidthDp.toDp().toInt(), strokeColor)
+        }
+    }
+
+    private fun populateAdContent(adView: NativeAdView, ad: NativeAd, config: NativeAdColorConfig) {
+        // Headline
+        (adView.headlineView as? TextView)?.run {
+            text = ad.headline
+            setTextColor(resolveTextColor(config, config.headlineColorHex, Color.BLACK))
+        }
+
+        // Body
+        (adView.bodyView as? TextView)?.run {
+            text = ad.body
+            visibility = if (ad.body.isNullOrEmpty()) View.GONE else View.VISIBLE
+            setTextColor(resolveTextColor(config, config.bodyTextColorHex, Color.DKGRAY))
+        }
+
+        // CTA Button
+        (adView.callToActionView as? TextView)?.run {
+            text = ad.callToAction
+            visibility = if (text.isNullOrEmpty()) View.GONE else View.VISIBLE
+            setTextColor(getCachedColor(config.ctaTextColorHex, Color.WHITE))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, config.ctaTextSizeSp?.toFloat() ?: 14f)
+            background = getCachedCtaBackground(config)
+            // Some AppCompat/Material button styles re-tint backgrounds to theme defaults.
+            // Clear tint so remote-config CTA color is shown exactly.
+            ViewCompat.setBackgroundTintList(this, null)
+            ViewCompat.setBackgroundTintMode(this, null)
+            backgroundTintList = null
+            backgroundTintMode = null
+        }
+
+        // Icon
+        (adView.iconView as? ImageView)?.run {
+            ad.icon?.let {
+                setImageDrawable(it.drawable)
+                visibility = View.VISIBLE
+            } ?: run { visibility = View.GONE }
+        }
+
+        // Metadata (price, store, rating)
+        populateMetadata(adView, ad, config)
+    }
+
+    private fun populateMetadata(adView: NativeAdView, ad: NativeAd, config: NativeAdColorConfig) {
+        val textColor = resolveTextColor(config, config.bodyTextColorHex, Color.DKGRAY)
+
+        // Price
+        (adView.priceView as? TextView)?.run {
+            text = ad.price
+            visibility = if (text.isNullOrEmpty()) View.GONE else View.VISIBLE
+            setTextColor(textColor)
+        }
+
+        // Store
+        (adView.storeView as? TextView)?.run {
+            text = ad.store
+            visibility = if (text.isNullOrEmpty()) View.GONE else View.VISIBLE
+            setTextColor(textColor)
+        }
+
+        // Rating
+        (adView.starRatingView as? RatingBar)?.run {
+            ad.starRating?.takeIf { it > 0 }?.let {
+                rating = it.toFloat()
+                visibility = View.VISIBLE
+            } ?: run { visibility = View.GONE }
+        }
+    }
+
+    private fun displayAd(adView: NativeAdView, params: AdLoadParams) {
+        params.shimmerContainer?.let {
+            (it as? ShimmerFrameLayout)?.stopShimmer()
+            it.visibility = View.GONE
+        }
+
+        params.adContainer.apply {
+            removeAllViews()
+            addView(adView)
+            visibility = View.VISIBLE
+        }
+    }
+
+    private fun getCachedColor(hex: String?, default: Int): Int {
+        if (hex.isNullOrBlank()) return default
+
+        return colorCache.get(hex) ?: run {
+            val color = try {
+                hex.toColorInt()
+            } catch (e: Exception) {
+                default
+            }
+            colorCache.put(hex, color)
+            color
+        }
+    }
+
+    private fun getCachedCtaBackground(config: NativeAdColorConfig): Drawable {
+        val colorString =
+            config.ctaBackgroundColorHex ?: config.backgroundColorHex
+            ?: return createSolidBackground(Color.parseColor("#09265A"), config)
+        val cacheKey = "$colorString-${config.ctaCornerRadiusDp}"
+
+        return gradientCache.get(cacheKey) ?: run {
+            val drawable = createCtaBackground(colorString, config)
+            gradientCache.put(cacheKey, drawable)
+            drawable
+        }
+    }
+
+    private fun createCtaBackground(colorString: String, config: NativeAdColorConfig): Drawable {
+        val colors = colorString.split(",").mapNotNull {
+            try {
+                it.trim().toColorInt()
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        return when {
+            colors.size >= 2 -> GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                colors.toIntArray()
+            ).apply { cornerRadius = config.ctaCornerRadiusDp.toDp() }
+
+            colors.size == 1 -> createSolidBackground(colors[0], config)
+
+            else -> createSolidBackground(Color.parseColor("#09265A"), config)
+        }
+    }
+
+    private fun createSolidBackground(color: Int, config: NativeAdColorConfig): Drawable =
+        GradientDrawable().apply {
+            setColor(color)
+            cornerRadius = config.ctaCornerRadiusDp.toDp()
+        }
+
+    private fun resolveTextColor(config: NativeAdColorConfig, hex: String?, default: Int): Int {
+        // Always honor explicit color from config first.
+        if (!hex.isNullOrBlank()) return getCachedColor(hex, default)
+        // Transparent mode fallback: avoid white text on clear bg.
+        if (config.mode == 1 && default == Color.WHITE) return Color.BLACK
+        return default
+    }
+
+    private fun normalizeConfig(config: NativeAdColorConfig): NativeAdColorConfig {
+        return config.copy(
+            backgroundColorHex = config.backgroundColorHex ?: "#2009265A",
+            headlineColorHex = config.headlineColorHex ?: "#FFFFFF",
+            bodyTextColorHex = config.bodyTextColorHex ?: "#FFFFFF",
+            ctaBackgroundColorHex = config.ctaBackgroundColorHex ?: "#09265A",
+            ctaTextColorHex = config.ctaTextColorHex ?: "#FFFFFF",
+            ctaCornerRadiusDp = config.ctaCornerRadiusDp ?: 48,
+            ctaTextSizeSp = config.ctaTextSizeSp ?: 18,
+            cornerRadiusDp = config.cornerRadiusDp ?: 12,
+            strokeWidthDp = config.strokeWidthDp ?: 1,
+            strokeColorHex = config.strokeColorHex ?: "#00000000"
+        )
+    }
+
+    private fun buildAdRequest(): AdRequest =
+        AdRequest.Builder().apply {
+            if (adsPref.isNpa()) {
+                addNetworkExtrasBundle(
+                    AdMobAdapter::class.java,
+                    Bundle(1).apply { putString("npa", "1") }
+                )
+            }
+        }.build()
+
+    private fun createNativeAdOptions(): NativeAdOptions =
+        NativeAdOptions.Builder()
+            .setAdChoicesPlacement(NativeAdOptions.ADCHOICES_TOP_RIGHT)
+            .setRequestMultipleImages(false)
+            .build()
+
+    private fun Int?.toDp(): Float = (this ?: 0) * displayMetrics
+
+    private fun createRenderError(): LoadAdError =
+        LoadAdError(0, "Render error", "errorDomain", null, null)
+
+    private fun showDebugToast(message: String) {
+        val act = activityRef.get()
+        if (act != null && !act.isFinishing && !act.isDestroyed) {
+            DebugToaster.showAdDebugCard(act, adsPref.isDebugToastNativeEnabled(), message)
+        }
+    }
+}

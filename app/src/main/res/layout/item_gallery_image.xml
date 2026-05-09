@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/_2sdp">
+
+    <!-- Thumbnail — clips to rounded bg automatically -->
+    <ImageView
+        android:id="@+id/ivThumb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_gallery_slot"
+        android:scaleType="centerCrop"
+        android:clipToOutline="true"
+        android:outlineProvider="background"
+        android:contentDescription="Image" />
+
+    <!-- Camera icon — visible ONLY for the Camera cell in Gallery -->
+    <ImageView
+        android:id="@+id/ivCamera"
+        android:layout_width="@dimen/_28sdp"
+        android:layout_height="@dimen/_28sdp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_camera"
+        android:contentDescription="Open camera"
+        android:visibility="gone" />
+
+    <!-- Selection tick — top-right corner when selected -->
+    <ImageView
+        android:id="@+id/ivBadge"
+        android:layout_width="@dimen/_16sdp"
+        android:layout_height="@dimen/_16sdp"
+        android:layout_gravity="top|end"
+        android:layout_margin="@dimen/_3sdp"
+        android:src="@drawable/ic_check"
+        android:contentDescription="Selected"
+        android:visibility="gone" />
+
+</FrameLayout>

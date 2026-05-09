@@ -1,0 +1,47 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="25dp"
+    android:height="25dp"
+    android:viewportWidth="25"
+    android:viewportHeight="25">
+  <path
+      android:pathData="M21.726,0.655L3.278,0.655A2.621,2.621 135,0 0,0.657 3.276L0.657,21.724A2.621,2.621 0,0 0,3.278 24.345L21.726,24.345A2.621,2.621 0,0 0,24.347 21.724L24.347,3.276A2.621,2.621 0,0 0,21.726 0.655z"
+      android:strokeWidth="1.3104"
+      android:fillColor="#ffffff"
+      android:strokeColor="#ffffff"/>
+  <path
+      android:pathData="M23.635,3.331C23.635,2.245 22.755,1.365 21.669,1.365H19.089V5.911H23.635V3.331Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M14.777,1.363H10.232V5.909H14.777V1.363Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M19.09,5.91H14.544V10.456H19.09V5.91Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M23.635,10.455H19.089V15H23.635V10.455Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M23.635,19.092H19.089V23.637H21.669C22.755,23.637 23.635,22.757 23.635,21.672V19.092Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M19.318,14.998H14.773V19.544H19.318V14.998Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M10.227,5.91H5.681V10.456H10.227V5.91Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M14.777,10.455H10.232V15H14.777V10.455Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M10.451,14.998H5.906V19.544H10.451V14.998Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M14.887,19.316H10.114V23.635H14.887V19.316Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M5.904,1.363H3.324C2.239,1.363 1.359,2.243 1.359,3.329V5.909H5.904V1.363Z"
+      android:fillColor="#CDCCCC"/>
+  <path
+      android:pathData="M1.404,4.402C1.404,2.745 2.747,1.402 4.404,1.402H11.216V23.828H4.404C2.747,23.828 1.404,22.485 1.404,20.828V4.402Z"
+      android:fillColor="#434343"/>
+</vector>

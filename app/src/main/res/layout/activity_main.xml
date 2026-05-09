@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/main"
+    android:padding="16dp"
+    android:background="@android:color/white">
+<ImageView
+    android:src="@drawable/template__2_"
+    android:id="@+id/img"
+    android:layout_width="@dimen/_100sdp"
+    android:layout_height="@dimen/_100sdp"/>
+    <ImageView
+        android:src="@drawable/template__1_"
+        android:id="@+id/img1"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="@dimen/_100sdp"/>
+    <!-- Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gemini 2.5 Pro - Text to Image"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Prompt Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Describe the image you want to generate"
+            android:inputType="textMultiLine"
+            android:maxLines="3"
+            android:minLines="1"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Generate Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGenerate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Image"
+        android:layout_marginBottom="16dp"
+        app:iconTint="@android:color/white"
+        style="@style/Widget.Material3.Button"/>
+
+    <!-- Test API Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTestApi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test API Connection"
+        android:layout_marginBottom="24dp"
+        style="@style/Widget.Material3.Button.OutlinedButton"/>
+
+    <!-- Loading Progress -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Status Message -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status: Ready"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Error Message -->
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Images Title -->
+    <TextView
+        android:id="@+id/tvImagesTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generated Images:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Images ScrollView -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:id="@+id/llImagesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="4dp"/>
+
+    </ScrollView>
+
+    <!-- Clear Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnClear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Images"
+        android:visibility="gone"
+        style="@style/Widget.Material3.Button.OutlinedButton"/>
+
+</LinearLayout>

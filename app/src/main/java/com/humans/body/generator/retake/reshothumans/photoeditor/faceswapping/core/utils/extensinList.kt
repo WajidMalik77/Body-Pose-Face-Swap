@@ -1,0 +1,463 @@
+package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils
+
+val imageTagsMap = mapOf(
+    "R1" to listOf(
+        "young adult",
+        "female",
+        "singaporean",
+        "overweight body",
+        "golder skin",
+        "bob haircut",
+        "jumpsuit",
+        "midi skirt",
+        "platform shoes",
+        "suit jacket",
+        "vintage clothes",
+        "champagne clothes"
+    ),
+    "R2" to listOf(
+        "young adult",
+        "male",
+        "maxi dress",
+        "short",
+        "dark hair",
+        "goatee",
+        "powered exosui",
+        "arc reactor"
+    ),
+    "R3" to listOf(
+        "young adult",
+        "male",
+        "t-shirt",
+        "short",
+        "black hair",
+        "strong jawline",
+        "yellow S symbol on his chest"
+    ),
+    "R4" to listOf("adult", "female", "indian", "shirt", "trousers", "formal clothes"),
+    "R5" to listOf(
+        "young adult",
+        "male",
+        "t-short",
+        "jeans",
+        "Red cap",
+        "red shirt",
+        "blue overalls",
+        "Darth Vader Mask",
+        "Tall",
+        "imposing figure",
+        "robotic apparatus",
+        "Black helmet",
+        "black armor suit",
+        "black cape"
+    ),
+    "R6" to listOf(
+        "young adult",
+        "female",
+        "maxi dress",
+        "jeans",
+        "shoes",
+        "vintage clothes",
+        "architecture background"
+    ),
+    "R7" to listOf("young adult", "male", "athletic body", "t-short", "shorts"),
+    "R8" to listOf(
+        "young adult",
+        "male",
+        "dress",
+        "Blaze",
+        "fire-wielding hero",
+        "fit physique",
+        "fiery red hair",
+        "intense eyes",
+        "gloves",
+        "boots",
+        "utility belt"
+    ),
+    "R9" to listOf(
+        "young adult",
+        "male",
+        "athletic body",
+        "t-shirt",
+        "short",
+        "messy dreadlocks",
+        "facial hair",
+        "eccentric demeanor",
+        "attered pirate hat",
+        "bandana",
+        "multiple belts"
+    ),
+    "R10" to listOf(
+        "adult",
+        "female",
+        "brazilian",
+        "caramel skin",
+        "medium hair",
+        "maxi dress",
+        "vintage clothes"
+    ),
+    "R11" to listOf(
+        "young adult",
+        "female",
+        "dress",
+        "space explorer",
+        "Athletic build",
+        "glowing panels",
+        "sleek helmet",
+        "gadgets",
+        "anti-gravity propulsion"
+    ),
+    "R12" to listOf(
+        "young adult",
+        "female",
+        "spanish",
+        "average body",
+        "caramel skin",
+        "curly",
+        "brown hair",
+        "mini dress",
+        "mini skirt",
+        "pink clothes"
+    ),
+    "R13" to listOf(
+        "young adult",
+        "male",
+        "t-shirt",
+        "short",
+        "Messy black hair",
+        "round glasses",
+        "lightning bolt scar",
+        "school robes",
+        "Gryffindor scarf"
+    ),
+    "R14" to listOf(
+        "young adult",
+        "male",
+        "shirt",
+        "high-waisted shorts",
+        "avant-garde clothes",
+        "park background"
+    ),
+    "R15" to listOf(
+        "young adult",
+        "male",
+        "tall",
+        "thin",
+        "sharp features",
+        "Inverness cape",
+        "deerstalker hat",
+        "magnifying glass"
+    ),
+    "R16" to listOf(
+        "young adult",
+        "female",
+        "japanese",
+        "shirt",
+        "shorts",
+        "romantic clothes",
+        "pink clothes"
+    ),
+    "R17" to listOf(
+        "young adult",
+        "female",
+        "sweater",
+        "midi skirt",
+        "loafers",
+        "formal clothes",
+        "red clothes"
+    ),
+    "R18" to listOf(
+        "adult",
+        "female",
+        "french",
+        "blouse",
+        "wide-leg pants",
+        "loafers",
+        "pastel clothes"
+    ),
+    "R19" to listOf(
+        "non-binary",
+        "arab",
+        "average body",
+        "t-shirt",
+        "shorts",
+        "sneakers",
+        "casual clothes",
+        "botanical garden background"
+    ),
+    "R20" to listOf(
+        "young adult",
+        "male",
+        "ginger hair",
+        "dress",
+        "towering height",
+        "bulging muscles",
+        "toothy grin",
+        "Worn leather loincloth"
+    ),
+    "R21" to listOf(
+        "young adult",
+        "male",
+        "vietnamese",
+        "olive skin",
+        "shirt",
+        "shorts",
+        "elegant clothes",
+        "pink clothes",
+        "beach background"
+    ),
+    "R22" to listOf(
+        "young adult",
+        "male",
+        "t-shirt",
+        "jeans",
+        "tall",
+        "rugged",
+        "weathered",
+        ""
+    ),
+    "R23" to listOf(
+        "elderly",
+        "male",
+        "curly",
+        "gray hair",
+        "shirt",
+        "wide-leg pants",
+        "oxfords",
+        "vintage clothes",
+        "black clothes",
+        "studio backdrop background"
+    ),
+    "R24" to listOf("adult", "female", "ethiopian", "blouse", "wide-leg pants", "loafers"),
+    "R25" to listOf(
+        "young adult",
+        "male",
+        "white skin",
+        "shirt",
+        "shorts",
+        "romantic clothes",
+        "pink clothes",
+        "beach background"
+    ),
+    "R26" to listOf(
+        "young adult",
+        "female",
+        "average body",
+        "peach skin",
+        "blouse",
+        "maxi skirt",
+        "heels",
+        "vintage clothes",
+        "black clothes"
+    ),
+    "R27" to listOf(
+        "adult",
+        "male",
+        "turkish",
+        "t-shirt",
+        "jeans",
+        "oxfords",
+        "formal clothes",
+        "green clothes",
+        "Office worker",
+        "monitors on walls"
+    ),
+    "R28" to listOf("young adult", "male", "athletic body", "t-shirt", "short"),
+    "R29" to listOf(
+        "elderly",
+        "male",
+        "average body",
+        "updo",
+        "t-shirt",
+        "jeans",
+        "sneakers",
+        "white clothes"
+    ),
+    "R30" to listOf(
+        "teenager",
+        "female",
+        "overweight body",
+        "peach skin",
+        "jumpsuit",
+        "shorts",
+        "hipster clothes",
+        "industrial area background"
+    ),
+    "R31" to listOf(
+        "senior",
+        "male",
+        "nepalese",
+        "athletic body",
+        "dark mahogany skin",
+        "braids",
+        "black hair",
+        "t-shirt",
+        "trousers",
+        "boots",
+        "rugged clothes",
+        "brown eyes",
+        "round face",
+        "full lips",
+        "prominent nose",
+        "sunglasses"
+    ),
+    "R32" to listOf(
+        "young adult",
+        "female",
+        "mini dress",
+        "shorts",
+        "green clothes",
+        "bokeh lights background"
+    ),
+    "R33" to listOf(
+        "young adult",
+        "male",
+        "chinese",
+        "fit body",
+        "neutral skin",
+        "shorts",
+        "casual chic clothes",
+        "pink clothes",
+        "beach background"
+    ),
+    "R34" to listOf(
+        "young adult",
+        "female",
+        "arab",
+        "mini dress",
+        "flared pants",
+        "shoes",
+        "blue clothes"
+    ),
+    "R35" to listOf(
+        "dark-haired",
+        "solemn expression",
+        "black dress",
+        "young adult",
+        "female",
+        "maxi dress",
+        "jeans"
+    ),
+    "R36" to listOf(
+        "young adult",
+        "female",
+        "british",
+        "curvy body",
+        "white skin",
+        "messy bun",
+        "blonde hair",
+        "mini dress",
+        "mini skirt",
+        "coral clothes",
+        "white wall background"
+    ),
+    "R37" to listOf(
+        "female",
+        "turkish",
+        "curvy body",
+        "midi dress",
+        "skirt",
+        "flats",
+        "casual clothes",
+        "beach background"
+    ),
+    "R38" to listOf(
+        "adult",
+        "female",
+        "french braid",
+        "ginger hair",
+        "shirt",
+        "trousers",
+        "formal clothes"
+    ),
+    "R39" to listOf(
+        "young adult",
+        "female",
+        "thin body",
+        "long hair",
+        "dress",
+        "maxi skirt",
+        "sneakers"
+    ),
+    "R40" to listOf(
+        "Platinum blonde hair",
+        "ice-blue eyes",
+        "ce-blue dress",
+        "snowflake",
+        "young adult",
+        "female",
+        "maxi dress",
+        "shorts"
+    ),
+    "R41" to listOf(
+        "young adult",
+        "female",
+        "white hair",
+        "maxi dress",
+        "shorts",
+        "heels",
+        "vintage clothes",
+        "blue clothes",
+        "blue eyes",
+        "long face",
+        "full lips",
+        "droopy nose"
+    ),
+    "R42" to listOf(
+        "young adult",
+        "female",
+        "average body",
+        "peach skin",
+        "blouse",
+        "maxi skirt",
+        "heels",
+        "vintage clothes",
+        "black clothes"
+    ),
+    "R43" to listOf("teenager", "male", "t-shirt", "jeans", "sneakers", "yellow clothes"),
+    "R44" to listOf("young adult", "female", "t-shirt", "shorts", "long dark hair"),
+    "R45" to listOf(
+        "adult",
+        "female",
+        "average body",
+        "hipster clothes",
+        "hazel eyes",
+        "oval face",
+        "full lips",
+        "droopy nose"
+    ),
+    "R46" to listOf(
+        "young adult",
+        "male",
+        "muscular",
+        "tattoos",
+        "streetwear",
+        "urban background"
+    ),
+    "R47" to listOf(
+        "young adult",
+        "female",
+        "long curly hair",
+        "freckles",
+        "summer dress",
+        "outdoor setting"
+    ),
+    "R48" to listOf(
+        "elderly",
+        "female",
+        "glasses",
+        "white hair",
+        "scarf",
+        "warm sweater",
+        "cozy home background"
+    ),
+    "R49" to listOf(
+        "young adult",
+        "non-binary",
+        "short hair",
+        "denim jacket",
+        "punk clothes",
+        "graffiti wall background"
+    ),
+    "R50" to listOf("teenager", "male", "hoodie", "jeans", "skateboard", "city park background")
+)

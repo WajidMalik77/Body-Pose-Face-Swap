@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1028064705074",
+    "project_id": "human-art-ai-face-body-editor",
+    "storage_bucket": "human-art-ai-face-body-editor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028064705074:android:bd20bba139a17cb9f8da2b",
+        "android_client_info": {
+          "package_name": "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4fezxdtRM_usTpwpi6Sukf5EWXOFnLpA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

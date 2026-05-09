@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Human Art</string>
+    <string name="hello_blank_fragment">Olá fragmento em branco</string>
+    <string name="generate">Gerar</string>
+
+    <string name="privacy_policy"><u>Política de Privacidade</u></string>
+    <string name="terms_of_service"><u>Termos de Serviço</u></string>
+    <string name="privacy_policy_premium"><u>Política de Privacidade</u></string>
+    <string name="cancel_anytime"><u>Cancelar a qualquer momento</u></string>
+    <string name="subscription_details"><u>Detalhes da Assinatura</u></string>
+
+    <string name="subscription_details_n_by_subscribing_to_the_human_body_generator_app_you_can_enjoy_an_ad_free_experience_n_upon_confirmation_of_your_purchase_the_subscription_fee_will_be_charged_via_the_google_play_store_choose_from_weekly_monthly_or_a_one_time_payment_plan_based_on_your_preference_after_cancellation_your_subscription_will_remain_active_until_the_end_of_the_current_billing_period_weekly_or_monthly_depending_on_your_plan_subscriptions_automatically_renew_on_the_same_date_each_week_or_month_as_your_initial_subscription_unless_auto_renewal_is_turned_off_at_least_24_hours_before_the_end_of_the_current_billing_period_you_can_update_your_plan_disable_auto_renewal_or_manage_your_subscription_anytime_through_your_google_play_store_account_settings_enjoy_seamless_drawing_experiences_with_the_human_body_generator_app">
+        <b><u>Detalhes da Assinatura</u></b>
+        \n Ao assinar o Aplicativo Gerador de Corpo Humano, você aproveita uma experiência sem anúncios.
+        \n Após a confirmação da compra, a taxa da assinatura será cobrada via Google Play Store.
+        Escolha entre planos semanais, mensais ou pagamento único, de acordo com sua preferência.
+        Após o cancelamento, sua assinatura permanecerá ativa até o final do período de cobrança atual (semanal ou mensal, dependendo do plano).
+        As assinaturas são renovadas automaticamente na mesma data de cada semana ou mês, a menos que a renovação automática seja desativada pelo menos 24 horas antes do fim do período atual.
+        Você pode atualizar seu plano, desativar a renovação automática ou gerenciar sua assinatura a qualquer momento pelas configurações da sua conta no Google Play Store.
+        Aproveite experiências de desenho contínuas com o Aplicativo Gerador de Corpo Humano!
+    </string>
+
+    <item name="radioIcon" type="id" />
+    <string name="ad_attribution" translatable="false">Anúncio</string>
+
+    <string name="get_pro">Obter Pro</string>
+    <string name="text_to_image">Texto para Imagem</string>
+    <string name="reset">Redefinir</string>
+    <string name="watch_an_ad">Assistir a um anúncio</string>
+    <string name="randomize">Aleatório</string>
+
+    <string name="select_gender">Selecionar Gênero</string>
+    <string name="age">Idade</string>
+    <string name="clothing">Roupas</string>
+    <string name="more_options">Mais Opções</string>
+    <string name="describe">Descrever</string>
+    <string name="upload_face">Carregar Rosto</string>
+    <string name="pose">Pose</string>
+    <string name="remove_watermark">Remover Marca d’Água</string>
+    <string name="generate_human">Gerar Humano</string>
+    <string name="upload_your_image">Carregar sua Imagem</string>
+
+    <string name="human_body_generator">Gerador de Corpo Humano</string>
+    <string name="get_started">Começar</string>
+    <string name="this_action_may_contain_ads">Esta ação pode conter anúncios</string>
+    <string name="ad">ANÚNCIO</string>
+
+    <string name="next"><u>Próximo</u></string>
+    <string name="finish">Concluir</string>
+
+    <string name="boost_marketing_with_ai_generated_photos">Impulsione o Marketing com Fotos Geradas por IA</string>
+    <string name="unleash_your_imagination_with_synthetic_graphics">Liberte sua Imaginação com Gráficos Sintéticos</string>
+    <string name="generate_photos_for_ecommerce">Gerar Fotos para E-commerce</string>
+    <string name="explore_face_perception_with_generated_images">Explore a Percepção Facial com Imagens Geradas</string>
+
+    <string name="language">Idioma</string>
+    <string name="done">Concluído</string>
+    <string name="continue_with_ads">Continuar com Anúncios</string>
+
+    <string name="by_continuing_you_agree_to_our_terms_and_privacy_policies">
+        Ao continuar, você concorda com nossos termos e políticas de privacidade.
+    </string>
+
+    <string name="purchase">Comprar</string>
+    <string name="enjoy_unlimited_access_to_all_content_premium_features">Aproveite acesso ilimitado a todo o conteúdo e recursos premium</string>
+    <string name="get_premium_access">ACESSO\nPREMIUM</string>
+
+    <string name="terms_amp_conditions"><u><![CDATA[Termos & Condições]]></u></string>
+
+    <string name="ad_free_experience">Experiência sem anúncios</string>
+    <string name="settings">Configurações</string>
+    <string name="unlock_premium">Desbloquear Premium</string>
+    <string name="share_app">Compartilhar App</string>
+    <string name="rate_us">Avalie-nos</string>
+    <string name="feedback">Feedback</string>
+    <string name="clear">Limpar</string>
+    <string name="loading_ad">Carregando anúncio...</string>
+    <string name="ok">OK</string>
+
+    <string name="unleash_your_ncreativity">Libere sua\nCriatividade</string>
+    <string name="continue1">Continuar</string>
+
+    <string name="gender">Gênero</string>
+    <string name="select_pose">Selecionar Pose</string>
+    <string name="photo_editor">Editor de Fotos</string>
+    <string name="face_style">Estilo de Rosto</string>
+    <string name="image_to_image">Imagem para Imagem</string>
+    <string name="camera">Câmera</string>
+    <string name="templates">Modelos</string>
+    <string name="re_styler">Reestilizar</string>
+    <string name="image_variation">Variação de Imagem</string>
+    <string name="bg_remover">Remover Fundo</string>
+    <string name="ai_resizer">Redimensionamento por IA</string>
+
+    <string name="crop_un_crop">Cortar / Desfazer Corte</string>
+    <string name="upscale_image">Aumentar Resolução da Imagem</string>
+    <string name="save">Salvar</string>
+    <string name="adjust">Ajustar</string>
+    <string name="filters">Filtros</string>
+    <string name="text">Texto</string>
+    <string name="face_swap">Troca de Rosto</string>
+
+    <string name="human_body_generator_pro">Gerador de Corpo Humano PRO!</string>
+    <string name="access_to_all_premium_features">Acesso a todos os recursos premium</string>
+    <string name="faster_processing">Processamento Mais Rápido</string>
+    <string name="no_watermark">Sem Marca d’Água</string>
+
+    <string name="most_popular">Mais Popular</string>
+    <string name="life_time">Vitalício</string>
+    <string name="one_time_purchase_the_price_may_increase_later">Compra única. O preço pode aumentar depois</string>
+    <string name="cancel_any_time_for_any_reason">Cancelar a qualquer momento por qualquer motivo</string>
+
+    <string name="add_target">Adicionar Alvo</string>
+    <string name="crop">Cortar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="original">Original</string>
+    <string name="square">Quadrado</string>
+
+    <string name="rotate">Girar</string>
+    <string name="remove">Remover</string>
+    <string name="background">Fundo</string>
+    <string name="edit">Editar</string>
+
+    <string name="number_of_variations">Número de Variações:</string>
+    <string name="yearly_access">Acesso Anual</string>
+    <string name="best_offer">Melhor Oferta</string>
+    <string name="unlock_all_features">Desbloquear Todos os Recursos</string>
+
+    <string name="six_month">Seis Meses</string>
+    <string name="yearly">Anual</string>
+    <string name="monthly">Mensal</string>
+    <string name="weekly_access">Acesso Semanal</string>
+
+    <string name="subscription_terms">Termos de Assinatura</string>
+    <string name="replicate_body_pose">Replicar Pose do Corpo</string>
+    <string name="ghibli_photo">Foto Estilo Ghibli</string>
+    <string name="ai_photo_editor">Editor de Fotos por IA</string>
+    <string name="set_language">Definir Idioma</string>
+    <string name="upload_image_first">Faça upload da imagem primeiro</string>
+    <string name="update_human">Atualizar Humano</string>
+    <string name="enjoy_unlimited_access_to_top_tier_content_and_exclusive_premium_features">
+Aproveite acesso ilimitado a conteúdo de alto nível e recursos premium exclusivos
+</string>
+
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+Ao assinar nosso conteúdo premium, sua assinatura será renovada automaticamente e você será cobrado no início de cada ciclo de faturamento até cancelar
+</string>
+
+    <string name="no_trial_period_included_nyour_subscription_will_automatically_renew_based_on_your_selected_plan_weekly_monthly_or_yearly_unless_canceled_at_24_hours_befor_the_end_of_the_current_period">
+Nenhum período de teste incluído\nSua assinatura será renovada automaticamente de acordo com o plano selecionado (semanal, mensal ou anual), a menos que seja cancelada 24 horas antes do final do período atual
+</string>
+
+    <string name="replicate_any_pose_within_your_own_photo">
+Replique qualquer pose dentro da sua própria foto
+</string>
+
+    <string name="turn_your_photo_to_ghibli_style_selfie_for_social_media">
+Transforme sua foto em uma selfie no estilo Ghibli para redes sociais
+</string>
+
+    <string name="easily_swap_your_face_into_any_photo">
+Troque facilmente seu rosto em qualquer foto
+</string>
+
+    <string name="edit_your_photo_with_effects_restyle_and_more">
+Edite sua foto com efeitos, restyle e muito mais
+</string>
+    <string name="free">Grátis</string>
+    <string name="unlock_all_premium_features_and_take_your_experience_to_the_next_level_enjoy_an_ad_free_interface_subscribe_now_for_just_rs_2_240_weekly_after_3_days_free_trial">
+Desbloqueie todos os recursos premium e leve sua experiência ao próximo nível, aproveite uma interface sem anúncios. Assine agora por apenas Rs 2.240/semana após 3 dias de teste grátis.
+</string>
+    <string name="unlock_all_templates">Desbloquear todos os modelos</string>
+    <string name="unlimited_body_pose">Poses de corpo ilimitadas</string>
+    <string name="custom_face_swap">Troca de rosto personalizada</string>
+    <string name="start_free_trial_for_0_0">Iniciar teste grátis por 0.0</string>
+    <string name="this_item_locked">Este item está bloqueado</string>
+    <string name="reshape_body">Redimensionar corpo</string>
+    <string name="try_now">Tentar agora</string>
+    <string name="create_unlimited_styles">Criar estilos ilimitados</string>
+    <string name="reshape_perfect_your_curves">• Remodelar e aperfeiçoar suas curvas</string>
+    <string name="pro_face_swap_hyper_real_ai">• Troca de rosto profissional com IA hiper-realista</string>
+    <string name="face_stylist_smile_hire_style_age">• Estilista facial, sorriso, penteado, idade</string>
+    <string name="ai_upscale_bg_remover">• Aprimoramento com IA e removedor de fundo</string>
+    <string name="image_variation_ai_restyler">• Variação de imagem e reestilizador com IA</string>
+    <string name="v_shape_curves">• Forma em V / Curvas</string>
+    <string name="worth_a_try">Vale a pena experimentar</string>
+
+    <string name="ad_is_loading">Carregando anúncio…</string>
+    <string name="swap_hairstyle">Trocar penteado</string>
+    <string name="swipe_to_continue">Deslize para continuar</string>
+    <string name="notification_channel_name">Notificações gerais</string>
+</resources>

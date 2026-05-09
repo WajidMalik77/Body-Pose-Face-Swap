@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="24dp"
+    android:padding="@dimen/_10sdp"
+    android:radius="@dimen/_10sdp"
+    android:elevation="@dimen/_5sdp"
+    app:cardBackgroundColor="@color/white"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:overScrollMode="ifContentScrolls">
+
+            <TextView
+                android:id="@+id/privacyTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_12ssp"
+                android:paddingHorizontal="@dimen/_15sdp"
+                android:gravity="center"
+                android:fontFamily="@font/poppins_regular"
+                android:lineSpacingExtra="@dimen/_4sdp"
+                android:textColor="#000000"
+                android:text="@string/subscription_details_n_by_subscribing_to_the_human_body_generator_app_you_can_enjoy_an_ad_free_experience_n_upon_confirmation_of_your_purchase_the_subscription_fee_will_be_charged_via_the_google_play_store_choose_from_weekly_monthly_or_a_one_time_payment_plan_based_on_your_preference_after_cancellation_your_subscription_will_remain_active_until_the_end_of_the_current_billing_period_weekly_or_monthly_depending_on_your_plan_subscriptions_automatically_renew_on_the_same_date_each_week_or_month_as_your_initial_subscription_unless_auto_renewal_is_turned_off_at_least_24_hours_before_the_end_of_the_current_billing_period_you_can_update_your_plan_disable_auto_renewal_or_manage_your_subscription_anytime_through_your_google_play_store_account_settings_enjoy_seamless_drawing_experiences_with_the_human_body_generator_app" />
+        </ScrollView>
+
+        <Button
+            android:id="@+id/btnOk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/_12sdp"
+            android:text="@string/ok"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/black"
+            android:textColor="@android:color/white"
+            android:fontFamily="@font/poppins_medium" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

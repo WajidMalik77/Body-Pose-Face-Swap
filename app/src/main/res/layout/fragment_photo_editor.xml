@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_home_new"
+    tools:context=".fragments.editor.PhotoEditorFragment">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar1"
+        app:layout_constraintTop_toBottomOf="@id/ll_banner_top" />
+
+    <LinearLayout
+        android:id="@+id/ll_banner_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include layout="@layout/layout_ad_banner" />
+    </LinearLayout>
+
+    <!-- ── Upload slot (CardView) ───────────────────────────── -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/upload"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_230sdp"
+        app:cardCornerRadius="@dimen/_12sdp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toTopOf="@+id/recycler"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <View
+            android:id="@+id/emptyBg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_upload" />
+
+        <com.xiaopo.flying.sticker.StickerView
+            android:id="@+id/stickerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            app:showBorder="true"
+            app:showIcons="true">
+
+            <ImageView
+                android:id="@+id/generatedImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
+                tools:ignore="ContentDescription" />
+
+        </com.xiaopo.flying.sticker.StickerView>
+
+        <LinearLayout
+            android:id="@+id/addImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/photo_edit_upload"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/watermarkText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:text="@string/upload_your_image"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_12ssp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/_8sdp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/ll_native_bottom"
+        tools:listitem="@layout/item_editor" />
+
+    <LinearLayout
+        android:id="@+id/ll_native_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_12sdp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include layout="@layout/layout_native" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_10sdp"
+        android:adjustViewBounds="true"
+        android:padding="@dimen/_4sdp"
+        android:src="@drawable/tick_editor"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_60sdp"
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/progress_gradient"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

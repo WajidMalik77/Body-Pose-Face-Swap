@@ -1,0 +1,84 @@
+[versions]
+agp = "8.13.2"
+kotlin = "2.2.20"
+billingKtx = "8.3.0"
+flexbox = "3.0.0"
+fragmentKtx = "1.8.6"
+coreKtx = "1.16.0"
+glide = "4.16.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+kotlinxCoroutinesCore = "1.7.3"
+kotlinxSerializationJson = "1.7.3"
+lifecycleExtensions = "2.2.0"
+material = "1.12.0"
+playServicesAds = "24.3.0"
+retrofit = "2.9.0"
+androidxNavigationSafeargsGradlePlugin = "2.9.0"
+sdpAndroid = "1.1.1"
+sspAndroid = "1.1.1"
+loggingInterceptor = "4.9.3"
+activity = "1.10.1"
+constraintlayout = "2.2.1"
+navigationFragmentKtx = "2.9.0"
+navigationUiKtx = "2.9.0"
+googleGmsGoogleServices = "4.4.2"
+firebaseConfig = "22.1.1"
+firebaseDatabase = "21.0.0"
+firebaseAnalytics = "23.0.0"
+firebaseCrashlytics = "20.0.2"
+googleFirebaseCrashlytics = "3.0.6"
+timber = "4.7.1"
+hilt = "2.58"
+datastorePreferences = "1.1.1"
+facebookShimmer = "0.5.0"
+firebaseMessaging = "24.1.0"
+
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+androidx-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
+billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billingKtx" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+sdp-android = { module = "com.intuit.sdp:sdp-android", version.ref = "sdpAndroid" }
+ssp-android = { module = "com.intuit.ssp:ssp-android", version.ref = "sspAndroid" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config", version.ref = "firebaseConfig" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+facebook-shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "facebookShimmer" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+androidx-navigation-safe-args = { id ="androidx.navigation.safeargs.kotlin",version.ref ="androidxNavigationSafeargsGradlePlugin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "googleFirebaseCrashlytics" }
+dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version = "2.2.20-2.0.3" }

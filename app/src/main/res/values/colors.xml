@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="pro_price_color">#F5F5F5</color>
+    <color name="pro_price_color1">#D9D9D9</color>
+    <color name="lightGrey">#7B746C</color>
+    <color name="light_color">#333333</color>
+    <color name="BlackEel">#434343</color>
+    <color name="Thunder">#2D2D2D</color>
+    <color name="Cranberry">#E14B6E</color>
+    <color name="orange">#ED824E</color>
+    <color name="Liver">#4D4D4D</color>
+    <color name="DarkGrey">#383838</color>
+    <color name="dune">#313131</color>
+    <color name="CarbonGrey">#5F5F5F</color>
+    <color name="Light">#66FFFFFF</color>
+    <color name="blue">#0048e2</color>
+    <color name="bg">#242424</color>
+    <color name="bg_light">#504F4F</color>
+    <color name="premium_bg_color">#0C0405</color>
+    <color name="transparent">#00000000</color>
+    <color name="bg_status">#08182d</color>
+    <color name="purple_share">#D328D6</color>
+
+    
+</resources>

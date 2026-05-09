@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Human Art</string>
+    <string name="hello_blank_fragment">مرحبًا أيها الجزء الفارغ</string>
+    <string name="generate">إنشاء</string>
+
+    <string name="privacy_policy"><u>سياسة الخصوصية</u></string>
+    <string name="terms_of_service"><u>شروط الخدمة</u></string>
+    <string name="privacy_policy_premium"><u>سياسة الخصوصية</u></string>
+    <string name="cancel_anytime"><u>إلغاء في أي وقت</u></string>
+    <string name="subscription_details"><u>تفاصيل الاشتراك</u></string>
+
+    <string name="subscription_details_n_by_subscribing_to_the_human_body_generator_app_you_can_enjoy_an_ad_free_experience_n_upon_confirmation_of_your_purchase_the_subscription_fee_will_be_charged_via_the_google_play_store_choose_from_weekly_monthly_or_a_one_time_payment_plan_based_on_your_preference_after_cancellation_your_subscription_will_remain_active_until_the_end_of_the_current_billing_period_weekly_or_monthly_depending_on_your_plan_subscriptions_automatically_renew_on_the_same_date_each_week_or_month_as_your_initial_subscription_unless_auto_renewal_is_turned_off_at_least_24_hours_before_the_end_of_the_current_billing_period_you_can_update_your_plan_disable_auto_renewal_or_manage_your_subscription_anytime_through_your_google_play_store_account_settings_enjoy_seamless_drawing_experiences_with_the_human_body_generator_app">
+        <b><u>تفاصيل الاشتراك</u></b>
+        \n عند الاشتراك في تطبيق مولّد جسم الإنسان، يمكنك الاستمتاع بتجربة خالية من الإعلانات.
+        \n عند تأكيد عملية الشراء، سيتم خصم رسوم الاشتراك عبر متجر Google Play.
+        اختر من بين خطط أسبوعية أو شهرية أو دفعة واحدة حسب تفضيلك.
+        بعد الإلغاء، سيظل اشتراكك نشطًا حتى نهاية فترة الفوترة الحالية (أسبوعية أو شهرية حسب الخطة).
+        يتم تجديد الاشتراكات تلقائيًا في نفس تاريخ الاشتراك الأول ما لم يتم إيقاف التجديد التلقائي قبل 24 ساعة على الأقل من نهاية الفترة الحالية.
+        يمكنك تحديث خطتك أو إيقاف التجديد التلقائي أو إدارة اشتراكك في أي وقت من خلال إعدادات حساب Google Play.
+        استمتع بتجربة رسم سلسة مع تطبيق مولّد جسم الإنسان!
+    </string>
+
+    <item name="radioIcon" type="id" />
+    <string name="ad_attribution" translatable="false">إعلان</string>
+
+    <string name="get_pro">احصل على النسخة الاحترافية</string>
+    <string name="text_to_image">نص إلى صورة</string>
+    <string name="reset">إعادة تعيين</string>
+    <string name="watch_an_ad">مشاهدة إعلان</string>
+    <string name="randomize">عشوائي</string>
+
+    <string name="select_gender">اختر الجنس</string>
+    <string name="age">العمر</string>
+    <string name="clothing">الملابس</string>
+    <string name="more_options">خيارات إضافية</string>
+    <string name="describe">وصف</string>
+    <string name="upload_face">تحميل الوجه</string>
+    <string name="pose">الوضعية</string>
+    <string name="remove_watermark">إزالة العلامة المائية</string>
+    <string name="generate_human">إنشاء إنسان</string>
+    <string name="upload_your_image">قم بتحميل صورتك</string>
+
+    <string name="human_body_generator">مولّد جسم الإنسان</string>
+    <string name="get_started">ابدأ الآن</string>
+    <string name="this_action_may_contain_ads">قد يحتوي هذا الإجراء على إعلانات</string>
+    <string name="ad">إعلان</string>
+
+    <string name="next"><u>التالي</u></string>
+    <string name="finish">إنهاء</string>
+
+    <string name="boost_marketing_with_ai_generated_photos">عزّز التسويق باستخدام صور مولّدة بالذكاء الاصطناعي</string>
+    <string name="unleash_your_imagination_with_synthetic_graphics">أطلق خيالك مع الرسومات الاصطناعية</string>
+    <string name="generate_photos_for_ecommerce">إنشاء صور للتجارة الإلكترونية</string>
+    <string name="explore_face_perception_with_generated_images">استكشف ملامح الوجه باستخدام الصور المولّدة</string>
+
+    <string name="language">اللغة</string>
+    <string name="done">تم</string>
+    <string name="continue_with_ads">المتابعة مع الإعلانات</string>
+
+    <string name="by_continuing_you_agree_to_our_terms_and_privacy_policies">
+        بالترقية إلى النسخة المميزة بدفعة واحدة، ستحصل على وصول مدى الحياة إلى الميزات الحصرية، بدون إعلانات ودعم أولوية.
+    </string>
+
+    <string name="purchase">شراء</string>
+    <string name="enjoy_unlimited_access_to_all_content_premium_features">استمتع بوصول غير محدود إلى جميع الميزات المميزة</string>
+    <string name="get_premium_access">احصل على\nوصول مميز</string>
+
+    <string name="terms_amp_conditions"><u><![CDATA[الشروط والأحكام]]></u></string>
+
+    <string name="ad_free_experience">تجربة بدون إعلانات</string>
+    <string name="settings">الإعدادات</string>
+    <string name="unlock_premium">فتح النسخة المميزة</string>
+    <string name="share_app">مشاركة التطبيق</string>
+    <string name="rate_us">قيّمنا</string>
+    <string name="feedback">ملاحظات</string>
+    <string name="clear">مسح</string>
+    <string name="loading_ad">جارٍ تحميل الإعلان...</string>
+    <string name="ok">موافق</string>
+
+    <string name="unleash_your_ncreativity">أطلق\nإبداعك</string>
+    <string name="continue1">متابعة</string>
+
+    <string name="gender">الجنس</string>
+    <string name="select_pose">اختر الوضعية</string>
+    <string name="photo_editor">محرر الصور</string>
+    <string name="face_style">نمط الوجه</string>
+    <string name="image_to_image">صورة إلى صورة</string>
+    <string name="camera">الكاميرا</string>
+    <string name="templates">قوالب</string>
+    <string name="re_styler">إعادة التصميم</string>
+    <string name="image_variation">تنويع الصورة</string>
+    <string name="bg_remover">إزالة الخلفية</string>
+    <string name="ai_resizer">تغيير الحجم بالذكاء الاصطناعي</string>
+
+    <string name="crop_un_crop">قص / إلغاء القص</string>
+    <string name="upscale_image">تحسين دقة الصورة</string>
+    <string name="save">حفظ</string>
+    <string name="adjust">تعديل</string>
+    <string name="filters">فلاتر</string>
+    <string name="text">نص</string>
+    <string name="face_swap">تبديل الوجه</string>
+
+    <string name="human_body_generator_pro">مولّد جسم الإنسان PRO!</string>
+    <string name="access_to_all_premium_features">الوصول إلى جميع الميزات المميزة</string>
+    <string name="faster_processing">معالجة أسرع</string>
+    <string name="no_watermark">بدون علامة مائية</string>
+
+    <string name="most_popular">الأكثر شيوعًا</string>
+    <string name="life_time">مدى الحياة</string>
+    <string name="one_time_purchase_the_price_may_increase_later">شراء لمرة واحدة، قد يزيد السعر لاحقًا</string>
+    <string name="cancel_any_time_for_any_reason">إلغاء في أي وقت لأي سبب</string>
+
+    <string name="add_target">إضافة هدف</string>
+    <string name="crop">قص</string>
+    <string name="cancel">إلغاء</string>
+    <string name="original">الأصلي</string>
+    <string name="square">مربع</string>
+
+    <string name="rotate">تدوير</string>
+    <string name="remove">إزالة</string>
+    <string name="background">الخلفية</string>
+    <string name="edit">تعديل</string>
+
+    <string name="number_of_variations">عدد التنويعات:</string>
+    <string name="yearly_access">وصول سنوي</string>
+    <string name="best_offer">أفضل عرض</string>
+    <string name="unlock_all_features">فتح جميع الميزات</string>
+
+    <string name="six_month">ستة أشهر</string>
+    <string name="yearly">سنوي</string>
+    <string name="monthly">شهري</string>
+    <string name="weekly_access">وصول أسبوعي</string>
+
+    <string name="subscription_terms">شروط الاشتراك</string>
+    <string name="replicate_body_pose">محاكاة وضعية الجسم</string>
+    <string name="ghibli_photo">صورة بأسلوب جيبلي</string>
+    <string name="ai_photo_editor">محرر صور بالذكاء الاصطناعي</string>
+    <string name="set_language">تعيين اللغة</string>
+    <string name="upload_image_first">قم بتحميل صورة أولاً</string>
+    <string name="update_human">تحديث الإنسان</string>
+    <string name="enjoy_unlimited_access_to_top_tier_content_and_exclusive_premium_features">
+استمتع بوصول غير محدود إلى محتوى عالي الجودة وميزات بريميوم حصرية
+</string>
+
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+عند الاشتراك في المحتوى المميز، سيتم تجديد اشتراكك تلقائيًا وسيتم تحصيل الرسوم في بداية كل دورة فوترة حتى تقوم بالإلغاء
+</string>
+
+    <string name="no_trial_period_included_nyour_subscription_will_automatically_renew_based_on_your_selected_plan_weekly_monthly_or_yearly_unless_canceled_at_24_hours_befor_the_end_of_the_current_period">
+لا توجد فترة تجريبية\nسيتم تجديد اشتراكك تلقائيًا حسب خطتك المختارة (أسبوعي، شهري أو سنوي) ما لم يتم الإلغاء قبل 24 ساعة من نهاية الفترة الحالية
+</string>
+
+    <string name="replicate_any_pose_within_your_own_photo">
+قم بمحاكاة أي وضعية داخل صورتك الخاصة
+</string>
+
+    <string name="turn_your_photo_to_ghibli_style_selfie_for_social_media">
+حوّل صورتك إلى سيلفي بأسلوب غيبلي لوسائل التواصل الاجتماعي
+</string>
+
+    <string name="easily_swap_your_face_into_any_photo">
+بدّل وجهك بسهولة داخل أي صورة
+</string>
+
+    <string name="edit_your_photo_with_effects_restyle_and_more">
+حرّر صورتك مع التأثيرات وإعادة التنسيق والمزيد
+</string>
+    <string name="free">مجاني</string>
+    <string name="unlock_all_premium_features_and_take_your_experience_to_the_next_level_enjoy_an_ad_free_interface_subscribe_now_for_just_rs_2_240_weekly_after_3_days_free_trial">
+افتح جميع الميزات المميزة وارتقِ بتجربتك إلى المستوى التالي، واستمتع بواجهة خالية من الإعلانات. اشترك الآن مقابل 2,240 روبية أسبوعياً بعد تجربة مجانية لمدة 3 أيام.
+</string>
+    <string name="unlock_all_templates">افتح جميع القوالب</string>
+    <string name="unlimited_body_pose">وضعيات جسم غير محدودة</string>
+    <string name="custom_face_swap">تبديل وجه مخصص</string>
+    <string name="start_free_trial_for_0_0">ابدأ التجربة المجانية مقابل 0.0</string>
+    <string name="this_item_locked">هذا العنصر مقفل</string>
+    <string name="reshape_body">إعادة تشكيل الجسم</string>
+    <string name="try_now">جرّب الآن</string>
+    <string name="create_unlimited_styles">أنشئ أنماطًا غير محدودة</string>
+    <string name="reshape_perfect_your_curves">• إعادة تشكيل وإبراز منحنياتك</string>
+    <string name="pro_face_swap_hyper_real_ai">• تبديل وجه احترافي بذكاء اصطناعي واقعي للغاية</string>
+    <string name="face_stylist_smile_hire_style_age">• منسق وجه، ابتسامة، تسريحة شعر، عمر</string>
+    <string name="ai_upscale_bg_remover">• تكبير بالذكاء الاصطناعي وإزالة الخلفية</string>
+    <string name="image_variation_ai_restyler">• تنويع الصور وإعادة تنسيق بالذكاء الاصطناعي</string>
+    <string name="v_shape_curves">• شكل V / منحنيات</string>
+    <string name="worth_a_try">يستحق التجربة</string>
+
+    <string name="ad_is_loading">جاري تحميل الإعلان…</string>
+    <string name="swap_hairstyle">تغيير تسريحة الشعر</string>
+    <string name="swipe_to_continue">اسحب للمتابعة</string>
+    <string name="notification_channel_name">الإشعارات العامة</string>
+</resources>

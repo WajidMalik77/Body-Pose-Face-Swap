@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/dashboardFragment"
+        android:icon="@drawable/ic_describe_selector"
+        android:title="@string/describe" />
+    <item
+        android:id="@+id/faceUploadFragment"
+        android:icon="@drawable/ic_face_selector"
+        android:title="@string/upload_face" />
+    <item
+        android:id="@+id/poseFragment"
+        android:icon="@drawable/ic_pose_selector"
+        android:title="@string/pose" />
+
+</menu>

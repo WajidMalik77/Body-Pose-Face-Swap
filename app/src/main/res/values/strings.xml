@@ -1,0 +1,146 @@
+<resources>
+    <string name="app_name" translatable="false">Human Art</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="generate">Generate </string>
+    <string name="privacy_policy"><u>Privacy Policy</u></string>
+    <string name="terms_of_service"><u>Terms Of Service</u></string>
+    <string name="privacy_policy_premium"><u>Privacy Policy</u></string>
+    <string name="cancel_anytime">Cancel Any Time For Any Reason</string>
+    <string name="subscription_details"><u>Subscription Details</u></string>
+    <string name="subscription_details_n_by_subscribing_to_the_human_body_generator_app_you_can_enjoy_an_ad_free_experience_n_upon_confirmation_of_your_purchase_the_subscription_fee_will_be_charged_via_the_google_play_store_choose_from_weekly_monthly_or_a_one_time_payment_plan_based_on_your_preference_after_cancellation_your_subscription_will_remain_active_until_the_end_of_the_current_billing_period_weekly_or_monthly_depending_on_your_plan_subscriptions_automatically_renew_on_the_same_date_each_week_or_month_as_your_initial_subscription_unless_auto_renewal_is_turned_off_at_least_24_hours_before_the_end_of_the_current_billing_period_you_can_update_your_plan_disable_auto_renewal_or_manage_your_subscription_anytime_through_your_google_play_store_account_settings_enjoy_seamless_drawing_experiences_with_the_human_body_generator_app">
+        <b><u>Subscription Details</u></b> \n  By subscribing to the Human Art App, you can enjoy an ad-free experience. \n Upon confirmation of your purchase, the subscription fee will be charged via the Google Play Store. Choose from weekly, monthly, or a one-time payment plan based on your preference. After cancellation, your subscription will remain active until the end of the current billing period (weekly or monthly, depending on your plan). Subscriptions automatically renew on the same date each week or month as your initial subscription unless auto-renewal is turned off at least 24 hours before the end of the current billing period. You can update your plan, disable auto-renewal, or manage your subscription anytime through your Google Play Store account settings. Enjoy seamless drawing experiences with the Human Art App!</string>
+    <item name="radioIcon" type="id" />
+    <string name="ad_attribution" translatable="false">Ad</string>
+    <string name="get_pro">Get Pro</string>
+    <string name="text_to_image">Text to Image</string>
+    <string name="reset">Reset</string>
+    <string name="watch_an_ad">Watch an Ad</string>
+    <string name="randomize">Randomize</string>
+    <string name="select_gender">Select Gender</string>
+    <string name="age">Age</string>
+    <string name="clothing">Clothing</string>
+    <string name="more_options">More Options</string>
+    <string name="describe">Describe</string>
+    <string name="upload_face">upload face</string>
+    <string name="pose">Pose</string>
+    <string name="remove_watermark">Remove WaterMark</string>
+    <string name="generate_human">Generate Human Art</string>
+    <string name="upload_your_image">Upload your image</string>
+    <string name="human_body_generator">Human Art</string>
+    <string name="get_started">Get Started</string>
+    <string name="this_action_may_contain_ads">This action may contain ads</string>
+    <string name="ad">AD</string>
+    <string name="next">Next</string>
+    <string name="finish">Finish</string>
+    <string name="boost_marketing_with_ai_generated_photos">Boost Marketing With AI-Generated Photos</string>
+    <string name="unleash_your_imagination_with_synthetic_graphics">Unleash Your Imagination With Synthetic Graphics</string>
+    <string name="generate_photos_for_ecommerce">Generate Photos For  Ecommerce</string>
+    <string name="explore_face_perception_with_generated_images">Explore Face Perception With Generated Images</string>
+    <string name="language">Language</string>
+    <string name="done">Done</string>
+    <string name="continue_with_ads">Continue with ads</string>
+    <string name="by_continuing_you_agree_to_our_terms_and_privacy_policies">Upgrade to premium with a one- time payment and enjoy lifetime access to exclusive features, ad- free content and priority support.</string>
+    <string name="purchase">Purchase</string>
+    <string name="enjoy_unlimited_access_to_all_content_premium_features">Enjoy unlimited access to all content premium features</string>
+    <string name="get_premium_access">GET\nPREMIUM ACCESS</string>
+    <string name="terms_amp_conditions"><u><![CDATA[Terms & Conditions]]></u></string>
+    <string name="ad_free_experience">Ad Free Experience</string>
+    <string name="settings">Settings</string>
+    <string name="unlock_premium">Unlock Premium</string>
+    <string name="swap_hairstyle">Swap Hairstyle</string>
+    <string name="share_app">Share App</string>
+    <string name="rate_us">Rate Us</string>
+    <string name="feedback">Feedback</string>
+    <string name="clear">Clear</string>
+    <string name="loading_ad">Loading ad…</string>
+    <string name="ok">OK</string>
+    <string name="unleash_your_ncreativity">Unleash Your \nCreativity</string>
+    <string name="continue1">Continue</string>
+    <string name="gender">Gender</string>
+    <string name="select_pose">Select Pose</string>
+    <string name="photo_editor">Photo Editor</string>
+    <string name="face_style">Face Style</string>
+    <string name="image_to_image">Image To Image</string>
+    <string name="camera">Camera</string>
+    <string name="templates">Templates</string>
+    <string name="re_styler">Re Styler</string>
+    <string name="image_variation">Image Variation</string>
+    <string name="bg_remover">BG Remover</string>
+    <string name="ai_resizer">AI Resizer</string>
+    <string name="crop_un_crop">Crop/Un Crop</string>
+    <string name="upscale_image">Upscale Image</string>
+    <string name="save">Save</string>
+    <string name="adjust">Adjust</string>
+    <string name="filters">Filters</string>
+    <string name="text">Text</string>
+    <string name="face_swap">Face Swap</string>
+    <string name="human_body_generator_pro">Human Art PRO!</string>
+    <string name="access_to_all_premium_features">Access to all premium features</string>
+    <string name="faster_processing">Faster processing</string>
+    <string name="no_watermark">No watermark</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="life_time">Life Time</string>
+    <string name="one_time_purchase_the_price_may_increase_later">One time purchase. the price may increase later</string>
+    <string name="cancel_any_time_for_any_reason">Cancel Any Time For Any Reason</string>
+    <string name="add_target">Add Target</string>
+    <string name="crop">Crop</string>
+    <string name="cancel">Cancel</string>
+    <string name="original">Original</string>
+    <string name="square">Square</string>
+
+    <string name="rotate">Rotate</string>
+    <string name="remove">Remove</string>
+    <string name="background">Background</string>
+    <string name="edit">Edit</string>
+    <string name="number_of_variations">Number Of Variations:</string>
+    <string name="yearly_access">Yearly Access</string>
+    <string name="best_offer">Best Offer</string>
+    <string name="unlock_all_features">Unlock All Features</string>
+    <string name="six_month">Six Month</string>
+    <string name="yearly">Yearly</string>
+    <string name="monthly">Monthly</string>
+    <string name="weekly_access">Weekly</string>
+    <string name="subscription_terms">Subscription Terms</string>
+    <string name="replicate_body_pose">Reshape Your Body Pose</string>
+    <string name="ghibli_photo">Ghibli Photo</string>
+    <string name="ai_photo_editor">AI Photo Editor</string>
+    <string name="set_language">Set Language</string>
+    <string name="upload_image_first">Upload Image first</string>
+    <string name="update_human">Update Human Art</string>
+
+    <string name="enjoy_unlimited_access_to_top_tier_content_and_exclusive_premium_features">Enjoy unlimited access to top-tier content and exclusive premium features</string>
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+When you subscribe to our premium content, your subscription will renew automatically and you will be charged at start of each billing cycle until you cancel the subscription
+    </string>
+    <string name="no_trial_period_included_nyour_subscription_will_automatically_renew_based_on_your_selected_plan_weekly_monthly_or_yearly_unless_canceled_at_24_hours_befor_the_end_of_the_current_period">No Trial Period Included \nYour subscription will automatically renew based on your selected plan weekly monthly or yearly unless canceled at 24 hours before the end of the current period</string>
+    <string name="_2_3" translatable="false">2:3</string>
+    <string name="_3_4" translatable="false">3:4</string>
+    <string name="_3_5" translatable="false">3:5</string>
+    <string name="_4_5" translatable="false">4:5</string>
+    <string name="_5_7" translatable="false">5:7</string>
+    <string name="_9_16" translatable="false">9:16</string>
+    <string name="replicate_any_pose_within_your_own_photo">Replicate Any Pose Within Your Own Photo</string>
+    <string name="turn_your_photo_to_ghibli_style_selfie_for_social_media">Turn Your Photo To Ghibli Style Selfie For Social Media</string>
+    <string name="easily_swap_your_face_into_any_photo">Easily Swap Your Face Into Any Photo</string>
+    <string name="edit_your_photo_with_effects_restyle_and_more">Edit Your Photo With Effects, Restyle And More</string>
+    <string name="free">Free</string>
+    <string name="unlock_all_premium_features_and_take_your_experience_to_the_next_level_enjoy_an_ad_free_interface_subscribe_now_for_just_rs_2_240_weekly_after_3_days_free_trial">Unlock all premium features and take your experience to the next level, enjoy an ad-free interface. subscribe now for just rs 2,240/weekly after 3 days free trial.</string>
+    <string name="unlock_all_templates">Unlock All Templates</string>
+    <string name="unlimited_body_pose">Unlimited Body Pose</string>
+    <string name="custom_face_swap">Custom Face Swap</string>
+    <string name="start_free_trial_for_0_0">Start Free Trial For 0.0</string>
+    <string name="this_item_locked">This item locked</string>
+    <string name="reshape_body">Reshape Body</string>
+    <string name="try_now">Try Now</string>
+    <string name="create_unlimited_styles">Create Unlimited styles</string>
+    <string name="reshape_perfect_your_curves">• Reshape, Perfect your Curves</string>
+    <string name="pro_face_swap_hyper_real_ai">• Pro Face Swap Hyper Real AI</string>
+    <string name="face_stylist_smile_hire_style_age">• Face Stylist, Smile, Hire Style, Age</string>
+    <string name="ai_upscale_bg_remover"><![CDATA[• AI Upscale & BG Remover]]></string>
+    <string name="image_variation_ai_restyler"><![CDATA[• Image Variation & AI Restyler]]></string>
+    <string name="v_shape_curves">• V-Shape / Curves</string>
+    <string name="worth_a_try">Worth a try</string>
+    <string name="swipe_to_continue">Swipe to Continue</string>
+    <string name="ad_is_loading">Loading ad…</string>
+    <string name="notification_channel_name">General Notifications</string>
+</resources>

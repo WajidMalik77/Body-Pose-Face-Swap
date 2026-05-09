@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_home_new">
+
+    <!-- ── Toolbar ─────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/llToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/_4sdp"
+        android:paddingEnd="@dimen/_12sdp"
+        app:layout_constraintTop_toBottomOf="@id/ll_banner_top"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="@dimen/_36sdp"
+            android:layout_height="@dimen/_36sdp"
+            android:padding="@dimen/_8sdp"
+            android:src="@drawable/ic_back"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Choose Photo"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_14ssp"
+            android:fontFamily="@font/poppins_semibold"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/ivDone"
+            android:layout_width="@dimen/_36sdp"
+            android:layout_height="@dimen/_36sdp"
+            android:padding="@dimen/_8sdp"
+            android:src="@drawable/ic_check"
+            android:contentDescription="Confirm"
+            android:visibility="invisible" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_banner_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include layout="@layout/layout_ad_banner" />
+    </LinearLayout>
+
+    <!-- ── Templates section (horizontal strip, fixed height) ── -->
+    <TextView
+        android:id="@+id/tvTemplatesLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:text="Templates"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_12ssp"
+        android:fontFamily="@font/poppins_semibold"
+        app:layout_constraintTop_toBottomOf="@id/llToolbar"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTemplates"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_80sdp"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:paddingHorizontal="@dimen/_6sdp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/tvTemplatesLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ── Recents section (hidden on first run) ───────────── -->
+    <TextView
+        android:id="@+id/tvRecentsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:text="Recently Used"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_12ssp"
+        android:fontFamily="@font/poppins_semibold"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/rvTemplates"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRecents"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_80sdp"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:paddingHorizontal="@dimen/_6sdp"
+        android:clipToPadding="false"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvRecentsLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ── Gallery label ───────────────────────────────────── -->
+    <TextView
+        android:id="@+id/tvGalleryLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:text="Gallery"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_12ssp"
+        android:fontFamily="@font/poppins_semibold"
+        app:layout_constraintTop_toBottomOf="@id/rvRecents"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- ── Gallery grid — takes ALL remaining height ───────── -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvGallery"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:paddingHorizontal="@dimen/_6sdp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/tvGalleryLabel"
+        app:layout_constraintBottom_toTopOf="@id/ll_native_bottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_native_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_12sdp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include layout="@layout/layout_native" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

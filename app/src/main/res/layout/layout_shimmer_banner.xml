@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shimmer_container_banner"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="#F0F0F0"
+    android:gravity="center"
+    android:padding="@dimen/_2sdp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_medium"
+        android:text="@string/ad_is_loading"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_12ssp" />
+</LinearLayout>

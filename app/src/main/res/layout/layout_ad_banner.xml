@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/banner_ad_shimmer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:shimmer_auto_start="true"
+        app:shimmer_duration="1500">
+
+        <include layout="@layout/layout_shimmer_banner" />
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <FrameLayout
+        android:id="@+id/admob_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</merge>

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_color"
+    tools:context=".fragments.home.HomeFragment">
+
+
+    <ImageView
+        android:id="@+id/back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_20sdp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:paddingEnd="@dimen/_10sdp"
+        android:src="@drawable/ic_arrow_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription,RtlSymmetry" />
+
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:background="@drawable/custom_btn_pro"
+        android:fontFamily="@font/poppins_medium"
+        android:gravity="center"
+        android:paddingTop="@dimen/_3sdp"
+        android:text="@string/get_pro"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/back_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/back_btn" />
+
+
+    <ImageView
+        android:id="@+id/save_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:src="@drawable/ic_save_img"
+        app:layout_constraintBottom_toBottomOf="@+id/textView2"
+        app:layout_constraintEnd_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="@+id/textView2"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:id="@+id/ll_banner_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/textView2">
+
+        <include layout="@layout/layout_ad_banner" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/ll_native_bottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ll_banner_top">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView2"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_250sdp"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                app:cardBackgroundColor="@color/light_color"
+                app:cardCornerRadius="@dimen/_10sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/generatedImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/watermarkText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="8dp"
+                        android:padding="4dp"
+                        android:rotation="-45"
+                        android:textColor="#66FFFFFF"
+                        android:textSize="@dimen/_14ssp"
+                        android:visibility="visible" /> <!-- Start as invisible -->
+
+                </FrameLayout>
+
+            </androidx.cardview.widget.CardView>
+
+
+            <TextView
+                android:id="@+id/removeWatermarkSwitch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:background="@drawable/custom_btn_watermark"
+                android:fontFamily="@font/poppins_medium"
+                android:gravity="center"
+
+                android:paddingTop="@dimen/_2sdp"
+                android:text="@string/remove_watermark"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_15ssp"
+                app:layout_constraintEnd_toEndOf="@+id/cardView2"
+                app:layout_constraintStart_toStartOf="@+id/cardView2"
+                app:layout_constraintTop_toBottomOf="@+id/layoutAdvancedAiRow"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+
+
+            <LinearLayout
+                android:id="@+id/layoutAdvancedAiRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_8sdp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_3sdp"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/cardView2"
+                android:weightSum="3">
+
+                <!-- Card 5: Removing Background -->
+                <LinearLayout
+                    android:id="@+id/layoutCardAiReshape"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_4sdp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_advance_cards"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/_8sdp">
+
+                    <ImageView
+                        android:id="@+id/imgAiRemoveBg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:contentDescription="Remove Background Icon"
+                        android:src="@drawable/ic_reshape_result" />
+
+                    <TextView
+                        android:id="@+id/tvAiRemoveBg"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="Body\nReshape"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_10ssp" />
+
+                </LinearLayout>
+
+                <!-- Card 6: Image Variation -->
+                <LinearLayout
+                    android:id="@+id/layoutCardAiImageVariation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/_4sdp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_advance_cards"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/_8sdp">
+
+                    <ImageView
+                        android:id="@+id/imgAiImageVariation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:contentDescription="Image Variation Icon"
+                        android:src="@drawable/ic_variation_home" />
+
+                    <TextView
+                        android:id="@+id/tvAiImageVariation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="Image\nVariation"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_10ssp" />
+
+                </LinearLayout>
+
+                <!-- Card 7: Swapping Hairstyle -->
+                <LinearLayout
+                    android:id="@+id/layoutCardAiSwapHairstyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_advance_cards"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/_8sdp">
+
+                    <ImageView
+                        android:id="@+id/imgAiSwapHairstyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:contentDescription="Swapping Hairstyle Icon"
+                        android:src="@drawable/ic_swapping_hair_home" />
+
+                    <TextView
+                        android:id="@+id/tvAiSwapHairstyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="Swapping\nHairstyle"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_10ssp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/ll_native_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_12sdp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include layout="@layout/layout_native" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

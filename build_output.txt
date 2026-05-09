@@ -1,0 +1,95 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDevDebugBuild UP-TO-DATE
+> Task :app:mergeDevDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:dataBindingMergeDependencyArtifactsDevDebug UP-TO-DATE
+> Task :app:generateDevDebugResValues UP-TO-DATE
+> Task :app:generateDevDebugResources UP-TO-DATE
+> Task :app:injectCrashlyticsMappingFileIdDevDebug UP-TO-DATE
+> Task :app:injectCrashlyticsVersionControlInfoDevDebug UP-TO-DATE
+> Task :app:processDevDebugGoogleServices UP-TO-DATE
+> Task :sticker:preBuild UP-TO-DATE
+> Task :sticker:preDebugBuild UP-TO-DATE
+> Task :sticker:generateDebugResValues UP-TO-DATE
+> Task :sticker:generateDebugResources UP-TO-DATE
+> Task :sticker:packageDebugResources UP-TO-DATE
+> Task :app:mergeDevDebugResources UP-TO-DATE
+> Task :app:packageDevDebugResources UP-TO-DATE
+> Task :sticker:processDebugNavigationResources UP-TO-DATE
+> Task :app:processDevDebugNavigationResources UP-TO-DATE
+> Task :app:parseDevDebugLocalResources UP-TO-DATE
+> Task :sticker:parseDebugLocalResources UP-TO-DATE
+> Task :sticker:generateDebugRFile UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDevDebug UP-TO-DATE
+> Task :app:generateDevDebugBuildConfig UP-TO-DATE
+> Task :app:generateSafeArgsDevDebug UP-TO-DATE
+> Task :sticker:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkDevDebugAarMetadata UP-TO-DATE
+> Task :app:compileDevDebugNavigationResources UP-TO-DATE
+> Task :app:mapDevDebugSourceSetPaths UP-TO-DATE
+> Task :app:createDevDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDevDebug UP-TO-DATE
+> Task :sticker:extractDeepLinksDebug UP-TO-DATE
+> Task :sticker:processDebugManifest UP-TO-DATE
+> Task :app:processDevDebugMainManifest UP-TO-DATE
+> Task :app:processDevDebugManifest UP-TO-DATE
+> Task :app:processDevDebugManifestForPackage UP-TO-DATE
+> Task :sticker:compileDebugLibraryResources UP-TO-DATE
+> Task :app:processDevDebugResources UP-TO-DATE
+> Task :sticker:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :sticker:compileDebugKotlin NO-SOURCE
+> Task :sticker:javaPreCompileDebug UP-TO-DATE
+> Task :sticker:compileDebugJavaWithJavac UP-TO-DATE
+> Task :sticker:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:javaPreCompileDevDebug UP-TO-DATE
+> Task :app:mergeDevDebugShaders UP-TO-DATE
+> Task :app:compileDevDebugShaders NO-SOURCE
+> Task :app:generateDevDebugAssets UP-TO-DATE
+> Task :sticker:mergeDebugShaders UP-TO-DATE
+> Task :sticker:compileDebugShaders NO-SOURCE
+> Task :sticker:generateDebugAssets UP-TO-DATE
+> Task :sticker:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeDevDebugAssets UP-TO-DATE
+> Task :app:compressDevDebugAssets UP-TO-DATE
+> Task :sticker:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :app:desugarDevDebugFileDependencies UP-TO-DATE
+> Task :sticker:processDebugJavaRes NO-SOURCE
+> Task :sticker:createFullJarDebug UP-TO-DATE
+> Task :app:checkDevDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDevDebug UP-TO-DATE
+> Task :sticker:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :app:mergeDevDebugJniLibFolders UP-TO-DATE
+> Task :sticker:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeLibDexDevDebug UP-TO-DATE
+> Task :sticker:mergeDebugNativeLibs NO-SOURCE
+> Task :sticker:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :app:mergeDevDebugNativeLibs UP-TO-DATE
+> Task :app:stripDevDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDevDebug UP-TO-DATE
+> Task :app:writeDevDebugAppMetadata UP-TO-DATE
+> Task :app:writeDevDebugSigningConfigVersions UP-TO-DATE
+> Task :app:kspDevDebugKotlin
+> Task :app:compileDevDebugKotlin UP-TO-DATE
+> Task :app:compileDevDebugJavaWithJavac UP-TO-DATE
+> Task :app:hiltAggregateDepsDevDebug UP-TO-DATE
+> Task :app:hiltJavaCompileDevDebug UP-TO-DATE
+> Task :app:transformDevDebugClassesWithAsm UP-TO-DATE
+> Task :app:dexBuilderDevDebug UP-TO-DATE
+> Task :app:mergeDevDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processDevDebugJavaRes UP-TO-DATE
+> Task :app:mergeDevDebugJavaResource UP-TO-DATE
+> Task :app:mergeProjectDexDevDebug UP-TO-DATE
+> Task :app:packageDevDebug UP-TO-DATE
+> Task :app:createDevDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDevDebug UP-TO-DATE
+
+[Incubating] Problems report is available at: file:///Users/apple/AndroidStudioProjects/New%20folder/NewHumanBody/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 4s
+69 actionable tasks: 1 executed, 68 up-to-date

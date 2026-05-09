@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Human Art</string>
+    <string name="hello_blank_fragment">こんにちは、空のフラグメント</string>
+    <string name="generate">生成</string>
+
+    <string name="privacy_policy"><u>プライバシーポリシー</u></string>
+    <string name="terms_of_service"><u>利用規約</u></string>
+    <string name="privacy_policy_premium"><u>プライバシーポリシー</u></string>
+    <string name="cancel_anytime"><u>いつでもキャンセル可能</u></string>
+    <string name="subscription_details"><u>サブスクリプション詳細</u></string>
+
+    <string name="subscription_details_n_by_subscribing_to_the_human_body_generator_app_you_can_enjoy_an_ad_free_experience_n_upon_confirmation_of_your_purchase_the_subscription_fee_will_be_charged_via_the_google_play_store_choose_from_weekly_monthly_or_a_one_time_payment_plan_based_on_your_preference_after_cancellation_your_subscription_will_remain_active_until_the_end_of_the_current_billing_period_weekly_or_monthly_depending_on_your_plan_subscriptions_automatically_renew_on_the_same_date_each_week_or_month_as_your_initial_subscription_unless_auto_renewal_is_turned_off_at_least_24_hours_before_the_end_of_the_current_billing_period_you_can_update_your_plan_disable_auto_renewal_or_manage_your_subscription_anytime_through_your_google_play_store_account_settings_enjoy_seamless_drawing_experiences_with_the_human_body_generator_app">
+        <b><u>サブスクリプション詳細</u></b>
+        \n 人体ジェネレーターアプリに登録すると、広告なしで利用できます。
+        \n 購入確認後、サブスクリプション料金はGoogle Playストアを通じて請求されます。
+        週次、月次、または一度きりの支払いプランから選択できます。
+        キャンセル後も、現在の請求期間（プランに応じて週次または月次）が終了するまでサブスクリプションは有効です。
+        サブスクリプションは、初回登録時と同じ週または月の同じ日に自動更新されます。自動更新をオフにする場合は、現在の請求期間終了の少なくとも24時間前に行ってください。
+        プランの変更、自動更新の無効化、サブスクリプションの管理はGoogle Playストアのアカウント設定からいつでも可能です。
+        人体ジェネレーターアプリでスムーズな描画体験をお楽しみください！
+    </string>
+
+    <item name="radioIcon" type="id" />
+    <string name="ad_attribution" translatable="false">広告</string>
+
+    <string name="get_pro">Proを取得</string>
+    <string name="text_to_image">テキストから画像</string>
+    <string name="reset">リセット</string>
+    <string name="watch_an_ad">広告を見る</string>
+    <string name="randomize">ランダム</string>
+
+    <string name="select_gender">性別を選択</string>
+    <string name="age">年齢</string>
+    <string name="clothing">服装</string>
+    <string name="more_options">その他のオプション</string>
+    <string name="describe">説明する</string>
+    <string name="upload_face">顔をアップロード</string>
+    <string name="pose">ポーズ</string>
+    <string name="remove_watermark">ウォーターマークを削除</string>
+    <string name="generate_human">人体生成</string>
+    <string name="upload_your_image">画像をアップロード</string>
+
+    <string name="human_body_generator">人体ジェネレーター</string>
+    <string name="get_started">開始</string>
+    <string name="this_action_may_contain_ads">この操作には広告が含まれる場合があります</string>
+    <string name="ad">広告</string>
+
+    <string name="next"><u>次へ</u></string>
+    <string name="finish">完了</string>
+
+    <string name="boost_marketing_with_ai_generated_photos">AI生成写真でマーケティングを強化</string>
+    <string name="unleash_your_imagination_with_synthetic_graphics">合成グラフィックスで想像力を解き放つ</string>
+    <string name="generate_photos_for_ecommerce">Eコマース用の写真を生成</string>
+    <string name="explore_face_perception_with_generated_images">生成画像で顔の認識を探求</string>
+
+    <string name="language">言語</string>
+    <string name="done">完了</string>
+    <string name="continue_with_ads">広告付きで続行</string>
+
+    <string name="by_continuing_you_agree_to_our_terms_and_privacy_policies">
+        続行することで、当社の利用規約とプライバシーポリシーに同意したことになります。
+    </string>
+
+    <string name="purchase">購入</string>
+    <string name="enjoy_unlimited_access_to_all_content_premium_features">すべてのプレミアム機能に無制限アクセス</string>
+    <string name="get_premium_access">プレミアム\nアクセス</string>
+
+    <string name="terms_amp_conditions"><u><![CDATA[利用規約]]></u></string>
+
+    <string name="ad_free_experience">広告なし体験</string>
+    <string name="settings">設定</string>
+    <string name="unlock_premium">プレミアムを解除</string>
+    <string name="share_app">アプリを共有</string>
+    <string name="rate_us">評価する</string>
+    <string name="feedback">フィードバック</string>
+    <string name="clear">クリア</string>
+    <string name="loading_ad">広告を読み込み中…</string>
+    <string name="ok">OK</string>
+
+    <string name="unleash_your_ncreativity">あなたの\n創造力を解き放つ</string>
+    <string name="continue1">続行</string>
+
+    <string name="gender">性別</string>
+    <string name="select_pose">ポーズを選択</string>
+    <string name="photo_editor">フォトエディター</string>
+    <string name="face_style">顔のスタイル</string>
+    <string name="image_to_image">画像から画像</string>
+    <string name="camera">カメラ</string>
+    <string name="templates">テンプレート</string>
+    <string name="re_styler">リスタイル</string>
+    <string name="image_variation">画像のバリエーション</string>
+    <string name="bg_remover">背景削除</string>
+    <string name="ai_resizer">AIリサイズ</string>
+
+    <string name="crop_un_crop">切り取り / 元に戻す</string>
+    <string name="upscale_image">画像をアップスケール</string>
+    <string name="save">保存</string>
+    <string name="adjust">調整</string>
+    <string name="filters">フィルター</string>
+    <string name="text">テキスト</string>
+    <string name="face_swap">顔交換</string>
+
+    <string name="human_body_generator_pro">人体ジェネレーターPRO！</string>
+    <string name="access_to_all_premium_features">すべてのプレミアム機能にアクセス</string>
+    <string name="faster_processing">高速処理</string>
+    <string name="no_watermark">ウォーターマークなし</string>
+
+    <string name="most_popular">最も人気</string>
+    <string name="life_time">生涯</string>
+    <string name="one_time_purchase_the_price_may_increase_later">一度きりの購入。価格は後で上がる場合があります</string>
+    <string name="cancel_any_time_for_any_reason">いつでもキャンセル可能</string>
+
+    <string name="add_target">ターゲットを追加</string>
+    <string name="crop">切り取り</string>
+    <string name="cancel">キャンセル</string>
+    <string name="original">オリジナル</string>
+    <string name="square">正方形</string>
+
+    <string name="rotate">回転</string>
+    <string name="remove">削除</string>
+    <string name="background">背景</string>
+    <string name="edit">編集</string>
+
+    <string name="number_of_variations">バリエーション数：</string>
+    <string name="yearly_access">年間アクセス</string>
+    <string name="best_offer">ベストオファー</string>
+    <string name="unlock_all_features">すべての機能を解除</string>
+
+    <string name="six_month">6か月</string>
+    <string name="yearly">年間</string>
+    <string name="monthly">月間</string>
+    <string name="weekly_access">週間アクセス</string>
+
+    <string name="subscription_terms">サブスクリプション規約</string>
+    <string name="replicate_body_pose">体のポーズを再現</string>
+    <string name="ghibli_photo">ジブリ風写真</string>
+    <string name="ai_photo_editor">AIフォトエディター</string>
+    <string name="set_language">言語を設定</string>
+    <string name="upload_image_first">まず画像をアップロードしてください</string>
+    <string name="update_human">人体を更新</string>
+    <string name="enjoy_unlimited_access_to_top_tier_content_and_exclusive_premium_features">
+最高品質のコンテンツと限定プレミアム機能への無制限アクセスをお楽しみください
+</string>
+
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+プレミアムコンテンツに登録すると、解約するまで毎請求期間の開始時に自動的に更新・請求されます
+</string>
+
+    <string name="no_trial_period_included_nyour_subscription_will_automatically_renew_based_on_your_selected_plan_weekly_monthly_or_yearly_unless_canceled_at_24_hours_befor_the_end_of_the_current_period">
+無料トライアルは含まれていません\n選択したプラン（週次・月次・年次）に基づいて自動更新され、現在の期間終了の24時間前までに解約しない限り継続されます
+</string>
+
+    <string name="replicate_any_pose_within_your_own_photo">
+自分の写真の中でどんなポーズでも再現できます
+</string>
+
+    <string name="turn_your_photo_to_ghibli_style_selfie_for_social_media">
+写真をソーシャルメディア向けのジブリ風セルフィーに変換
+</string>
+
+    <string name="easily_swap_your_face_into_any_photo">
+どんな写真にも簡単に顔を入れ替え
+</string>
+
+    <string name="edit_your_photo_with_effects_restyle_and_more">
+エフェクトやスタイル変更などで写真を編集
+</string>
+    <string name="free">無料</string>
+    <string name="unlock_all_premium_features_and_take_your_experience_to_the_next_level_enjoy_an_ad_free_interface_subscribe_now_for_just_rs_2_240_weekly_after_3_days_free_trial">
+すべてのプレミアム機能を解除して、体験を次のレベルへ。広告なしのインターフェースをお楽しみください。3日間の無料トライアル後、週2,240ルピーで今すぐ購読。
+</string>
+    <string name="unlock_all_templates">すべてのテンプレートを解除</string>
+    <string name="unlimited_body_pose">無制限のボディポーズ</string>
+    <string name="custom_face_swap">カスタムフェイススワップ</string>
+    <string name="start_free_trial_for_0_0">0.0で無料トライアルを開始</string>
+    <string name="this_item_locked">このアイテムはロックされています</string>
+    <string name="reshape_body">体をリシェイプ</string>
+    <string name="try_now">今すぐ試す</string>
+    <string name="create_unlimited_styles">無制限のスタイルを作成</string>
+    <string name="reshape_perfect_your_curves">• 曲線を整えて理想のボディに</string>
+    <string name="pro_face_swap_hyper_real_ai">• 超リアルAIによるプロフェッショナルなフェイススワップ</string>
+    <string name="face_stylist_smile_hire_style_age">• フェイススタイリスト、笑顔、ヘアスタイル、年齢</string>
+    <string name="ai_upscale_bg_remover">• AI高画質化＆背景削除</string>
+    <string name="image_variation_ai_restyler">• 画像バリエーション＆AIリスタイラー</string>
+    <string name="v_shape_curves">• Vシェイプ / カーブ</string>
+    <string name="worth_a_try">試す価値あり</string>
+
+    <string name="ad_is_loading">広告を読み込んでいます…</string>
+    <string name="swap_hairstyle">ヘアスタイルを変更</string>
+    <string name="swipe_to_continue">スワイプして続行</string>
+    <string name="notification_channel_name">一般通知</string>
+</resources>
