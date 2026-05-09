@@ -220,9 +220,7 @@ class ReStyleFragment : Fragment() {
                     // ── Navigate to before/after immediately ──
                     ResultHolder.beforeBitmap = beforeBitmap
                     ResultHolder.afterBitmap = bitmap
-                    safeShowInterstitialNavigate("ReStyleFragmentScreen", "generated") {
-                        findNavController().navigate(R.id.action_reStyleFragment_to_beforeAfterFragment)
-                    }
+                    findNavController().navigate(R.id.action_reStyleFragment_to_beforeAfterFragment)
                 }
             }.onFailure {
                 if (isAdded) {

@@ -12,15 +12,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import timber.log.Timber
 
 class NativeAdConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v13") {
-    private val configKey = "Config_v13"
+) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v14") {
+    private val configKey = "Config_v14"
     companion object {
         private val jsonParser by lazy {
             Json {

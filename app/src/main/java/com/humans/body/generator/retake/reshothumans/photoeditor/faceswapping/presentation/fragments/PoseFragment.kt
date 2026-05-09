@@ -120,11 +120,9 @@ class PoseFragment : Fragment(), BillingManager.PurchaseListener {
             onSuccess = { response ->
                 binding.GenTxt.isEnabled = true
                 isGenerating = false
-                safeShowInterstitialNavigate("PoseFragmentScreen", "generate") {
-                    val action = PoseFragmentDirections
-                        .actionPoseFragmentToGeneratePictureFragment(response.url ?: "")
-                    findNavController().navigate(action)
-                }
+                val action = PoseFragmentDirections
+                    .actionPoseFragmentToGeneratePictureFragment(response.url ?: "")
+                findNavController().navigate(action)
             },
             onFailure = { errorMsg ->
                 binding.GenTxt.isEnabled = true

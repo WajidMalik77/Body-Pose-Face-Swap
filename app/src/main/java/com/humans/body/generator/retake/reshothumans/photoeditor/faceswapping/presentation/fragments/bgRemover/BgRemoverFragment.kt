@@ -183,9 +183,7 @@ class BgRemoverFragment : Fragment() {
                     .onSuccess { resultBitmap ->
                         ResultHolder.beforeBitmap = beforeBitmap
                         ResultHolder.afterBitmap = resultBitmap
-                        safeShowInterstitialNavigate("BgRemoverFragmentScreen", "done") {
-                            findNavController().navigate(R.id.action_bgRemoverFragment_to_beforeAfterFragment)
-                        }
+                        findNavController().navigate(R.id.action_bgRemoverFragment_to_beforeAfterFragment)
                     }
                     .onFailure { error ->
                         Toast.makeText(

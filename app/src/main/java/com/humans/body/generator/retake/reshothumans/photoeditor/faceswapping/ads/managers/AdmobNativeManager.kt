@@ -46,7 +46,6 @@ class AdmobNativeManager(
     private val activityRef = WeakReference(activity)
     private val displayMetrics by lazy { Resources.getSystem().displayMetrics.density }
     private var nativeAd: NativeAd? = null
-    private var preloadedAd: NativeAd? = null
     private var adLoader: AdLoader? = null
     @Volatile
     private var isLoading = false
@@ -146,8 +145,6 @@ class AdmobNativeManager(
             adLoader = null
             nativeAd?.destroy()
             nativeAd = null
-            preloadedAd?.destroy()
-            preloadedAd = null
             lastLoadParams = null
             colorCache.evictAll()
             gradientCache.evictAll()
@@ -186,39 +183,14 @@ class AdmobNativeManager(
 
         if (!canLoadAd(activity)) return
 
-        // Store params for preloading
+        // Store params for rendering context
         lastLoadParams = params
-
-        // Check if we have a preloaded ad ready
-        if (preloadedAd != null) {
-            showDebugToast("Native Ad: Using Preloaded Ad")
-            handleAdReceived(preloadedAd!!, params, isPreloaded = true)
-            preloadedAd = null
-
-            // Start preloading next ad if enabled
-            if (params.shouldPreloadNext) {
-                preloadNextAd(params)
-            }
-            return
-        }
 
         isLoading = true
 
         scope.launch(Dispatchers.Main.immediate) {
             prepareContainers(params)
             startAdRequest(activity, params, isPreload = false)
-        }
-    }
-
-    private fun preloadNextAd(params: AdLoadParams) {
-        val activity = activityRef.get() ?: return
-        if (isPreloading || isDestroyed || activity.isFinishing || activity.isDestroyed) return
-
-        isPreloading = true
-        showDebugToast("Native Ad: Preloading Next Ad")
-
-        scope.launch(Dispatchers.Main.immediate) {
-            startAdRequest(activity, params, isPreload = true)
         }
     }
 
@@ -247,7 +219,7 @@ class AdmobNativeManager(
                 if (isPreload) {
                     handlePreloadedAdReceived(ad)
                 } else {
-                    handleAdReceived(ad, params, isPreloaded = true)
+                    handleAdReceived(ad, params, isPreloaded = false)
                 }
             }
             .withAdListener(createAdListener(params, isPreload))
@@ -263,8 +235,7 @@ class AdmobNativeManager(
 
     private fun handlePreloadedAdReceived(ad: NativeAd) {
         isPreloading = false
-        preloadedAd?.destroy()
-        preloadedAd = ad
+        ad.destroy()
         showDebugToast("Native Ad: Preload Success")
     }
 
@@ -281,21 +252,6 @@ class AdmobNativeManager(
             try {
                 val adView = inflateAndPopulateAdView(ad, params)
                 displayAd(adView, params)
-
-                Timber.d("Should Preload: ${params.shouldPreloadNext}")
-                // Set up impression listener to preload next ad (only if enabled)
-                if (params.shouldPreloadNext) {
-                    ad.setOnPaidEventListener {
-                        showDebugToast("Native Ad: Impression - Preloading Next")
-                        // Preload next ad after impression
-                        lastLoadParams?.let { preloadNextAd(it) }
-                    }
-                } else {
-                    ad.setOnPaidEventListener {
-                        showDebugToast("Native Ad: Impression Recorded")
-                        // Don't preload when disabled
-                    }
-                }
 
                 showDebugToast("Native Ad: Load Success")
                 params.onLoaded?.invoke()

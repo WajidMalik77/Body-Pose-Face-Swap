@@ -58,10 +58,6 @@ class AdsManager @Inject constructor(
         adConfigRepository.initialize(
             onReady = {
                 onConfigReady?.invoke()
-
-                lifecycleScope(activity).launch {
-                    loadAdsForScreen(activity, screen, trigger)
-                }
             },
             onFailed = {
                 Timber.w("Ad configuration failed")
@@ -186,20 +182,6 @@ class AdsManager @Inject constructor(
         interstitialAdOrchestrator.destroy()
         onConfigReady = null
         onConfigFailed = null
-    }
-
-    private suspend fun loadAdsForScreen(
-        activity: Activity,
-        screen: String,
-        trigger: String
-    ) {
-        val eligibility = checkEligibility(activity)
-        if (!eligibility.canShowAds) return
-
-        if (!adConfigRepository.isConfigLoaded()) return
-
-        // Load interstitial for screen
-        interstitialAdOrchestrator.loadInterstitialAd(activity, screen)
     }
 
     private suspend fun loadInterstitialOnly(

@@ -189,9 +189,7 @@ class UpScaleFragment : Fragment() {
                             binding.generatedImage.setImageBitmap(upscaled)
                             ResultHolder.beforeBitmap = beforeBitmap
                             ResultHolder.afterBitmap = upscaled
-                            safeShowInterstitialNavigate("UpScaleFragmentScreen", "done") {
-                                findNavController().navigate(R.id.action_upScaleFragment_to_beforeAfterFragment)
-                            }
+                            findNavController().navigate(R.id.action_upScaleFragment_to_beforeAfterFragment)
                         }
                     }
                     .onFailure { error ->

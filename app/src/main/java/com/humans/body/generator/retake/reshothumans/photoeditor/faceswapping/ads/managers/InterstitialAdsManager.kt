@@ -150,9 +150,6 @@ class InterstitialAdsManager private constructor(private val adsPref: AdsPref) {
                 Timber.i("🔙 Interstitial ad dismissed by user.")
                 cleanUpAdState()
                 onAdDismissed()
-                activityRef.get()?.let { act ->
-                    loadNextAd(act, ad.adUnitId)
-                }
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
@@ -161,9 +158,6 @@ class InterstitialAdsManager private constructor(private val adsPref: AdsPref) {
 
                 cleanUpAdState()
                 onAdFailedToShow()
-                activityRef.get()?.let { act ->
-                    loadNextAd(act, ad.adUnitId)
-                }
             }
         }
 
@@ -181,8 +175,4 @@ class InterstitialAdsManager private constructor(private val adsPref: AdsPref) {
 //        adShowCount++
     }
 
-    /** Loads next ad for reuse */
-    private fun loadNextAd(activity: Activity, adUnitId: String) {
-        loadInterstitialAd(activity, adUnitId)
-    }
 }

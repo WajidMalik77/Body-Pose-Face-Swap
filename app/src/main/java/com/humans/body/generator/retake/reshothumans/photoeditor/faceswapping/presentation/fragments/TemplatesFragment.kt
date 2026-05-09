@@ -24,7 +24,6 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentTemplatesBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.Constants
@@ -117,12 +116,10 @@ class TemplatesFragment : Fragment() {
             result.onSuccess { bitmap ->
                 if (isAdded) {
                     binding.loadingOverlay.visibility = View.GONE
-                    safeShowInterstitialNavigate("TemplatesFragmentScreen", "generate") {
-                        navigateWithBitmap(
-                            bitmap,
-                            R.id.action_templatesFragment_to_generatePictureFragment
-                        )
-                    }
+                    navigateWithBitmap(
+                        bitmap,
+                        R.id.action_templatesFragment_to_generatePictureFragment
+                    )
                 }
             }.onFailure {
                 if (isAdded) {

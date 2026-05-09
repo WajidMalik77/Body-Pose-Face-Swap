@@ -25,6 +25,7 @@ class GeminiImageService {
         private const val TAG = "GeminiImageService"
         private const val ENDPOINT =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent"
+        private const val TARGET_SIZE = 512
     }
 
     private val client = OkHttpClient.Builder()
@@ -42,10 +43,16 @@ class GeminiImageService {
 
     suspend fun bitmapToBase64(bitmap: Bitmap): String =
         withContext(Dispatchers.Default) {
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, TARGET_SIZE, TARGET_SIZE, true)
             val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
             Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
         }
+
+    private fun ensureTargetSize(bitmap: Bitmap): Bitmap {
+        if (bitmap.width == TARGET_SIZE && bitmap.height == TARGET_SIZE) return bitmap
+        return Bitmap.createScaledBitmap(bitmap, TARGET_SIZE, TARGET_SIZE, true)
+    }
 
     private fun base64ToBitmap(base64: String): Bitmap? {
         return try {
@@ -111,7 +118,7 @@ class GeminiImageService {
                     val base64 = inline.optString("data")
                     Log.d(TAG, "Image found — mimeType: ${inline.optString("mimeType")}, size: ${base64.length}")
 
-                    val bitmap = base64ToBitmap(base64)
+                    val bitmap = base64ToBitmap(base64)?.let(::ensureTargetSize)
                     if (bitmap != null) return bitmap
                 }
             }
@@ -135,7 +142,7 @@ class GeminiImageService {
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val effectivePrompt = """
-                    Generate a high-quality photorealistic human image.
+                    Generate a high-quality photorealistic human image at exactly ${TARGET_SIZE}x${TARGET_SIZE} pixels.
                     Prompt: $prompt
                     Output only image content. No text, watermark, frame, or logo.
                 """.trimIndent()

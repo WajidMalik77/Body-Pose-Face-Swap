@@ -10,7 +10,7 @@ import timber.log.Timber
 
 class AdControlConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig
-) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v13") {
+) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v14") {
 
     companion object {
         private const val TAG_CFG = "ConfigTrace"

@@ -228,9 +228,7 @@ class ReshapeFragment : Fragment() {
                 .onSuccess { bitmap ->
                     ResultHolder.beforeBitmap = target
                     ResultHolder.afterBitmap = bitmap
-                    safeShowInterstitialNavigate("ReshapeFragmentScreen", "done") {
-                        findNavController().navigate(R.id.action_reshapeFragment_to_beforeAfterFragment)
-                    }
+                    findNavController().navigate(R.id.action_reshapeFragment_to_beforeAfterFragment)
                 }
                 .onFailure { error ->
                     Log.e("ReshapeFragment", "Generation failed", error)

@@ -12,6 +12,6 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppins_medium"
         android:text="Ad is Loading.."
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="@dimen/_12ssp" />
 </LinearLayout>

@@ -208,9 +208,7 @@ class FaceSwapFragment : Fragment() {
                 .onSuccess { bitmap ->
                     ResultHolder.beforeBitmap = target
                     ResultHolder.afterBitmap = bitmap
-                    safeShowInterstitialNavigate("FaceSwapFragmentScreen", "done") {
-                        findNavController().navigate(R.id.action_faceSwapFragment_to_beforeAfterFragment)
-                    }
+                    findNavController().navigate(R.id.action_faceSwapFragment_to_beforeAfterFragment)
                 }
                 .onFailure { error ->
                     Log.e("FaceSwapFragment", "Generation failed", error)

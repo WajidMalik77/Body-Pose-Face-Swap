@@ -225,9 +225,7 @@ class FaceStyleFragment : Fragment(), BillingManager.PurchaseListener {
                 .onSuccess { bitmap ->
                     ResultHolder.beforeBitmap = target
                     ResultHolder.afterBitmap = bitmap
-                    safeShowInterstitialNavigate("FaceStyleFragmentScreen", "done") {
-                        findNavController().navigate(R.id.action_faceStyleFragment_to_beforeAfterFragment)
-                    }
+                    findNavController().navigate(R.id.action_faceStyleFragment_to_beforeAfterFragment)
                 }
                 .onFailure { it.printStackTrace() }
         }

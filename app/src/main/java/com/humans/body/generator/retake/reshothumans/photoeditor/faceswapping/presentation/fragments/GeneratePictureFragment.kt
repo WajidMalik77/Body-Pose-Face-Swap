@@ -30,7 +30,6 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.activities.PremiumActivity
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentGeneratePictureBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.PrefUtil
@@ -155,7 +154,11 @@ class GeneratePictureFragment : Fragment() {
         }
 
         binding.removeWatermarkSwitch.setOnClickListener {
-            runWithRewardedGate("GeneratePictureFragmentScreen", "remove_watermark") {
+            safeShowInterstitialNavigate(
+                "GeneratePictureFragmentScreen",
+                "remove_watermark",
+                noCounterNeeded = true
+            ) {
                 applyWatermarkRemoval()
             }
         }

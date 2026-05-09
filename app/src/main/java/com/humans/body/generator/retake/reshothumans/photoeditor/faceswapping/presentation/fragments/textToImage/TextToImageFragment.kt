@@ -3,9 +3,7 @@ package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.p
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -24,37 +22,30 @@ import androidx.core.net.toUri
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.RetrofitClient
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentTextToImageBinding
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.repositories.ImageRepository
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.Constants
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.PrefUtil
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.SharePref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.imageTagsMap
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.navigateWithBitmap
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.viewmodels.ImageViewModel
 
 class TextToImageFragment : Fragment() {
     private var _binding: FragmentTextToImageBinding? = null
     private val binding get() = _binding!!
     private val selectedChipsMap = mutableMapOf<String, String>()
-    private val repository by lazy { ImageRepository(RetrofitClient.api) }
-    private val viewModel: ImageViewModel by lazy { ImageViewModel(repository) }
     private var selectionDialog: AlertDialog? = null
     private val geminiImageService by lazy { GeminiImageService() }
-
-    private fun resolveTextToImageApiKey(): String {
-        return SharePref.getString(Constants.api_key, Constants.getimg_api_key).trim()
-    }
+    private var gateSatisfied = false
+    private var generationStarted = false
+    private var pendingGeneratedBitmap: android.graphics.Bitmap? = null
+    private var pendingGenerationError: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,10 +91,7 @@ class TextToImageFragment : Fragment() {
             addKeywordChip("age", "Age: ${value.toInt()}")
         }
 
-        // ✅ Feature is FREE — no premium/trial check needed, just generate directly
-        binding.generate.setOnClickListener {
-            handleGenerateClick()
-        }
+        binding.generate.setOnClickListener { handleGenerateClick() }
 
         val genderOptions = listOf("Female", "Male", "Non Binary")
         addGenderOptions(genderOptions)
@@ -121,64 +109,98 @@ class TextToImageFragment : Fragment() {
         optionsItem.forEach { binding.optionsContainer.addView(createChip(it)) }
 
         binding.randomBtn.setOnClickListener {
-            binding.progress.visibility = View.VISIBLE
-            binding.scroll.visibility = View.GONE
             val randomEntry = imageTagsMap.entries.random()
             val randomTags = randomEntry.value
-            val prompt = randomTags.joinToString(", ")
-
             binding.keywordContainer.removeAllViews()
             selectedChipsMap.clear()
             randomTags.forEach { tag -> addKeywordChip(category = tag, text = tag) }
-
-            geminiImageService.generateTextToImageWithGemini(
-                apiKey = SharePref.getString(Constants.new_version_key, "").trim(),
-                prompt = prompt
-            ) { result ->
-                if (!isAdded) return@generateTextToImageWithGemini
-                result.onSuccess { resource ->
-                    binding.genTxt.isEnabled = true
-                    safeShowInterstitialNavigate("TextToImageFragmentScreen", "random_generate") {
-                        navigateWithBitmap(resource, R.id.action_textToImageFragment_to_generatePictureFragment)
-                    }
-                    binding.progress.visibility = View.GONE
-                    binding.scroll.visibility = View.VISIBLE
-                }.onFailure { error ->
-                    binding.progress.visibility = View.GONE
-                    binding.scroll.visibility = View.VISIBLE
-                    Toast.makeText(requireContext(), error.message ?: "Error occurred", Toast.LENGTH_SHORT).show()
-                }
-            }
+            Toast.makeText(requireContext(), "Random values applied", Toast.LENGTH_SHORT).show()
         }
     }
 
     @SuppressLint("HardwareIds")
     private fun handleGenerateClick() {
+        val prompt = getCombinedPrompt()
+        if (prompt.isBlank()) {
+            Toast.makeText(requireContext(), "Please enter a prompt", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         binding.progress.visibility = View.VISIBLE
         binding.scroll.visibility = View.GONE
-        val prompt = getCombinedPrompt()
         Log.d("TAG", "handleGenerateClick: $prompt")
         binding.genTxt.isEnabled = false
 
+        gateSatisfied = false
+        generationStarted = false
+        pendingGeneratedBitmap = null
+        pendingGenerationError = null
+
+        runWithRewardedGate(
+            screen = "TextToImageFragmentScreen",
+            trigger = "generate",
+            onAdShowing = {
+                if (!generationStarted) {
+                    startGeminiGeneration(prompt)
+                }
+            }
+        ) {
+            gateSatisfied = true
+            if (!generationStarted) {
+                startGeminiGeneration(prompt)
+            } else {
+                pendingGeneratedBitmap?.let {
+                    completeGenerationSuccess(it)
+                }
+                pendingGenerationError?.let {
+                    completeGenerationFailure(it)
+                }
+            }
+        }
+    }
+
+    private fun startGeminiGeneration(prompt: String) {
+        generationStarted = true
         geminiImageService.generateTextToImageWithGemini(
             apiKey = SharePref.getString(Constants.new_version_key, "").trim(),
             prompt = prompt
         ) { result ->
             if (!isAdded) return@generateTextToImageWithGemini
             result.onSuccess { resource ->
-                binding.genTxt.isEnabled = true
-                safeShowInterstitialNavigate("TextToImageFragmentScreen", "generate") {
-                    navigateWithBitmap(resource, R.id.action_textToImageFragment_to_generatePictureFragment)
+                if (gateSatisfied) {
+                    completeGenerationSuccess(resource)
+                } else {
+                    pendingGeneratedBitmap = resource
                 }
-                binding.progress.visibility = View.GONE
-                binding.scroll.visibility = View.VISIBLE
             }.onFailure { error ->
-                binding.genTxt.isEnabled = true
-                binding.scroll.visibility = View.VISIBLE
-                binding.progress.visibility = View.GONE
-                Toast.makeText(requireContext(), error.message ?: "Error occurred", Toast.LENGTH_SHORT).show()
+                val msg = error.message ?: "Error occurred"
+                if (gateSatisfied) {
+                    completeGenerationFailure(msg)
+                } else {
+                    pendingGenerationError = msg
+                }
             }
         }
+    }
+
+    private fun completeGenerationSuccess(resource: android.graphics.Bitmap) {
+        if (!isAdded) return
+        pendingGeneratedBitmap = null
+        pendingGenerationError = null
+        binding.genTxt.isEnabled = true
+        navigateWithBitmap(resource, R.id.action_textToImageFragment_to_generatePictureFragment)
+        binding.progress.visibility = View.GONE
+        binding.scroll.visibility = View.VISIBLE
+    }
+
+    private fun completeGenerationFailure(message: String) {
+        if (!isAdded) return
+        pendingGeneratedBitmap = null
+        pendingGenerationError = null
+        binding.genTxt.isEnabled = true
+        binding.scroll.visibility = View.VISIBLE
+        binding.progress.visibility = View.GONE
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     private fun getCombinedPrompt(): String {

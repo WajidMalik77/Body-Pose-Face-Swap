@@ -32,8 +32,8 @@ android {
         applicationId = "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
         minSdk = 24
         targetSdk = 35
-        versionCode = 13
-        versionName = "1.1.3"
+        versionCode = 14
+        versionName = "1.1.4"
         setProperty("archivesBaseName", "Human Body Generator $versionName ($versionCode)")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true

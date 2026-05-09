@@ -223,7 +223,9 @@ class OnBoardingActivity : BaseActivity() {
     }
 
     private fun shouldShowIntroFullScreenNative(): Boolean {
-        return nativeAdConfigManager.isNativeVisible(RemoteScreens.INTRO_SCREEN, "full_screen")
+        val configVisible = nativeAdConfigManager.isNativeVisible(RemoteScreens.INTRO_SCREEN, "full_screen")
+        val fallbackVisible = SharePref.getBoolean(Constants.is_native_onboarding_full, true)
+        return configVisible || fallbackVisible
     }
 
     private fun loadIntroFullScreenNative(adBinding: LayoutFullscreenAdIntroBinding) {

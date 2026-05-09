@@ -3,6 +3,8 @@ package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.a
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -16,13 +18,15 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ad
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
-import java.lang.ref.WeakReference
 
 class RewardedAdsManager private constructor(private val adsPref: AdsPref) {
 
     private var rewardedAd: RewardedAd? = null
     private var isLoading = false
     private var isRewardedAdShowing = false
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val pendingOnLoaded = mutableListOf<() -> Unit>()
+    private val pendingOnFailed = mutableListOf<(String) -> Unit>()
 
     companion object {
         @Volatile
@@ -33,6 +37,8 @@ class RewardedAdsManager private constructor(private val adsPref: AdsPref) {
                 INSTANCE ?: RewardedAdsManager(adsPref).also { INSTANCE = it }
             }
         }
+
+        private const val REWARD_DISMISS_GRACE_MS = 2500L
     }
 
     private fun buildAdRequest(): AdRequest {
@@ -63,33 +69,44 @@ class RewardedAdsManager private constructor(private val adsPref: AdsPref) {
         onLoaded: (() -> Unit)? = null,
         onFailed: ((String) -> Unit)? = null
     ) {
-        if (isLoading || rewardedAd != null) {
-            onLoaded?.invoke()
-            return
+        synchronized(this) {
+            if (rewardedAd != null) {
+                onLoaded?.invoke()
+                return
+            }
+
+            onLoaded?.let { pendingOnLoaded += it }
+            onFailed?.let { pendingOnFailed += it }
+
+            if (isLoading) return
+            isLoading = true
         }
 
         val adId = configuredAdUnitId?.takeIf { it.isNotBlank() } ?: resolveRewardedAdId(context)
         if (adId.isBlank()) {
-            onFailed?.invoke("Rewarded ad id is blank")
+            completePendingWithFailure("Rewarded ad id is blank")
             return
         }
 
-        isLoading = true
         RewardedAd.load(
             context,
             adId,
             buildAdRequest(),
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    isLoading = false
-                    onLoaded?.invoke()
+                    synchronized(this@RewardedAdsManager) {
+                        rewardedAd = ad
+                        isLoading = false
+                    }
+                    completePendingWithSuccess()
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
-                    rewardedAd = null
-                    isLoading = false
-                    onFailed?.invoke(error.message)
+                    synchronized(this@RewardedAdsManager) {
+                        rewardedAd = null
+                        isLoading = false
+                    }
+                    completePendingWithFailure(error.message)
                 }
             }
         )
@@ -97,6 +114,7 @@ class RewardedAdsManager private constructor(private val adsPref: AdsPref) {
 
     fun show(
         activity: Activity,
+        onAdShowing: (() -> Unit)? = null,
         onRewardEarned: () -> Unit,
         onFailedOrDismissedWithoutReward: () -> Unit
     ) {
@@ -109,40 +127,106 @@ class RewardedAdsManager private constructor(private val adsPref: AdsPref) {
         }
 
         var rewardEarned = false
-        val activityRef = WeakReference(activity)
+        var dismissed = false
+        var resolved = false
+
+        fun resolveSuccessOnce() {
+            if (resolved) return
+            resolved = true
+            onRewardEarned()
+        }
+
+        fun resolveFailureOnce() {
+            if (resolved) return
+            resolved = true
+            onFailedOrDismissedWithoutReward()
+        }
 
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdShowedFullScreenContent() {
                 isRewardedAdShowing = true
                 AdStateManager.isRewardedAdShowing = true
                 DebugToaster.showAdDebugCard(activity, adsPref.isDebugToastInterstitialEnabled(), "Rewarded: Shown")
+                onAdShowing?.invoke()
             }
 
             override fun onAdDismissedFullScreenContent() {
                 cleanupAfterShow()
+                dismissed = true
                 if (rewardEarned) {
-                    onRewardEarned()
+                    resolveSuccessOnce()
                 } else {
-                    onFailedOrDismissedWithoutReward()
+                    // Business rule: once ad was shown and user closed it, continue the flow.
+                    // Keep a short grace for late reward callbacks, then still resolve success.
+                    mainHandler.postDelayed({
+                        resolveSuccessOnce()
+                    }, REWARD_DISMISS_GRACE_MS)
                 }
-                activityRef.get()?.applicationContext?.let { preload(it) }
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                 cleanupAfterShow()
-                onFailedOrDismissedWithoutReward()
-                activityRef.get()?.applicationContext?.let { preload(it) }
+                resolveFailureOnce()
             }
         }
 
         ad.show(activity) { _: RewardItem ->
             rewardEarned = true
+            if (dismissed) {
+                resolveSuccessOnce()
+            }
         }
+    }
+
+    fun showOnDemand(
+        activity: Activity,
+        configuredAdUnitId: String? = null,
+        onAdShowing: (() -> Unit)? = null,
+        onRewardEarned: () -> Unit,
+        onFailedOrDismissedWithoutReward: () -> Unit
+    ) {
+        val readyAd = rewardedAd
+        if (readyAd != null) {
+            show(activity, onAdShowing, onRewardEarned, onFailedOrDismissedWithoutReward)
+            return
+        }
+
+        preload(
+            context = activity.applicationContext,
+            configuredAdUnitId = configuredAdUnitId,
+            onLoaded = {
+                show(activity, onAdShowing, onRewardEarned, onFailedOrDismissedWithoutReward)
+            },
+            onFailed = {
+                onFailedOrDismissedWithoutReward()
+            }
+        )
     }
 
     private fun cleanupAfterShow() {
         rewardedAd = null
         isRewardedAdShowing = false
         AdStateManager.isRewardedAdShowing = false
+    }
+
+    private fun completePendingWithSuccess() {
+        val successCallbacks: List<() -> Unit>
+        synchronized(this) {
+            successCallbacks = pendingOnLoaded.toList()
+            pendingOnLoaded.clear()
+            pendingOnFailed.clear()
+        }
+        successCallbacks.forEach { it.invoke() }
+    }
+
+    private fun completePendingWithFailure(message: String) {
+        val failureCallbacks: List<(String) -> Unit>
+        synchronized(this) {
+            isLoading = false
+            failureCallbacks = pendingOnFailed.toList()
+            pendingOnLoaded.clear()
+            pendingOnFailed.clear()
+        }
+        failureCallbacks.forEach { it.invoke(message) }
     }
 }
