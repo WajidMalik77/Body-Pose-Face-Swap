@@ -135,6 +135,20 @@ fun Fragment.loadNativeAds(
     val context = context ?: return
 
     viewLifecycleOwner.lifecycleScope.launch {
+        val offPositions = mutableSetOf<String>()
+        val eventCallback: (NativeAdEvent) -> Unit = { event ->
+            when (event) {
+                is NativeAdEvent.Off -> offPositions += event.position.lowercase()
+                is NativeAdEvent.AllOffFromConfig -> {
+                    offPositions += "top"
+                    offPositions += "center"
+                    offPositions += "bottom"
+                }
+                else -> Unit
+            }
+            onEvent?.invoke(event)
+        }
+
         val configs = buildList {
             if (topContainer != null && topShimmer != null) {
                 add(NativeAdConfig("top", topContainer, topShimmer))
@@ -152,14 +166,16 @@ fun Fragment.loadNativeAds(
             return@launch
         }
 
-        adsManager.loadNativeAds(context, screen, configs, onEvent)
+        adsManager.loadNativeAds(context, screen, configs, eventCallback)
         delay(1500)
         // Only retry the configs whose containers are still empty — re-running the full
         // list re-prepares already-loaded containers (clears views, re-shows shimmer).
-        val pendingConfigs = configs.filter { it.container.childCount == 0 }
+        val pendingConfigs = configs.filter {
+            it.container.childCount == 0 && it.position.lowercase() !in offPositions
+        }
         if (pendingConfigs.isNotEmpty()) {
             Timber.w("[$screen] Native retry for: ${pendingConfigs.map { it.position }}")
-            adsManager.loadNativeAds(context, screen, pendingConfigs, onEvent)
+            adsManager.loadNativeAds(context, screen, pendingConfigs, eventCallback)
         }
     }
 }

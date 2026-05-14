@@ -111,13 +111,13 @@ class NativeAdConfigManager(
     }
 
     fun getNativeAdFrequency(target: String, position: String): Int {
-        val config = getResolvedNativeConfig() ?: return 3
-        return config.resolveUnit(target, position).showAfter ?: 3
+        val config = getResolvedNativeConfig() ?: return 1
+        return config.resolveUnit(target, position).showAfter ?: 1
     }
 
     fun getNativeAdLimit(target: String, position: String): Int {
-        val config = getResolvedNativeConfig() ?: return 2
-        return config.resolveUnit(target, position).nativeLimit ?: 2
+        val config = getResolvedNativeConfig() ?: return Int.MAX_VALUE
+        return config.resolveUnit(target, position).nativeLimit ?: Int.MAX_VALUE
     }
 
     private fun getResolvedNativeConfig(): NativeAdSettingsConfig? {

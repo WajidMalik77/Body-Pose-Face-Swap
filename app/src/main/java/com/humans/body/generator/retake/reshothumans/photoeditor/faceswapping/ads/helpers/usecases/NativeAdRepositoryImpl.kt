@@ -23,6 +23,14 @@ class NativeAdRepositoryImpl @Inject constructor(
         return nativeAdConfigManager.getNativeAdSize(screen, position)
     }
 
+    override fun getNativeAdFrequency(screen: String, position: String): Int {
+        return nativeAdConfigManager.getNativeAdFrequency(screen, position)
+    }
+
+    override fun getNativeAdLimit(screen: String, position: String): Int {
+        return nativeAdConfigManager.getNativeAdLimit(screen, position)
+    }
+
     override fun getNativeAdColorConfig(
         screen: String,
         position: String

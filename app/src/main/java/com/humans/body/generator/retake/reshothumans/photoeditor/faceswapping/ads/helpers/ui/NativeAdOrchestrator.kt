@@ -12,6 +12,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ad
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.managers.AdmobNativeManager
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.models.NativeAdColorConfig
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.di.ActivityNative
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import dagger.hilt.android.scopes.ActivityScoped
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,7 +22,8 @@ class NativeAdOrchestrator @Inject constructor(
     private val nativeAdRepository: NativeAdRepository,
     private val adConfigRepository: AdConfigRepository,
     @param:ActivityNative private val admobNativeManager: AdmobNativeManager,
-    private val checkEligibility: CheckAdEligibilityUseCase
+    private val checkEligibility: CheckAdEligibilityUseCase,
+    private val adsPref: AdsPref
 ) {
 
     suspend fun loadNativeAds(
@@ -82,6 +84,19 @@ class NativeAdOrchestrator @Inject constructor(
             return
         }
 
+        val showAfter = nativeAdRepository.getNativeAdFrequency(screen, position)
+        val nativeLimit = nativeAdRepository.getNativeAdLimit(screen, position)
+        val canShowByRate = adsPref.shouldShowNativeAd(screen, position, showAfter, nativeLimit)
+
+        if (!canShowByRate) {
+            Timber.d(
+                "[$screen][$position] Native ad skipped by show rate showAfter=$showAfter limit=$nativeLimit"
+            )
+            onEvent?.invoke(NativeAdEvent.Off(position))
+            onFinished()
+            return
+        }
+
         val size = nativeAdRepository.getNativeAdSize(screen, position)
         val theme = nativeAdRepository.getNativeAdColorConfig(screen, position)
         val adUnitId = adConfigRepository.getNativeAdUnitId(screen)
@@ -96,6 +111,7 @@ class NativeAdOrchestrator @Inject constructor(
             shimmer = config.shimmer,
             shouldPreload = shouldPreload,
             onLoaded = {
+                adsPref.recordNativeAdShown(screen, position)
                 onEvent?.invoke(NativeAdEvent.Loaded(position))
                 onFinished()
             },

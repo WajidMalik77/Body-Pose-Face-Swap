@@ -6,5 +6,7 @@ interface NativeAdRepository {
     fun getNativeVisibility(screen: String, position: String): Boolean
     fun shouldNativePreload(screen: String, position: String): Boolean
     fun getNativeAdSize(screen: String, position: String): Int
+    fun getNativeAdFrequency(screen: String, position: String): Int
+    fun getNativeAdLimit(screen: String, position: String): Int
     fun getNativeAdColorConfig(screen: String, position: String): NativeAdColorConfig?
 }

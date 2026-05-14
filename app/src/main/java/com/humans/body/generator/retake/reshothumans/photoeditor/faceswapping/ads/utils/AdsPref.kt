@@ -21,6 +21,8 @@ class AdsPref @Inject constructor(
         private const val KEY_NPA = "npa"
     }
     private var cachedIsPremium: Boolean? = null
+    private val nativeRequestCounts = mutableMapOf<String, Int>()
+    private val nativeShownCounts = mutableMapOf<String, Int>()
 
     fun getIsPremiumStatus(): Boolean {
         return try {
@@ -87,6 +89,26 @@ class AdsPref @Inject constructor(
 
     fun isNpa(): Boolean {
         return sharedPreferences.getBoolean(KEY_NPA, false)
+    }
+
+    fun shouldShowNativeAd(screen: String, position: String, showAfter: Int, nativeLimit: Int): Boolean {
+        val key = nativeRateKey(screen, position)
+        val shownCount = nativeShownCounts[key] ?: 0
+        if (nativeLimit > 0 && shownCount >= nativeLimit) return false
+
+        val safeShowAfter = showAfter.coerceAtLeast(1)
+        val requestCount = (nativeRequestCounts[key] ?: 0) + 1
+        nativeRequestCounts[key] = requestCount
+        return requestCount % safeShowAfter == 0
+    }
+
+    fun recordNativeAdShown(screen: String, position: String) {
+        val key = nativeRateKey(screen, position)
+        nativeShownCounts[key] = (nativeShownCounts[key] ?: 0) + 1
+    }
+
+    private fun nativeRateKey(screen: String, position: String): String {
+        return "${screen.trim().lowercase()}_${position.trim().lowercase()}"
     }
 
     fun isDebugToastBannerEnabled(): Boolean =

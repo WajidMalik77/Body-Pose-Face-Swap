@@ -121,13 +121,15 @@ object AdsPresentationModule {
         nativeAdRepository: NativeAdRepository,
         adConfigRepository: AdConfigRepository,
         @ActivityNative admobNativeManager: AdmobNativeManager,
-        checkEligibility: CheckAdEligibilityUseCase
+        checkEligibility: CheckAdEligibilityUseCase,
+        adsPref: AdsPref
     ): NativeAdOrchestrator {
         return NativeAdOrchestrator(
             nativeAdRepository,
             adConfigRepository,
             admobNativeManager,
-            checkEligibility
+            checkEligibility,
+            adsPref
         )
     }
 
