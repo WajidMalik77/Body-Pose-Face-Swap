@@ -36,6 +36,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ut
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.model.AspectRatio
 import kotlinx.coroutines.Dispatchers
@@ -189,7 +190,9 @@ class AiResizerFragment : Fragment() {
                     binding.generatedImage.setImageBitmap(croppedBitmap)
 
                     runWithRewardedGate("AiResizerFragmentScreen", "generate") {
-                        findNavController().navigate(R.id.action_aiResizerFragment_to_beforeAfterFragment)
+                        runWhenRewardedAdClosed {
+                            findNavController().navigate(R.id.action_aiResizerFragment_to_beforeAfterFragment)
+                        }
                     }
                 }
             } else if (result.resultCode == UCrop.RESULT_ERROR) {

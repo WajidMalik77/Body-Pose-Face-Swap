@@ -23,7 +23,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentReshapeBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.FeatureType
@@ -174,24 +174,20 @@ class ReshapeFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("ReshapeFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    ReshapeFragmentDirections.actionReshapeFragmentToGalleryFragment(
-                        FeatureType.BODY_RESHAPE,
-                        ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                ReshapeFragmentDirections.actionReshapeFragmentToGalleryFragment(
+                    FeatureType.BODY_RESHAPE,
+                    ImageSlot.FIRST
                 )
-            }
+            )
         }
         binding.upload1.setOnClickListener {
-            safeShowInterstitialNavigate("ReshapeFragmentScreen", "upload_second") {
-                findNavController().navigate(
-                    ReshapeFragmentDirections.actionReshapeFragmentToGalleryFragment(
-                        FeatureType.BODY_RESHAPE,
-                        ImageSlot.SECOND
-                    )
+            findNavController().navigate(
+                ReshapeFragmentDirections.actionReshapeFragmentToGalleryFragment(
+                    FeatureType.BODY_RESHAPE,
+                    ImageSlot.SECOND
                 )
-            }
+            )
         }
         binding.GenTxt.setOnClickListener {
             when {
@@ -203,8 +199,21 @@ class ReshapeFragment : Fragment() {
     }
 
     private fun checkPremiumAndGenerate() {
-        runWithRewardedGate("ReshapeFragmentScreen", "generate") {
-            generate()
+        var generationStarted = false
+        runWithRewardedGate(
+            screen = "ReshapeFragmentScreen",
+            trigger = "generate",
+            onAdShowing = {
+                if (!generationStarted) {
+                    generationStarted = true
+                    generate()
+                }
+            }
+        ) {
+            if (!generationStarted) {
+                generationStarted = true
+                generate()
+            }
         }
     }
 
@@ -222,18 +231,20 @@ class ReshapeFragment : Fragment() {
             prompt = "Reshape the body naturally while keeping the face unchanged",
         ) { result ->
             if (!isAdded) return@changeFace
-            binding.loadingOverlay.visibility = View.GONE
-            binding.GenTxt.visibility = View.VISIBLE
-            result
-                .onSuccess { bitmap ->
-                    ResultHolder.beforeBitmap = target
-                    ResultHolder.afterBitmap = bitmap
-                    findNavController().navigate(R.id.action_reshapeFragment_to_beforeAfterFragment)
-                }
-                .onFailure { error ->
-                    Log.e("ReshapeFragment", "Generation failed", error)
-                    toast("Generation failed. Please try again.")
-                }
+            runWhenRewardedAdClosed {
+                binding.loadingOverlay.visibility = View.GONE
+                binding.GenTxt.visibility = View.VISIBLE
+                result
+                    .onSuccess { bitmap ->
+                        ResultHolder.beforeBitmap = target
+                        ResultHolder.afterBitmap = bitmap
+                        findNavController().navigate(R.id.action_reshapeFragment_to_beforeAfterFragment)
+                    }
+                    .onFailure { error ->
+                        Log.e("ReshapeFragment", "Generation failed", error)
+                        toast("Generation failed. Please try again.")
+                    }
+            }
         }
     }
 

@@ -24,6 +24,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ad
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentImageVariationBinding
@@ -94,14 +95,12 @@ class ImageVariationFragment : Fragment() {
         attachFirstImage()
 
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("ImageVariationFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    ImageVariationFragmentDirections.actionImageVariationFragmentToGalleryFragment(
-                        featureType = FeatureType.IMAGE_VARIATION,
-                        imageSlot = ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                ImageVariationFragmentDirections.actionImageVariationFragmentToGalleryFragment(
+                    featureType = FeatureType.IMAGE_VARIATION,
+                    imageSlot = ImageSlot.FIRST
                 )
-            }
+            )
         }
 
         binding.recyclerText.adapter =
@@ -119,8 +118,21 @@ class ImageVariationFragment : Fragment() {
                 ).show()
                 return@setOnClickListener
             }
-            runWithRewardedGate("ImageVariationFragmentScreen", "generate") {
-                performVariation()
+            var generationStarted = false
+            runWithRewardedGate(
+                screen = "ImageVariationFragmentScreen",
+                trigger = "generate",
+                onAdShowing = {
+                    if (!generationStarted) {
+                        generationStarted = true
+                        performVariation()
+                    }
+                }
+            ) {
+                if (!generationStarted) {
+                    generationStarted = true
+                    performVariation()
+                }
             }
         }
     }
@@ -201,7 +213,7 @@ class ImageVariationFragment : Fragment() {
             beforeBitmap, count
         ) { result ->
             if (!isAdded) return@generateImageVariations
-            requireActivity().runOnUiThread {
+            runWhenRewardedAdClosed {
                 result.onSuccess { bitmaps ->
                     if (isAdded) {
                         binding.loadingOverlay.visibility = View.GONE

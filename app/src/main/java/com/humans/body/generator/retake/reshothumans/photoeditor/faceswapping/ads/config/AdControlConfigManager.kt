@@ -5,12 +5,13 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.BuildConfig
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.models.AdControlConfig
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.models.RemoteAdIdsConfig
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 class AdControlConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig
-) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v14") {
+) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v16") {
 
     companion object {
         private const val TAG_CFG = "ConfigTrace"
@@ -60,6 +61,59 @@ class AdControlConfigManager(
     }
 
     private fun getConfigV2() = configData
+
+    private fun getRemoteAdIds(): RemoteAdIdsConfig? = configData?.adIds ?: configData?.adIdsSnake
+
+    private fun resolveProdAdId(configuredId: String?, fallbackProdId: String): String {
+        if (BuildConfig.DEBUG) return fallbackProdId
+        val candidate = configuredId?.trim().orEmpty()
+        return candidate.ifEmpty { fallbackProdId }
+    }
+
+    fun getProdBannerAdUnitId(fallbackProdId: String): String {
+        return resolveProdAdId(getRemoteAdIds()?.banner?.defaultId, fallbackProdId)
+    }
+
+    fun getProdAppOpenSplashAdUnitId(fallbackProdId: String): String {
+        val ids = getRemoteAdIds()?.appOpen
+        return resolveProdAdId(ids?.splash?.ifEmpty { ids.defaultId }, fallbackProdId)
+    }
+
+    fun getProdAppOpenResumeAdUnitId(fallbackProdId: String): String {
+        val ids = getRemoteAdIds()?.appOpen
+        return resolveProdAdId(ids?.resume?.ifEmpty { ids.defaultId }, fallbackProdId)
+    }
+
+    fun getProdInterstitialAdUnitId(screen: String, fallbackProdId: String): String {
+        val ids = getRemoteAdIds()?.interstitial
+        val configuredId = when (screen) {
+            RemoteScreens.SPLASH_SCREEN -> ids?.splash
+            RemoteScreens.INTRO_SCREEN -> ids?.intro?.ifEmpty { ids.onboarding }
+            RemoteScreens.LANGUAGE_SCREEN -> ids?.language
+            else -> ids?.defaultId
+        }
+        return resolveProdAdId(configuredId?.ifEmpty { ids?.defaultId.orEmpty() }, fallbackProdId)
+    }
+
+    fun getProdNativeAdUnitId(screen: String, fallbackProdId: String): String {
+        val ids = getRemoteAdIds()?.nativeIds
+        val configuredId = when (screen) {
+            RemoteScreens.SPLASH_SCREEN -> ids?.splash
+            RemoteScreens.INTRO_SCREEN -> ids?.intro?.ifEmpty { ids.onboarding }
+            RemoteScreens.LANGUAGE_SCREEN -> ids?.language
+            else -> ids?.defaultId
+        }
+        return resolveProdAdId(configuredId?.ifEmpty { ids?.defaultId.orEmpty() }, fallbackProdId)
+    }
+
+    fun getProdRewardedAdUnitId(fallbackProdId: String): String {
+        return resolveProdAdId(getRemoteAdIds()?.rewarded?.defaultId, fallbackProdId)
+    }
+
+    fun getProdInitialRewardedAdUnitId(fallbackProdId: String): String {
+        val ids = getRemoteAdIds()?.rewarded
+        return resolveProdAdId(ids?.initial?.ifEmpty { ids.defaultId }, fallbackProdId)
+    }
 
     fun shouldShowScreen(screenName: String, isFirstLaunch: Boolean): Boolean {
         val screensV2 = if (isFirstLaunch) {

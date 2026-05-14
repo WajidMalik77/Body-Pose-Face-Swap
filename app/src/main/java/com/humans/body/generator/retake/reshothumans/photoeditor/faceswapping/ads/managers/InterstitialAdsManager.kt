@@ -10,6 +10,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
 import timber.log.Timber
@@ -64,6 +65,7 @@ class InterstitialAdsManager private constructor(private val adsPref: AdsPref) {
         activity: Activity, interstitialAdUnitId: String, onAdLoaded: () -> Unit? = {},
         onAdFailedToLoad: (message: String) -> Unit? = {}
     ) {
+        val resolvedInterstitialAdUnitId = AdUnitIdSanitizer.sanitizeInterstitial(interstitialAdUnitId)
         synchronized(this) {
             if (isDestroyed) {
                 onAdFailedToLoad("Ad load aborted: Manager destroyed.")
@@ -87,7 +89,7 @@ class InterstitialAdsManager private constructor(private val adsPref: AdsPref) {
         val adRequest = buildAdRequest()
         InterstitialAd.load(
             activity,
-            interstitialAdUnitId,
+            resolvedInterstitialAdUnitId,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {

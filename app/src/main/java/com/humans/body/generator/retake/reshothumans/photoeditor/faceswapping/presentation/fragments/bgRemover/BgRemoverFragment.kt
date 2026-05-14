@@ -22,7 +22,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentBgRemoverBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.FeatureType
@@ -85,19 +85,30 @@ class BgRemoverFragment : Fragment() {
         attachFirstImage()
 
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("BgRemoverFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    BgRemoverFragmentDirections.actionBgRemoverFragmentToGalleryFragment(
-                        featureType = FeatureType.REMOVE_BG,
-                        imageSlot = ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                BgRemoverFragmentDirections.actionBgRemoverFragmentToGalleryFragment(
+                    featureType = FeatureType.REMOVE_BG,
+                    imageSlot = ImageSlot.FIRST
                 )
-            }
+            )
         }
 
         binding.generate.setOnClickListener {
-            runWithRewardedGate("BgRemoverFragmentScreen", "generate") {
-                performBgRemoval()
+            var bgRemovalStarted = false
+            runWithRewardedGate(
+                screen = "BgRemoverFragmentScreen",
+                trigger = "generate",
+                onAdShowing = {
+                    if (!bgRemovalStarted) {
+                        bgRemovalStarted = true
+                        performBgRemoval()
+                    }
+                }
+            ) {
+                if (!bgRemovalStarted) {
+                    bgRemovalStarted = true
+                    performBgRemoval()
+                }
             }
         }
     }
@@ -173,8 +184,8 @@ class BgRemoverFragment : Fragment() {
         GeminiImageService().removeBackgroundWithGemini(
             SharePref.getString(Constants.new_version_key, ""), beforeBitmap
         ) { result ->
-            if (!isAdded || !isVisible) return@removeBackgroundWithGemini
-            viewLifecycleOwner.lifecycleScope.launch {
+            if (!isAdded) return@removeBackgroundWithGemini
+            runWhenRewardedAdClosed {
                 binding.generate.isEnabled = true
                 binding.generate.alpha = 1f
                 binding.loadingOverlay.visibility = View.GONE

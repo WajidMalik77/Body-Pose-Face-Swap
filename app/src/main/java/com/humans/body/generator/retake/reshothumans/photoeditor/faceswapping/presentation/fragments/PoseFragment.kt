@@ -27,6 +27,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.RetrofitClient
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentPoseBinding
@@ -105,8 +106,21 @@ class PoseFragment : Fragment(), BillingManager.PurchaseListener {
     }
 
     private fun handleGenerateClick() {
-        runWithRewardedGate("PoseFragmentScreen", "generate") {
-            generateImage()
+        var generationStarted = false
+        runWithRewardedGate(
+            screen = "PoseFragmentScreen",
+            trigger = "generate",
+            onAdShowing = {
+                if (!generationStarted) {
+                    generationStarted = true
+                    generateImage()
+                }
+            }
+        ) {
+            if (!generationStarted) {
+                generationStarted = true
+                generateImage()
+            }
         }
     }
 
@@ -118,16 +132,20 @@ class PoseFragment : Fragment(), BillingManager.PurchaseListener {
             SharePref.getString(Constants.new_version_key, ""),
             getCombinedPrompt(),
             onSuccess = { response ->
-                binding.GenTxt.isEnabled = true
-                isGenerating = false
-                val action = PoseFragmentDirections
-                    .actionPoseFragmentToGeneratePictureFragment(response.url ?: "")
-                findNavController().navigate(action)
+                runWhenRewardedAdClosed {
+                    binding.GenTxt.isEnabled = true
+                    isGenerating = false
+                    val action = PoseFragmentDirections
+                        .actionPoseFragmentToGeneratePictureFragment(response.url ?: "")
+                    findNavController().navigate(action)
+                }
             },
             onFailure = { errorMsg ->
-                binding.GenTxt.isEnabled = true
-                isGenerating = false
-                Toast.makeText(requireContext(), errorMsg ?: "Error occurred", Toast.LENGTH_SHORT).show()
+                runWhenRewardedAdClosed {
+                    binding.GenTxt.isEnabled = true
+                    isGenerating = false
+                    Toast.makeText(requireContext(), errorMsg ?: "Error occurred", Toast.LENGTH_SHORT).show()
+                }
             }
         )
     }

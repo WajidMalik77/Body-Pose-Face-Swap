@@ -22,7 +22,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentFaceSwapBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.FeatureType
@@ -152,24 +152,20 @@ class FaceSwapFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("FaceSwapFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    FaceSwapFragmentDirections.actionFaceSwapFragmentToGalleryFragment(
-                        FeatureType.FACE_SWAP,
-                        ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                FaceSwapFragmentDirections.actionFaceSwapFragmentToGalleryFragment(
+                    FeatureType.FACE_SWAP,
+                    ImageSlot.FIRST
                 )
-            }
+            )
         }
         binding.upload1.setOnClickListener {
-            safeShowInterstitialNavigate("FaceSwapFragmentScreen", "upload_second") {
-                findNavController().navigate(
-                    FaceSwapFragmentDirections.actionFaceSwapFragmentToGalleryFragment(
-                        FeatureType.FACE_SWAP,
-                        ImageSlot.SECOND
-                    )
+            findNavController().navigate(
+                FaceSwapFragmentDirections.actionFaceSwapFragmentToGalleryFragment(
+                    FeatureType.FACE_SWAP,
+                    ImageSlot.SECOND
                 )
-            }
+            )
         }
         binding.GenTxt.setOnClickListener {
             when {
@@ -181,8 +177,21 @@ class FaceSwapFragment : Fragment() {
     }
 
     private fun checkPremiumAndGenerate() {
-        runWithRewardedGate("FaceSwapFragmentScreen", "generate") {
-            generate()
+        var generationStarted = false
+        runWithRewardedGate(
+            screen = "FaceSwapFragmentScreen",
+            trigger = "generate",
+            onAdShowing = {
+                if (!generationStarted) {
+                    generationStarted = true
+                    generate()
+                }
+            }
+        ) {
+            if (!generationStarted) {
+                generationStarted = true
+                generate()
+            }
         }
     }
 
@@ -202,18 +211,20 @@ class FaceSwapFragment : Fragment() {
             prompt = "Swap the face naturally",
         ) { result ->
             if (!isAdded) return@changeFace
-            binding.loadingOverlay.visibility = View.GONE
-            binding.GenTxt.visibility = View.VISIBLE
-            result
-                .onSuccess { bitmap ->
-                    ResultHolder.beforeBitmap = target
-                    ResultHolder.afterBitmap = bitmap
-                    findNavController().navigate(R.id.action_faceSwapFragment_to_beforeAfterFragment)
-                }
-                .onFailure { error ->
-                    Log.e("FaceSwapFragment", "Generation failed", error)
-                    toast("Generation failed. Please try again.")
-                }
+            runWhenRewardedAdClosed {
+                binding.loadingOverlay.visibility = View.GONE
+                binding.GenTxt.visibility = View.VISIBLE
+                result
+                    .onSuccess { bitmap ->
+                        ResultHolder.beforeBitmap = target
+                        ResultHolder.afterBitmap = bitmap
+                        findNavController().navigate(R.id.action_faceSwapFragment_to_beforeAfterFragment)
+                    }
+                    .onFailure { error ->
+                        Log.e("FaceSwapFragment", "Generation failed", error)
+                        toast("Generation failed. Please try again.")
+                    }
+            }
         }
     }
 

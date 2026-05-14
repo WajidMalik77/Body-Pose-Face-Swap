@@ -24,9 +24,7 @@ class AdsPref @Inject constructor(
 
     fun getIsPremiumStatus(): Boolean {
         return try {
-            // Return cached value if available
-            cachedIsPremium?.let { return it }
-
+            // Read latest persisted value to avoid stale in-memory state after purchase.
             val isPremium = sharedPreferences.getBoolean(KEY_IS_PREMIUM, false)
             cachedIsPremium = isPremium
             isPremium

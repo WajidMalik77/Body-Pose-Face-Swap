@@ -3,8 +3,9 @@ package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.a
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import android.view.Choreographer
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -13,6 +14,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdShowCallback
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
 import kotlinx.coroutines.CoroutineScope
@@ -35,9 +37,12 @@ class AppOpenManager private constructor(context: Context) {
     private val isDestroyed = AtomicBoolean(false)
     private val isAdLoading = AtomicBoolean(false)
     private val isAppOpenAdShowing = AtomicBoolean(false)
+    private val showAttemptInProgress = AtomicBoolean(false)
     private val bgDispatcher = Dispatchers.IO
     private val scope = CoroutineScope(SupervisorJob() + bgDispatcher)
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var lastAdUnitId: String? = null
+    private val loadingAdUnitIdRef = AtomicReference<String?>(null)
 
     /*    private val prefs: SharedPreferences =
             context.getSharedPreferences("app_open_ad_prefs", Context.MODE_PRIVATE)
@@ -50,6 +55,9 @@ class AppOpenManager private constructor(context: Context) {
         @Volatile
         private var INSTANCE: AppOpenManager? = null
         private const val TAG_AO = "AppOpenTrace"
+        private const val SHOW_CONFIRMATION_TIMEOUT_MS = 2500L
+        private const val LOAD_SLOT_RETRY_DELAY_MS = 250L
+        private const val LOAD_SLOT_MAX_RETRIES = 24
 //        private const val KEY_AD_LOAD_COUNT = "app_open_ad_load_count"
 
         fun getInstance(context: Context): AppOpenManager {
@@ -71,15 +79,23 @@ class AppOpenManager private constructor(context: Context) {
         onAdLoaded: () -> Unit? = {},
         onAdFailed: (LoadAdError) -> Unit? = {},
     ) {
-        Log.d(TAG_AO, "load requested id=$adUnitId")
-        if (isAdAvailable()) {
-            Log.d(TAG_AO, "load skipped: ad already available")
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeAppOpen(adUnitId)
+        Log.d(TAG_AO, "load requested id=$resolvedAdUnitId")
+        if (hasUsableAd(resolvedAdUnitId)) {
+            Log.d(TAG_AO, "load skipped: matching ad already available")
             onAdLoaded()
             return
         }
 
-        if (isAdLoading.getAndSet(true)) {
-            Log.d(TAG_AO, "load skipped: already in progress")
+        if (isAdLoading.get()) {
+            Log.d(TAG_AO, "load deferred: already in progress for id=${loadingAdUnitIdRef.get()}")
+            waitForLoadSlotAndRetry(
+                resolvedAdUnitId,
+                adsPref,
+                onAdLoaded,
+                onAdFailed,
+                LOAD_SLOT_MAX_RETRIES
+            )
             return
         }
 
@@ -89,7 +105,9 @@ class AppOpenManager private constructor(context: Context) {
             return
         }
 
-        lastAdUnitId = adUnitId
+        isAdLoading.set(true)
+        loadingAdUnitIdRef.set(resolvedAdUnitId)
+        lastAdUnitId = resolvedAdUnitId
 
         // Build request off main thread
         scope.launch {
@@ -97,7 +115,7 @@ class AppOpenManager private constructor(context: Context) {
 
             withContext(Dispatchers.Main) {
                 loadAdOnMainThread(
-                    adUnitId,
+                    resolvedAdUnitId,
                     request,
                     adsPref,
                     onAdLoaded = { onAdLoaded.invoke() },
@@ -160,6 +178,7 @@ class AppOpenManager private constructor(context: Context) {
         appOpenAdRef.set(ad)
         loadTimeRef.set(System.currentTimeMillis())
         isAdLoading.set(false)
+        loadingAdUnitIdRef.set(null)
 //        adLoadCount++
 
         onAdLoaded()
@@ -172,42 +191,128 @@ class AppOpenManager private constructor(context: Context) {
         Timber.d("Ad Failed: ${error.message}")
 
         isAdLoading.set(false)
+        loadingAdUnitIdRef.set(null)
 //        appOpenDialog?.safeDismiss()
 
         onAdFailed(error)
     }
 
     fun showAppOpenAdIfAvailable(adsPref: AdsPref, callback: AdShowCallback) {
-        val skipReason = getSkipReason()
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            mainHandler.post { showAppOpenAdIfAvailable(adsPref, callback) }
+        } else {
+            showAppOpenAdOnMainThread(adsPref, callback)
+        }
+    }
+
+    private fun waitForLoadSlotAndRetry(
+        adUnitId: String,
+        adsPref: AdsPref,
+        onAdLoaded: () -> Unit?,
+        onAdFailed: (LoadAdError) -> Unit?,
+        retriesRemaining: Int
+    ) {
+        mainHandler.postDelayed({
+            if (isDestroyed.get()) {
+                onAdFailed(
+                    LoadAdError(
+                        0,
+                        "AppOpenManager destroyed while waiting for load slot",
+                        "AppOpenManager",
+                        null,
+                        null
+                    )
+                )
+                return@postDelayed
+            }
+
+            if (hasUsableAd(adUnitId)) {
+                Log.d(TAG_AO, "deferred load satisfied by cached matching ad")
+                onAdLoaded()
+                return@postDelayed
+            }
+
+            if (!isAdLoading.get()) {
+                Log.d(TAG_AO, "deferred load retrying id=$adUnitId")
+                loadAppOpenAd(adUnitId, adsPref, onAdLoaded, onAdFailed)
+                return@postDelayed
+            }
+
+            if (retriesRemaining <= 0) {
+                Log.w(TAG_AO, "deferred load timed out waiting for id=$adUnitId")
+                onAdFailed(
+                    LoadAdError(
+                        0,
+                        "Timed out waiting for another app-open load to finish",
+                        "AppOpenManager",
+                        null,
+                        null
+                    )
+                )
+                return@postDelayed
+            }
+
+            waitForLoadSlotAndRetry(adUnitId, adsPref, onAdLoaded, onAdFailed, retriesRemaining - 1)
+        }, LOAD_SLOT_RETRY_DELAY_MS)
+    }
+
+    fun showAppOpenAdIfAvailable(
+        activity: Activity,
+        adsPref: AdsPref,
+        callback: AdShowCallback
+    ) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            mainHandler.post { showAppOpenAdIfAvailable(activity, adsPref, callback) }
+        } else {
+            showAppOpenAdOnMainThread(activity, adsPref, callback)
+        }
+    }
+
+    private fun showAppOpenAdOnMainThread(adsPref: AdsPref, callback: AdShowCallback) {
+        val skipReason = getSkipReason(requireCurrentActivity = true)
+        if (skipReason != null) {
+            Log.d(TAG_AO, "show blocked: $skipReason")
+            callback.onAdFailedToShow(skipReason)
+            return
+        }
+        val activity = currentActivityRef.get()?.get() ?: run {
+            Log.d(TAG_AO, "show blocked: no active activity at schedule")
+            callback.onAdFailedToShow("No active activity")
+            return
+        }
+
+        showAdNow(activity, adsPref, callback)
+    }
+
+    private fun showAppOpenAdOnMainThread(
+        activity: Activity,
+        adsPref: AdsPref,
+        callback: AdShowCallback
+    ) {
+        val skipReason = getSkipReason(requireCurrentActivity = false)
         if (skipReason != null) {
             Log.d(TAG_AO, "show blocked: $skipReason")
             callback.onAdFailedToShow(skipReason)
             return
         }
 
-        Log.d(TAG_AO, "show scheduled")
-        scheduleAdShow(adsPref, callback)
+        showAdNow(activity, adsPref, callback)
     }
 
-    private fun scheduleAdShow(adsPref: AdsPref, callback: AdShowCallback) {
-        val activity = currentActivityRef.get()?.get() ?: run {
-            Log.d(TAG_AO, "show blocked: no active activity at schedule")
+    private fun showAdNow(activity: Activity, adsPref: AdsPref, callback: AdShowCallback) {
+        if (activity.isFinishing || activity.isDestroyed) {
+            Log.d(TAG_AO, "show blocked: activity is finishing or destroyed")
+            callback.onAdFailedToShow("Activity is finishing or destroyed")
             return
         }
 
-        Choreographer.getInstance().postFrameCallback {
-            showAdOnNextFrame(activity, adsPref, callback)
-        }
-    }
-
-    private fun showAdOnNextFrame(activity: Activity, adsPref: AdsPref, callback: AdShowCallback) {
         val ad = appOpenAdRef.get() ?: run {
-            Log.d(TAG_AO, "show blocked: ad ref null on next frame")
+            Log.d(TAG_AO, "show blocked: ad ref null")
             callback.onAdFailedToShow("Ad not available")
             return
         }
 
-        if (!isAppOpenAdShowing.compareAndSet(false, true)) {
+        if (isAppOpenAdShowing.get() || !showAttemptInProgress.compareAndSet(false, true)) {
             Log.d(TAG_AO, "show blocked: already showing")
             callback.onAdFailedToShow("Ad already showing")
             return
@@ -215,23 +320,32 @@ class AppOpenManager private constructor(context: Context) {
 
         // Set callback
         ad.fullScreenContentCallback = createFullScreenCallback(activity, adsPref, callback)
+        scheduleShowConfirmationTimeout(callback)
 
         try {
-            // Pre-warm the ad container to reduce first-frame jank
-            activity.window?.decorView?.post {
-                Log.d(TAG_AO, "show executing ad.show()")
-                ad.show(activity)
-            }
+            Log.d(TAG_AO, "show executing ad.show()")
+            ad.show(activity)
         } catch (e: Exception) {
             handleShowException(e, callback)
         }
     }
 
-    private fun getSkipReason(): String? {
+    private fun scheduleShowConfirmationTimeout(callback: AdShowCallback) {
+        mainHandler.postDelayed({
+            if (showAttemptInProgress.get() && !isAppOpenAdShowing.get()) {
+                Log.w(TAG_AO, "show attempt timed out before SDK confirmed display")
+                showAttemptInProgress.set(false)
+                callback.onAdFailedToShow("Ad show timed out")
+            }
+        }, SHOW_CONFIRMATION_TIMEOUT_MS)
+    }
+
+    private fun getSkipReason(requireCurrentActivity: Boolean): String? {
         return when {
             isDestroyed.get() -> "AppOpenManager is destroyed"
             isAppOpenAdShowing.get() -> "An App Open Ad is already showing"
-            currentActivityRef.get()?.get() == null -> "No active activity"
+            showAttemptInProgress.get() -> "An App Open Ad show attempt is already in progress"
+            requireCurrentActivity && currentActivityRef.get()?.get() == null -> "No active activity"
             !isAdAvailable() -> "No App Open Ad loaded"
             wasLoadTimeLessThanNHoursAgo().not() -> "Ad expired"
             else -> null
@@ -264,6 +378,8 @@ class AppOpenManager private constructor(context: Context) {
 
     private fun handleAdShown(callback: AdShowCallback) {
         Log.d(TAG_AO, "show success")
+        showAttemptInProgress.set(false)
+        isAppOpenAdShowing.set(true)
         AdStateManager.isAppOpenAdShowing = true
         appOpenAdRef.set(null)
 
@@ -272,6 +388,7 @@ class AppOpenManager private constructor(context: Context) {
 
     private fun handleAdDismissed(callback: AdShowCallback) {
         Log.d(TAG_AO, "show dismissed")
+        showAttemptInProgress.set(false)
         isAppOpenAdShowing.set(false)
         AdStateManager.isAppOpenAdShowing = false
 
@@ -281,6 +398,7 @@ class AppOpenManager private constructor(context: Context) {
     private fun handleShowFailure(adError: AdError, callback: AdShowCallback) {
         Log.w(TAG_AO, "show failed code=${adError.code} message=${adError.message}")
         appOpenAdRef.set(null)
+        showAttemptInProgress.set(false)
         isAppOpenAdShowing.set(false)
         AdStateManager.isAppOpenAdShowing = false
 
@@ -289,6 +407,7 @@ class AppOpenManager private constructor(context: Context) {
 
     private fun handleShowException(e: Exception, callback: AdShowCallback) {
         Log.e(TAG_AO, "show exception", e)
+        showAttemptInProgress.set(false)
         isAppOpenAdShowing.set(false)
         AdStateManager.isAppOpenAdShowing = false
 
@@ -303,8 +422,22 @@ class AppOpenManager private constructor(context: Context) {
         return isAdLoading.get()
     }
 
+    fun isAdLoading(adUnitId: String): Boolean {
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeAppOpen(adUnitId)
+        return isAdLoading.get() && loadingAdUnitIdRef.get() == resolvedAdUnitId
+    }
+
     fun hasUsableAd(): Boolean {
         return isAdAvailable()
+    }
+
+    fun hasUsableAd(adUnitId: String): Boolean {
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeAppOpen(adUnitId)
+        return isAdAvailable() && lastAdUnitId == resolvedAdUnitId
+    }
+
+    fun isShowingOrShowingSoon(): Boolean {
+        return isAppOpenAdShowing.get() || showAttemptInProgress.get()
     }
 
     private fun wasLoadTimeLessThanNHoursAgo(): Boolean {
@@ -316,9 +449,11 @@ class AppOpenManager private constructor(context: Context) {
     fun destroy() {
         isDestroyed.set(true)
         scope.cancel()
+        mainHandler.removeCallbacksAndMessages(null)
         appOpenAdRef.getAndSet(null)?.fullScreenContentCallback = null
 //        appOpenDialog?.safeDismiss()
 //        appOpenDialog = null
         currentActivityRef.set(null)
     }
+
 }

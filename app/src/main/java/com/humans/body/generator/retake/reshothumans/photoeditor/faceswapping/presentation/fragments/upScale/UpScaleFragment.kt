@@ -22,7 +22,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentUpScaleBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.FeatureType
@@ -85,19 +85,30 @@ class UpScaleFragment : Fragment() {
         attachFirstImage()
 
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("UpScaleFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    UpScaleFragmentDirections.actionUpScaleFragmentToGalleryFragment(
-                        featureType = FeatureType.UPSCALING,
-                        imageSlot = ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                UpScaleFragmentDirections.actionUpScaleFragmentToGalleryFragment(
+                    featureType = FeatureType.UPSCALING,
+                    imageSlot = ImageSlot.FIRST
                 )
-            }
+            )
         }
 
         binding.generate.setOnClickListener {
-            runWithRewardedGate("UpScaleFragmentScreen", "generate") {
-                performUpscale()
+            var generationStarted = false
+            runWithRewardedGate(
+                screen = "UpScaleFragmentScreen",
+                trigger = "generate",
+                onAdShowing = {
+                    if (!generationStarted) {
+                        generationStarted = true
+                        performUpscale()
+                    }
+                }
+            ) {
+                if (!generationStarted) {
+                    generationStarted = true
+                    performUpscale()
+                }
             }
         }
     }
@@ -177,8 +188,8 @@ class UpScaleFragment : Fragment() {
         GeminiImageService().upscaleImageWithGemini(
             SharePref.getString(Constants.new_version_key, ""), beforeBitmap
         ) { result ->
-            if (!isAdded || !isVisible) return@upscaleImageWithGemini
-            viewLifecycleOwner.lifecycleScope.launch {
+            if (!isAdded) return@upscaleImageWithGemini
+            runWhenRewardedAdClosed {
                 binding.generate.isEnabled = true
                 binding.generate.alpha = 1f
                 binding.loadingOverlay.visibility = View.GONE

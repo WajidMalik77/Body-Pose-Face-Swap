@@ -17,6 +17,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
 import timber.log.Timber
@@ -47,12 +48,13 @@ class BannerAdsManager(
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (defaultVisibility != View.VISIBLE) return
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
         // Clean up existing ad first
         collapsibleTopBannerAdView?.let { cleanupAdView(it, adContainer) }
 
         val adView = AdView(activity).apply {
-            this.adUnitId = adUnitId
+            this.adUnitId = resolvedAdUnitId
             collapsibleTopBannerAdView = this
         }
 
@@ -128,12 +130,13 @@ class BannerAdsManager(
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (defaultVisibility != View.VISIBLE) return
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
         // Clean up existing ad first
         collapsibleBottomBannerAdView?.let { cleanupAdView(it, adContainer) }
 
         val adView = AdView(activity).apply {
-            this.adUnitId = adUnitId
+            this.adUnitId = resolvedAdUnitId
             collapsibleBottomBannerAdView = this
         }
 
@@ -251,12 +254,13 @@ class BannerAdsManager(
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (visibility != View.VISIBLE) return
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
         // Clean up existing ad first
         adaptiveAdView?.let { cleanupAdView(it, container) }
 
         val adView = AdView(activity).apply {
-            this.adUnitId = adUnitId
+            this.adUnitId = resolvedAdUnitId
             adaptiveAdView = this
         }
 
@@ -312,12 +316,13 @@ class BannerAdsManager(
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (defaultVisibility != View.VISIBLE) return
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
         // Clean up existing ad first
         rectangleAdView?.let { cleanupAdView(it, adContainer) }
 
         val adView = AdView(activity).apply {
-            this.adUnitId = adUnitId
+            this.adUnitId = resolvedAdUnitId
             rectangleAdView = this
             setAdSize(AdSize.MEDIUM_RECTANGLE)
         }

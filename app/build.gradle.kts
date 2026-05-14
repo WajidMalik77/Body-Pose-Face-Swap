@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidx.navigation.safe.args)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.google.firebase.performance)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.ksp)
     id("kotlin-parcelize")
@@ -14,26 +15,26 @@ android {
     namespace = "com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping"
     compileSdk = 36
 
-//    flavorDimensions += "env"
-//    productFlavors {
-//        create("prod") {
-//            dimension = "env"
-//            applicationId = "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
-//            versionNameSuffix = ""
-//        }
-//        create("dev") {
-//            dimension = "env"
-//            applicationId = "com.test.human"
-//            versionNameSuffix = "-debug"
-//        }
-//    }
+    flavorDimensions += "env"
+    productFlavors {
+        create("prod") {
+            dimension = "env"
+            applicationId = "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
+            versionNameSuffix = ""
+        }
+        create("dev") {
+            dimension = "env"
+            applicationId = "com.test.human"
+            versionNameSuffix = "-debug"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
         minSdk = 24
         targetSdk = 35
-        versionCode = 14
-        versionName = "1.1.4"
+        versionCode = 16
+        versionName = "1.1.6"
         setProperty("archivesBaseName", "Human Body Generator $versionName ($versionCode)")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -43,6 +44,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            buildConfigField("boolean", "SHOW_PREMIUM_DEV_BUTTON", "false")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -61,6 +63,7 @@ android {
         debug {
             isMinifyEnabled = false
             isShrinkResources = false
+            buildConfigField("boolean", "SHOW_PREMIUM_DEV_BUTTON", "false")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -96,7 +99,6 @@ android {
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -109,6 +111,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.performance)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -126,20 +129,20 @@ dependencies {
     implementation(libs.billing.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.facebook.shimmer)
-    implementation("com.airbnb.android:lottie:6.6.6")
+    implementation("com.airbnb.android:lottie:6.7.1")
 
     implementation(libs.timber)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
     implementation(libs.play.services.ads)
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
     implementation("com.zeugmasolutions.localehelper:locale-helper-android:1.5.1") {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
     }
 
     implementation("com.google.ai.client.generativeai:generativeai:0.4.0")
     implementation("com.github.yalantis:ucrop:2.2.6")
-    implementation("com.github.skydoves:colorpickerview:2.2.4")
+    implementation("com.github.skydoves:colorpickerview:2.4.0")
     implementation(project(":sticker"))
-//    implementation(project(":Roozi"))
 }

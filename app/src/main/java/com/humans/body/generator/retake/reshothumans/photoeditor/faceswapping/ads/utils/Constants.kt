@@ -5,10 +5,11 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 
 object Constants {
-    const val PRODUCT_WEEKLY = "weekly.1"
-    const val PRODUCT_MONTHLY = "monthly.1"
-    const val PRODUCT_YEARLY = "yearly.1"
-    const val PRODUCT_LIFETIME = "lifetime.1"
+    // Keep these aligned with the product IDs used by the purchase flows.
+    const val PRODUCT_WEEKLY = "weekly_subscription1"
+    const val PRODUCT_MONTHLY = "monthly_subscription1"
+    const val PRODUCT_YEARLY = "yearly_subscription1"
+    const val PRODUCT_LIFETIME = "lifetime_subscription"
 
     fun isInternetAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

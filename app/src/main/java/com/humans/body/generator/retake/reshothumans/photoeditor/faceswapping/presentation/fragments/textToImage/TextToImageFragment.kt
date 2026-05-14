@@ -28,6 +28,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ap
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentTextToImageBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.Constants
@@ -46,6 +47,7 @@ class TextToImageFragment : Fragment() {
     private var generationStarted = false
     private var pendingGeneratedBitmap: android.graphics.Bitmap? = null
     private var pendingGenerationError: String? = null
+    private var activeGateRequestId = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -135,47 +137,71 @@ class TextToImageFragment : Fragment() {
         generationStarted = false
         pendingGeneratedBitmap = null
         pendingGenerationError = null
+        activeGateRequestId += 1
+        val requestId = activeGateRequestId
 
         runWithRewardedGate(
             screen = "TextToImageFragmentScreen",
             trigger = "generate",
             onAdShowing = {
-                if (!generationStarted) {
-                    startGeminiGeneration(prompt)
+                if (requestId == activeGateRequestId && !generationStarted) {
+                    startGeminiGeneration(prompt, requestId)
+                }
+            },
+            onBlocked = {
+                if (requestId == activeGateRequestId) {
+                    resetGenerationUiState(invalidateRequest = true)
                 }
             }
         ) {
+            if (requestId != activeGateRequestId) return@runWithRewardedGate
             gateSatisfied = true
             if (!generationStarted) {
-                startGeminiGeneration(prompt)
+                startGeminiGeneration(prompt, requestId)
             } else {
                 pendingGeneratedBitmap?.let {
-                    completeGenerationSuccess(it)
+                    completeGenerationSuccess(it, requestId)
                 }
                 pendingGenerationError?.let {
-                    completeGenerationFailure(it)
+                    completeGenerationFailure(it, requestId)
                 }
             }
         }
     }
 
-    private fun startGeminiGeneration(prompt: String) {
+    private fun resetGenerationUiState(invalidateRequest: Boolean = false) {
+        gateSatisfied = false
+        generationStarted = false
+        pendingGeneratedBitmap = null
+        pendingGenerationError = null
+        if (invalidateRequest) {
+            activeGateRequestId += 1
+        }
+        if (_binding != null) {
+            binding.genTxt.isEnabled = true
+            binding.progress.visibility = View.GONE
+            binding.scroll.visibility = View.VISIBLE
+        }
+    }
+
+    private fun startGeminiGeneration(prompt: String, requestId: Int) {
+        if (requestId != activeGateRequestId) return
         generationStarted = true
         geminiImageService.generateTextToImageWithGemini(
             apiKey = SharePref.getString(Constants.new_version_key, "").trim(),
             prompt = prompt
         ) { result ->
-            if (!isAdded) return@generateTextToImageWithGemini
+            if (!isAdded || requestId != activeGateRequestId) return@generateTextToImageWithGemini
             result.onSuccess { resource ->
                 if (gateSatisfied) {
-                    completeGenerationSuccess(resource)
+                    completeGenerationSuccess(resource, requestId)
                 } else {
                     pendingGeneratedBitmap = resource
                 }
             }.onFailure { error ->
                 val msg = error.message ?: "Error occurred"
                 if (gateSatisfied) {
-                    completeGenerationFailure(msg)
+                    completeGenerationFailure(msg, requestId)
                 } else {
                     pendingGenerationError = msg
                 }
@@ -183,24 +209,26 @@ class TextToImageFragment : Fragment() {
         }
     }
 
-    private fun completeGenerationSuccess(resource: android.graphics.Bitmap) {
-        if (!isAdded) return
+    private fun completeGenerationSuccess(resource: android.graphics.Bitmap, requestId: Int) {
+        if (!isAdded || requestId != activeGateRequestId) return
         pendingGeneratedBitmap = null
         pendingGenerationError = null
-        binding.genTxt.isEnabled = true
-        navigateWithBitmap(resource, R.id.action_textToImageFragment_to_generatePictureFragment)
-        binding.progress.visibility = View.GONE
-        binding.scroll.visibility = View.VISIBLE
+        runWhenRewardedAdClosed {
+            if (requestId != activeGateRequestId) return@runWhenRewardedAdClosed
+            binding.genTxt.isEnabled = true
+            navigateWithBitmap(resource, R.id.action_textToImageFragment_to_generatePictureFragment)
+            binding.progress.visibility = View.GONE
+            binding.scroll.visibility = View.VISIBLE
+        }
     }
 
-    private fun completeGenerationFailure(message: String) {
-        if (!isAdded) return
-        pendingGeneratedBitmap = null
-        pendingGenerationError = null
-        binding.genTxt.isEnabled = true
-        binding.scroll.visibility = View.VISIBLE
-        binding.progress.visibility = View.GONE
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    private fun completeGenerationFailure(message: String, requestId: Int) {
+        if (!isAdded || requestId != activeGateRequestId) return
+        runWhenRewardedAdClosed {
+            if (requestId != activeGateRequestId) return@runWhenRewardedAdClosed
+            resetGenerationUiState()
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun getCombinedPrompt(): String {

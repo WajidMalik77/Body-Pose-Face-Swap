@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.facebook.shimmer.ShimmerFrameLayout
@@ -17,6 +18,8 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ad
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentHomeBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.FeatureType
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.ImageSlot
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.PrefUtil
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.core.utils.FunnelAnalytics
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
@@ -32,13 +35,100 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        refreshHomeAds()
+
+        // ── Toolbar ───────────────────────────────────────────────
+        binding.toolbar.GetPro.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "premium")
+            requireActivity().startActivity(Intent(requireContext(), PremiumActivity::class.java))
+        }
+        binding.toolbar.imageView.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "settings")
+            findNavController().navigate(R.id.menuFragment)
+        }
+
+        // ── Body Editing ──────────────────────────────────────────
+        binding.layoutCardBodyReshape.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "body_reshape")
+            navigateToGallery(FeatureType.BODY_RESHAPE)
+        }
+        binding.layoutCardPoseSelection.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "scan_now")
+            navigateToGallery(FeatureType.POSE_SELECTION)
+        }
+
+        binding.layoutCardTextToImage.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "text_to_image")
+            safeShowInterstitialNavigate("HomeFragmentScreen", "text_to_image") {
+                findNavController().navigate(R.id.textToImageFragment)
+            }
+        }
+        binding.layoutCardFaceSwap.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "face_swap")
+            navigateToGallery(FeatureType.FACE_SWAP)
+        }
+        binding.layoutCardFaceStyle.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "face_style")
+            navigateToGallery(FeatureType.FACE_STYLE)
+        }
+
+        // ── Advanced AI Editing ───────────────────────────────────
+        binding.layoutCardAiTextToImage.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "image_to_image")
+            navigateToGallery(FeatureType.IMAGE_EDITING)
+        }
+        binding.layoutCardAiFaceSwap.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "in_painting")
+            navigateToGallery(FeatureType.IN_PAINTING)
+        }
+        binding.layoutCardAiFaceStyle.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "upscaling")
+            navigateToGallery(FeatureType.UPSCALING)
+        }
+        binding.layoutCardAiResizing.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "ai_resizing")
+            navigateToGallery(FeatureType.AI_RESIZING)
+        }
+        binding.layoutCardAiRemoveBg.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "remove_bg")
+            navigateToGallery(FeatureType.REMOVE_BG)
+        }
+        binding.layoutCardAiImageVariation.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "image_variation")
+            navigateToGallery(FeatureType.IMAGE_VARIATION)
+        }
+        binding.layoutCardAiSwapHairstyle.setOnClickListener {
+            FunnelAnalytics.logHomeClick(requireContext(), "swap_hairstyle")
+            navigateToGallery(FeatureType.SWAP_HAIRSTYLE)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshHomeAds()
+    }
+
+    private fun refreshHomeAds() {
+        if (!isAdded || _binding == null) return
+
+        if (PrefUtil.isPremium(requireContext())) {
+            hideAllHomeAds()
+            return
+        }
+
+        binding.llBannerTop.isVisible = true
+        binding.llNativeCenter.isVisible = true
+        binding.llNativeBottom.isVisible = true
+
         val bannerTopContainer = binding.llBannerTop.findViewById<FrameLayout>(R.id.admob_banner)
         val bannerTopShimmer = binding.llBannerTop.findViewById<ShimmerFrameLayout>(R.id.banner_ad_shimmer)
-        loadBannerAds(
-            screen = "HomeFragmentScreen",
-            topContainer = bannerTopContainer,
-            topShimmer = bannerTopShimmer
-        )
+        if (bannerTopContainer.childCount == 0) {
+            loadBannerAds(
+                screen = "HomeFragmentScreen",
+                topContainer = bannerTopContainer,
+                topShimmer = bannerTopShimmer
+            )
+        }
 
         val nativeCenterContainer = binding.llNativeCenter.findViewById<FrameLayout>(R.id.admob_native)
         val nativeCenterShimmer =
@@ -46,63 +136,43 @@ class HomeFragment : Fragment() {
         val nativeBottomContainer = binding.llNativeBottom.findViewById<FrameLayout>(R.id.admob_native)
         val nativeBottomShimmer =
             binding.llNativeBottom.findViewById<ShimmerFrameLayout>(R.id.native_ad_shimmer)
-        loadNativeAds(
-            screen = "HomeFragmentScreen",
-            centerContainer = nativeCenterContainer,
-            centerShimmer = nativeCenterShimmer,
-            bottomContainer = nativeBottomContainer,
-            bottomShimmer = nativeBottomShimmer
-        )
 
-        // ── Toolbar ───────────────────────────────────────────────
-        binding.toolbar.GetPro.setOnClickListener {
-            requireActivity().startActivity(Intent(requireContext(), PremiumActivity::class.java))
+        val centerNeedsLoad = nativeCenterContainer.childCount == 0
+        val bottomNeedsLoad = nativeBottomContainer.childCount == 0
+        if (centerNeedsLoad || bottomNeedsLoad) {
+            loadNativeAds(
+                screen = "HomeFragmentScreen",
+                centerContainer = if (centerNeedsLoad) nativeCenterContainer else null,
+                centerShimmer = if (centerNeedsLoad) nativeCenterShimmer else null,
+                bottomContainer = if (bottomNeedsLoad) nativeBottomContainer else null,
+                bottomShimmer = if (bottomNeedsLoad) nativeBottomShimmer else null
+            )
         }
-        binding.toolbar.imageView.setOnClickListener {
-            findNavController().navigate(R.id.menuFragment)
-        }
+    }
 
-        // ── Body Editing ──────────────────────────────────────────
-        binding.layoutCardBodyReshape.setOnClickListener {
-            navigateToGallery(FeatureType.BODY_RESHAPE)
-        }
-        binding.layoutCardPoseSelection.setOnClickListener {
-            navigateToGallery(FeatureType.POSE_SELECTION)
-        }
+    private fun hideAllHomeAds() {
+        if (_binding == null) return
 
-        binding.layoutCardTextToImage.setOnClickListener {
-            safeShowInterstitialNavigate("HomeFragmentScreen", "text_to_image") {
-                findNavController().navigate(R.id.textToImageFragment)
-            }
-        }
-        binding.layoutCardFaceSwap.setOnClickListener {
-            navigateToGallery(FeatureType.FACE_SWAP)
-        }
-        binding.layoutCardFaceStyle.setOnClickListener {
-            navigateToGallery(FeatureType.FACE_STYLE)
-        }
+        binding.llBannerTop.visibility = View.GONE
+        binding.llNativeCenter.visibility = View.GONE
+        binding.llNativeBottom.visibility = View.GONE
 
-        // ── Advanced AI Editing ───────────────────────────────────
-        binding.layoutCardAiTextToImage.setOnClickListener {
-            navigateToGallery(FeatureType.IMAGE_EDITING)
+        clearAdViews(binding.llBannerTop)
+        clearAdViews(binding.llNativeCenter)
+        clearAdViews(binding.llNativeBottom)
+    }
+
+    private fun clearAdViews(root: View) {
+        root.findViewById<FrameLayout>(R.id.admob_banner)?.removeAllViews()
+        root.findViewById<FrameLayout>(R.id.admob_native)?.removeAllViews()
+
+        root.findViewById<ShimmerFrameLayout>(R.id.banner_ad_shimmer)?.apply {
+            stopShimmer()
+            visibility = View.GONE
         }
-        binding.layoutCardAiFaceSwap.setOnClickListener {
-            navigateToGallery(FeatureType.IN_PAINTING)
-        }
-        binding.layoutCardAiFaceStyle.setOnClickListener {
-            navigateToGallery(FeatureType.UPSCALING)
-        }
-        binding.layoutCardAiResizing.setOnClickListener {
-            navigateToGallery(FeatureType.AI_RESIZING)
-        }
-        binding.layoutCardAiRemoveBg.setOnClickListener {
-            navigateToGallery(FeatureType.REMOVE_BG)
-        }
-        binding.layoutCardAiImageVariation.setOnClickListener {
-            navigateToGallery(FeatureType.IMAGE_VARIATION)
-        }
-        binding.layoutCardAiSwapHairstyle.setOnClickListener {
-            navigateToGallery(FeatureType.SWAP_HAIRSTYLE)
+        root.findViewById<ShimmerFrameLayout>(R.id.native_ad_shimmer)?.apply {
+            stopShimmer()
+            visibility = View.GONE
         }
     }
 

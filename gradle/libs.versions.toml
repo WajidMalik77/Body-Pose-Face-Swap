@@ -35,6 +35,8 @@ hilt = "2.58"
 datastorePreferences = "1.1.1"
 facebookShimmer = "0.5.0"
 firebaseMessaging = "24.1.0"
+firebasePerformance = "22.0.1"
+googleFirebasePerformance = "1.4.2"
 
 
 [libraries]
@@ -71,6 +73,7 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 facebook-shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "facebookShimmer" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-performance = { group = "com.google.firebase", name = "firebase-perf", version.ref = "firebasePerformance" }
 
 
 [plugins]
@@ -80,5 +83,6 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 androidx-navigation-safe-args = { id ="androidx.navigation.safeargs.kotlin",version.ref ="androidxNavigationSafeargsGradlePlugin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "googleFirebaseCrashlytics" }
+google-firebase-performance = { id = "com.google.firebase.firebase-perf", version.ref = "googleFirebasePerformance" }
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version = "2.2.20-2.0.3" }

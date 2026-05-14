@@ -16,6 +16,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.BuildConfig
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
 
@@ -82,7 +83,8 @@ class RewardedAdsManager private constructor(private val adsPref: AdsPref) {
             isLoading = true
         }
 
-        val adId = configuredAdUnitId?.takeIf { it.isNotBlank() } ?: resolveRewardedAdId(context)
+        val requestedAdId = configuredAdUnitId?.takeIf { it.isNotBlank() } ?: resolveRewardedAdId(context)
+        val adId = AdUnitIdSanitizer.sanitizeRewarded(requestedAdId)
         if (adId.isBlank()) {
             completePendingWithFailure("Rewarded ad id is blank")
             return

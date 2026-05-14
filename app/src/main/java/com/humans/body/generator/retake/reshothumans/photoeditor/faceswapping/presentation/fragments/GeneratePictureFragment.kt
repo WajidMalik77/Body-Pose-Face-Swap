@@ -43,6 +43,7 @@ class GeneratePictureFragment : Fragment() {
     private val binding get() = _binding!!
     private var generatedBitmap: Bitmap? = null
     private var removeWatermark = false
+    private var isPremiumUser = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,7 +73,9 @@ class GeneratePictureFragment : Fragment() {
             bottomShimmer = nativeBottomShimmer
         )
 
-        if (PrefUtil.isPremium(requireContext())) {
+        isPremiumUser = PrefUtil.isPremium(requireContext())
+        if (isPremiumUser) {
+            removeWatermark = true
             binding.removeWatermarkSwitch.visibility = View.GONE
             binding.cardView2.post {
                 val screenHeight = requireActivity().window.decorView.height
@@ -80,6 +83,8 @@ class GeneratePictureFragment : Fragment() {
                 params.height = (screenHeight * 0.6).toInt()
                 binding.cardView2.layoutParams = params
             }
+        } else {
+            binding.removeWatermarkSwitch.visibility = View.VISIBLE
         }
 
         checkIfUserIsSubscribed { }
@@ -88,7 +93,7 @@ class GeneratePictureFragment : Fragment() {
             findNavController().popBackStack(R.id.homeFragment, false)
         }
 
-        binding.watermarkText.visibility = View.VISIBLE
+        binding.watermarkText.visibility = if (removeWatermark) View.GONE else View.VISIBLE
         binding.watermarkText.text = requireContext().getString(R.string.human_body_generator)
 
         binding.textView2.setOnClickListener {
@@ -166,9 +171,7 @@ class GeneratePictureFragment : Fragment() {
 
     // ── Save to gallery silently in the background ─────────────
     private fun saveInBackground() {
-        val bitmap = generatedBitmap ?: return
-        val watermarkText = if (removeWatermark) "" else "Human Body Generator"
-        val bitmapToSave = addWatermarkToBitmap(requireContext(), bitmap, watermarkText)
+        val bitmapToSave = getBitmapForSaving() ?: return
         if (hasStoragePermission(requireContext())) {
             saveBitmapToGallery(requireContext(), bitmapToSave)
         } else {
@@ -185,6 +188,7 @@ class GeneratePictureFragment : Fragment() {
     }
 
     private fun applyWatermarkRemoval() {
+        if (isPremiumUser) return
         removeWatermark = !removeWatermark
         binding.removeWatermarkSwitch.visibility = View.GONE
         generatedBitmap?.let { originalBitmap ->
@@ -196,28 +200,36 @@ class GeneratePictureFragment : Fragment() {
     }
 
     private fun requestStoragePermissionAndSave() {
+        val bitmapToSave = getBitmapForSaving() ?: return
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                generatedBitmap?.let { saveBitmapToGallery(requireContext(), it) }
+                saveBitmapToGallery(requireContext(), bitmapToSave)
             } else {
                 storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         } else {
-            generatedBitmap?.let { saveBitmapToGallery(requireContext(), it) }
+            saveBitmapToGallery(requireContext(), bitmapToSave)
         }
     }
 
     private val storagePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
-                generatedBitmap?.let { saveBitmapToGallery(requireContext(), it) }
+                getBitmapForSaving()?.let { saveBitmapToGallery(requireContext(), it) }
             } else {
                 Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
             }
         }
+
+    private fun getBitmapForSaving(): Bitmap? {
+        val bitmap = generatedBitmap ?: return null
+        val shouldRemoveWatermark = isPremiumUser || removeWatermark
+        val watermarkText = if (shouldRemoveWatermark) "" else "Human Body Generator"
+        return addWatermarkToBitmap(requireContext(), bitmap, watermarkText)
+    }
 
     private fun addWatermarkToBitmap(
         context: Context,

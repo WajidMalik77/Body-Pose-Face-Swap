@@ -24,6 +24,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentReStyleBinding
@@ -93,14 +94,12 @@ class ReStyleFragment : Fragment() {
         attachFirstImage()
 
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("ReStyleFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    ReStyleFragmentDirections.actionReStyleFragmentToGalleryFragment(
-                        featureType = FeatureType.IN_PAINTING,
-                        imageSlot = ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                ReStyleFragmentDirections.actionReStyleFragmentToGalleryFragment(
+                    featureType = FeatureType.IN_PAINTING,
+                    imageSlot = ImageSlot.FIRST
                 )
-            }
+            )
         }
 
         // Done navigates directly to generatePictureFragment (user already saw before/after)
@@ -121,8 +120,21 @@ class ReStyleFragment : Fragment() {
         }
 
         binding.generate.setOnClickListener {
-            runWithRewardedGate("ReStyleFragmentScreen", "generate") {
-                performReStyle()
+            var generationStarted = false
+            runWithRewardedGate(
+                screen = "ReStyleFragmentScreen",
+                trigger = "generate",
+                onAdShowing = {
+                    if (!generationStarted) {
+                        generationStarted = true
+                        performReStyle()
+                    }
+                }
+            ) {
+                if (!generationStarted) {
+                    generationStarted = true
+                    performReStyle()
+                }
             }
         }
     }
@@ -207,28 +219,30 @@ class ReStyleFragment : Fragment() {
             ),
             prompt = "Re style the ghibli naturally",
         ) { result ->
-            result.onSuccess { bitmap ->
-                if (isAdded) {
-                    binding.loadingOverlay.visibility = View.GONE
-                    binding.GenTxt.text = getString(R.string.done)
-                    binding.generate.isEnabled = true
-                    binding.generate.alpha = 1f
-                    bitmap1 = bitmap
-                    binding.generatedImage.setImageBitmap(bitmap)
-                    binding.done.isEnabled = true
-                    binding.done.alpha = 1f
-                    // ── Navigate to before/after immediately ──
-                    ResultHolder.beforeBitmap = beforeBitmap
-                    ResultHolder.afterBitmap = bitmap
-                    findNavController().navigate(R.id.action_reStyleFragment_to_beforeAfterFragment)
+            if (!isAdded) return@changeFace
+            runWhenRewardedAdClosed {
+                result.onSuccess { bitmap ->
+                    if (isAdded) {
+                        binding.loadingOverlay.visibility = View.GONE
+                        binding.GenTxt.text = getString(R.string.done)
+                        binding.generate.isEnabled = true
+                        binding.generate.alpha = 1f
+                        bitmap1 = bitmap
+                        binding.generatedImage.setImageBitmap(bitmap)
+                        binding.done.isEnabled = true
+                        binding.done.alpha = 1f
+                        ResultHolder.beforeBitmap = beforeBitmap
+                        ResultHolder.afterBitmap = bitmap
+                        findNavController().navigate(R.id.action_reStyleFragment_to_beforeAfterFragment)
+                    }
+                }.onFailure {
+                    if (isAdded) {
+                        binding.loadingOverlay.visibility = View.GONE
+                        binding.generate.isEnabled = true
+                        binding.generate.alpha = 1f
+                    }
+                    it.printStackTrace()
                 }
-            }.onFailure {
-                if (isAdded) {
-                    binding.loadingOverlay.visibility = View.GONE
-                    binding.generate.isEnabled = true
-                    binding.generate.alpha = 1f
-                }
-                it.printStackTrace()
             }
         }
     }

@@ -27,6 +27,7 @@ import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.models.AdLoadParams
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.models.NativeAdColorConfig
@@ -110,6 +111,33 @@ class AdmobNativeManager(
         )
     }
 
+    fun loadNativeCustomAd(
+        adContainer: FrameLayout,
+        adUnitId: String,
+        layoutRes: Int,
+        shimmerContainer: FrameLayout? = null,
+        shimmerLayout: Int = R.layout.native_loading_medium,
+        shouldPreloadNext: Boolean = true,
+        colorConfig: NativeAdColorConfig? = null,
+        onLoaded: (() -> Unit)? = null,
+        onFailed: ((LoadAdError) -> Unit)? = null
+    ) {
+        showDebugToast("Native Custom Ad: Load Called")
+        loadNativeAd(
+            AdLoadParams(
+                adContainer = adContainer,
+                shimmerContainer = shimmerContainer,
+                adUnitId = adUnitId,
+                layoutRes = layoutRes,
+                shimmerLayoutRes = shimmerLayout,
+                colorConfig = colorConfig,
+                shouldPreloadNext = shouldPreloadNext,
+                onLoaded = onLoaded,
+                onFailed = onFailed
+            )
+        )
+    }
+
     fun loadNativeFullScreenIntroAd(
         adContainer: FrameLayout,
         adUnitId: String,
@@ -153,6 +181,7 @@ class AdmobNativeManager(
 
     private fun loadNativeAd(params: AdLoadParams) {
         val activity = activityRef.get() ?: return
+        val sanitizedParams = params.copy(adUnitId = AdUnitIdSanitizer.sanitizeNative(params.adUnitId))
 
         // Fast path: an ad is already loaded for this activity (e.g. fragment was popped
         // and recreated). Re-bind it to the new empty container instead of running a
@@ -160,21 +189,21 @@ class AdmobNativeManager(
         // Layout must match — re-binding a NativeAd to a different NativeAdView size
         // unregisters it from the previous view, which corrupts the other native render.
         if (!isDestroyed && !activity.isFinishing && !activity.isDestroyed
-            && nativeAd != null && params.adContainer.childCount == 0
-            && lastLoadParams?.layoutRes == params.layoutRes
+            && nativeAd != null && sanitizedParams.adContainer.childCount == 0
+            && lastLoadParams?.layoutRes == sanitizedParams.layoutRes
         ) {
-            lastLoadParams = params
+            lastLoadParams = sanitizedParams
             scope.launch(Dispatchers.Main.immediate) {
                 try {
-                    val adView = inflateAndPopulateAdView(nativeAd!!, params)
-                    displayAd(adView, params)
-                    params.onLoaded?.invoke()
+                    val adView = inflateAndPopulateAdView(nativeAd!!, sanitizedParams)
+                    displayAd(adView, sanitizedParams)
+                    sanitizedParams.onLoaded?.invoke()
                 } catch (e: Exception) {
                     Timber.e(e, "Native ad reuse failed; falling back to fresh load")
                     if (canLoadAd(activity)) {
                         isLoading = true
-                        prepareContainers(params)
-                        startAdRequest(activity, params, isPreload = false)
+                        prepareContainers(sanitizedParams)
+                        startAdRequest(activity, sanitizedParams, isPreload = false)
                     }
                 }
             }
@@ -184,13 +213,13 @@ class AdmobNativeManager(
         if (!canLoadAd(activity)) return
 
         // Store params for rendering context
-        lastLoadParams = params
+        lastLoadParams = sanitizedParams
 
         isLoading = true
 
         scope.launch(Dispatchers.Main.immediate) {
-            prepareContainers(params)
-            startAdRequest(activity, params, isPreload = false)
+            prepareContainers(sanitizedParams)
+            startAdRequest(activity, sanitizedParams, isPreload = false)
         }
     }
 

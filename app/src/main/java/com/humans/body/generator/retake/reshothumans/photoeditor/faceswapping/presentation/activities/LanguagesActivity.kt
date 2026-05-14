@@ -29,6 +29,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ut
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.Constants
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.SharePref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.getLangData
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.core.utils.FunnelAnalytics
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -81,6 +82,7 @@ class LanguagesActivity : BaseActivity() {
             binding.back.visibility = View.VISIBLE
         else binding.back.visibility = View.GONE
         binding.back.setOnClickListener {
+            FunnelAnalytics.logScreenEvent(this, "language", "click_back")
             finish()
         }
 
@@ -96,6 +98,7 @@ class LanguagesActivity : BaseActivity() {
         loadBottomNative()
 
         binding.done.setOnClickListener {
+            FunnelAnalytics.logScreenEvent(this, "language", "click_done")
             applyRequested = true
             getSharedPreferences("MySharedPref", MODE_PRIVATE).edit { putInt("lang", pos) }
             Log.d("TAG", "onCreate: ${getLangData()[pos].locale}")
@@ -113,6 +116,13 @@ class LanguagesActivity : BaseActivity() {
 
 
         }
+
+        FunnelAnalytics.logScreenEvent(this, "language", "on_create")
+    }
+
+    override fun onDestroy() {
+        FunnelAnalytics.logScreenEvent(this, "language", "on_destroy")
+        super.onDestroy()
     }
 
     private fun loadTopBanner() {
@@ -141,9 +151,11 @@ class LanguagesActivity : BaseActivity() {
                 when (event) {
                     is NativeAdEvent.Loaded -> {
                         if (event.position.equals("bottom", ignoreCase = true)) onBottomNativeResolved("loaded")
+                        FunnelAnalytics.logScreenEvent(this@LanguagesActivity, "language", "on_native_loaded")
                     }
                     is NativeAdEvent.Failed -> {
                         if (event.position.equals("bottom", ignoreCase = true)) onBottomNativeResolved("failed")
+                        FunnelAnalytics.logScreenEvent(this@LanguagesActivity, "language", "on_native_failed")
                     }
                     is NativeAdEvent.Off -> {
                         if (event.position.equals("bottom", ignoreCase = true)) onBottomNativeResolved("off")
@@ -223,6 +235,16 @@ class LanguagesActivity : BaseActivity() {
 
     private fun showBypassInterstitialAndNavigate(screen: String, trigger: String, nextIntent: Intent) {
         if (isFinishing || isDestroyed) return
+        // Premium users do not see interstitials, so navigate directly and avoid hiding
+        // the current UI first (which can otherwise flash a black screen).
+        if (com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.PrefUtil.isPremium(this)) {
+            nextIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            startActivity(nextIntent)
+            overridePendingTransition(0, 0)
+            finish()
+            overridePendingTransition(0, 0)
+            return
+        }
         // Hide the language content immediately. The interstitial covers the screen, but on
         // dismissal the activity briefly resumes before finish takes effect — without this,
         // the language UI re-renders for a frame between the ad closing and the next activity.

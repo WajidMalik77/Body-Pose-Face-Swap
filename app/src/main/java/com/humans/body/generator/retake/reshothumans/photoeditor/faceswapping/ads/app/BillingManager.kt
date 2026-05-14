@@ -10,11 +10,17 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryPurchasesParams
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.AdsConstants
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.core.utils.PurchaseAnalyticsLogger
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.PrefUtil
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.Constants
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.Constants.PRODUCT_LIFETIME
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.CountDownLatch
@@ -27,8 +33,27 @@ class BillingManager @Inject constructor(
     private val adsPref: AdsPref,
     private val premiumRepository: PremiumRepository
 ) {
+    companion object {
+        private const val TAG_BILLING_DIAG = "BillingAckDiag"
+        private val PREMIUM_PRODUCTS = setOf(
+            Constants.PRODUCT_WEEKLY,
+            PRODUCT_LIFETIME,
+            Constants.PRODUCT_MONTHLY,
+            Constants.PRODUCT_YEARLY,
+            // Alternate subscription IDs used in PremiumActivity flow.
+            AdsConstants.weekly_ad,
+            AdsConstants.monthly_ad,
+            AdsConstants.yearly_ad
+        )
+    }
+
     private lateinit var billingClient: BillingClient
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    private val _firstSyncCompleted = MutableStateFlow(false)
+    /** Becomes true after the first successful queryAllPurchases reconciliation,
+     *  so Splash / callers can wait for authoritative premium state before navigating. */
+    val firstSyncCompleted: StateFlow<Boolean> = _firstSyncCompleted.asStateFlow()
 
     fun initialize() {
         // Set initial state from local storage
@@ -79,42 +104,75 @@ class BillingManager @Inject constructor(
     }
 
     fun queryAllPurchases() {
+        PurchaseAnalyticsLogger.logRestoreStarted(
+            productType = "all",
+            source = "ads_billing_manager"
+        )
         val productTypes = listOf(
             BillingClient.ProductType.SUBS,
             BillingClient.ProductType.INAPP
         )
 
         val allPurchases = mutableListOf<Purchase>()
+        val allOk = java.util.concurrent.atomic.AtomicBoolean(true)
         val countdown = CountDownLatch(productTypes.size)
 
         productTypes.forEach { type ->
-            queryPurchasesByType(type) { purchases ->
+            queryPurchasesByType(type) { purchases, ok ->
                 synchronized(allPurchases) {
-                    allPurchases.addAll(purchases)
+                    if (ok) allPurchases.addAll(purchases) else allOk.set(false)
                 }
                 countdown.countDown()
             }
         }
 
-        // Process all purchases after both queries complete
+        // Reconcile premium only when BOTH queries succeed — a transient Play Billing
+        // failure must not downgrade a paying user to free.
         CoroutineScope(Dispatchers.IO).launch {
             countdown.await()
-            processPurchases(allPurchases)
+            if (allOk.get()) {
+                val okResult = BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.OK)
+                    .setDebugMessage("query_all_purchases_ok")
+                    .build()
+                PurchaseAnalyticsLogger.logRestoreResult(
+                    productType = "all",
+                    billingResult = okResult,
+                    purchaseCount = allPurchases.size,
+                    source = "ads_billing_manager"
+                )
+                processPurchases(allPurchases)
+                _firstSyncCompleted.value = true
+            } else {
+                val failResult = BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                    .setDebugMessage("query_all_purchases_failed")
+                    .build()
+                PurchaseAnalyticsLogger.logRestoreResult(
+                    productType = "all",
+                    billingResult = failResult,
+                    purchaseCount = allPurchases.size,
+                    source = "ads_billing_manager"
+                )
+                Timber.w("$TAG_BILLING_DIAG Skipping reconciliation — at least one purchase query failed")
+                // Unblock Splash even on failure — local cached state stays as-is.
+                _firstSyncCompleted.value = true
+            }
         }
     }
 
     private fun queryPurchasesByType(
         type: String,
-        onComplete: (List<Purchase>) -> Unit
+        onComplete: (List<Purchase>, Boolean) -> Unit
     ) {
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(type).build()
         ) { result, purchases ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                onComplete(purchases)
+                onComplete(purchases, true)
             } else {
                 Timber.w("Query failed for $type: ${result.debugMessage}")
-                onComplete(emptyList())
+                onComplete(emptyList(), false)
             }
         }
     }
@@ -123,16 +181,23 @@ class BillingManager @Inject constructor(
         val validPurchases = purchases.filter {
             it.purchaseState == Purchase.PurchaseState.PURCHASED
         }
+        Timber.d("$TAG_BILLING_DIAG processPurchases total=${purchases.size} validPurchased=${validPurchases.size}")
 
         val purchasedProducts = mutableSetOf<String>()
         var hasLifetime = false
 
         validPurchases.forEach { purchase ->
             val productId = purchase.products.firstOrNull() ?: return@forEach
+            Timber.d(
+                "$TAG_BILLING_DIAG purchase productId=$productId acknowledged=${purchase.isAcknowledged} token=${purchase.purchaseToken.take(12)}..."
+            )
 
             // Acknowledge if needed
             if (!purchase.isAcknowledged) {
+                Timber.d("$TAG_BILLING_DIAG ack_required productId=$productId token=${purchase.purchaseToken.take(12)}...")
                 acknowledgePurchase(purchase)
+            } else {
+                Timber.d("$TAG_BILLING_DIAG ack_already_done productId=$productId token=${purchase.purchaseToken.take(12)}...")
             }
 
             when (productId) {
@@ -147,12 +212,21 @@ class BillingManager @Inject constructor(
                     }
                 }
             }
+
+            PurchaseAnalyticsLogger.logEntitlementActivated(
+                productId = productId,
+                productType = if (productId == PRODUCT_LIFETIME) BillingClient.ProductType.INAPP else BillingClient.ProductType.SUBS,
+                token = purchase.purchaseToken,
+                source = "ads_billing_manager"
+            )
         }
 
         val isPremium = purchasedProducts.isNotEmpty()
         adsPref.setPurchasedProductsSet(purchasedProducts)
         adsPref.setIsPremiumStatus(isPremium)
         premiumRepository.updatePremiumState(isPremium)
+        // Keep all premium flags in sync and hide ads immediately on current UI.
+        PrefUtil.setPremium(context, isPremium)
 
         Timber.d("Purchases processed: $purchasedProducts, isPremium=$isPremium")
     }
@@ -161,7 +235,34 @@ class BillingManager @Inject constructor(
         Timber.d("Purchase update: ${result.responseCode}")
 
         if (result.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
+            purchases.forEach { purchase ->
+                PurchaseAnalyticsLogger.logPurchaseResult(
+                    productId = purchase.products.firstOrNull(),
+                    productType = BillingClient.ProductType.SUBS,
+                    result = "success",
+                    billingResult = result,
+                    token = purchase.purchaseToken,
+                    isAcknowledged = purchase.isAcknowledged,
+                    source = "ads_billing_manager"
+                )
+            }
             processPurchases(purchases)
+        } else if (result.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+            PurchaseAnalyticsLogger.logPurchaseResult(
+                productId = null,
+                productType = BillingClient.ProductType.SUBS,
+                result = "cancel",
+                billingResult = result,
+                source = "ads_billing_manager"
+            )
+        } else {
+            PurchaseAnalyticsLogger.logPurchaseResult(
+                productId = null,
+                productType = BillingClient.ProductType.SUBS,
+                result = "error",
+                billingResult = result,
+                source = "ads_billing_manager"
+            )
         }
     }
 
@@ -170,6 +271,16 @@ class BillingManager @Inject constructor(
             Timber.e("Failed to acknowledge: ${purchase.products}")
             return
         }
+        val productId = purchase.products.firstOrNull().orEmpty()
+        PurchaseAnalyticsLogger.logPurchaseAckStarted(
+            productId = productId,
+            token = purchase.purchaseToken,
+            attemptsLeft = attemptsLeft,
+            source = "ads_billing_manager"
+        )
+        Timber.d(
+            "$TAG_BILLING_DIAG ack_attempt productId=$productId attemptsLeft=$attemptsLeft token=${purchase.purchaseToken.take(12)}..."
+        )
 
         val params = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken)
@@ -177,9 +288,26 @@ class BillingManager @Inject constructor(
 
         billingClient.acknowledgePurchase(params) { result ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                Timber.d("Purchase acknowledged: ${purchase.products}")
+                PurchaseAnalyticsLogger.logPurchaseAckSuccess(
+                    productId = productId,
+                    token = purchase.purchaseToken,
+                    billingResult = result,
+                    source = "ads_billing_manager"
+                )
+                Timber.d(
+                    "$TAG_BILLING_DIAG ack_success productId=$productId token=${purchase.purchaseToken.take(12)}... response=${result.responseCode}"
+                )
             } else {
-                Timber.w("Acknowledge failed, retrying: ${result.debugMessage}")
+                PurchaseAnalyticsLogger.logPurchaseAckFailed(
+                    productId = productId,
+                    token = purchase.purchaseToken,
+                    attemptsLeft = attemptsLeft,
+                    billingResult = result,
+                    source = "ads_billing_manager"
+                )
+                Timber.w(
+                    "$TAG_BILLING_DIAG ack_failed productId=$productId token=${purchase.purchaseToken.take(12)}... response=${result.responseCode} debug=${result.debugMessage}"
+                )
                 mainHandler.postDelayed({
                     acknowledgePurchase(purchase, attemptsLeft - 1)
                 }, 2000)
@@ -191,12 +319,4 @@ class BillingManager @Inject constructor(
         queryAllPurchases() // Reuses existing acknowledgment logic
     }
 
-    companion object {
-        private val PREMIUM_PRODUCTS = setOf(
-            Constants.PRODUCT_WEEKLY,
-            PRODUCT_LIFETIME,
-            Constants.PRODUCT_MONTHLY,
-            Constants.PRODUCT_YEARLY
-        )
-    }
 }

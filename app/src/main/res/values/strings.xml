@@ -140,6 +140,7 @@ When you subscribe to our premium content, your subscription will renew automati
     <string name="image_variation_ai_restyler"><![CDATA[• Image Variation & AI Restyler]]></string>
     <string name="v_shape_curves">• V-Shape / Curves</string>
     <string name="worth_a_try">Worth a try</string>
+    <string name="manage">Manage</string>
     <string name="swipe_to_continue">Swipe to Continue</string>
     <string name="ad_is_loading">Loading ad…</string>
     <string name="notification_channel_name">General Notifications</string>

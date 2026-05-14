@@ -18,8 +18,8 @@ import timber.log.Timber
 
 class NativeAdConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v14") {
-    private val configKey = "Config_v14"
+) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v16") {
+    private val configKey = "Config_v16"
     companion object {
         private val jsonParser by lazy {
             Json {
@@ -63,6 +63,11 @@ class NativeAdConfigManager(
 
     fun isNativeVisible(target: String, position: String): Boolean {
         val config = getResolvedNativeConfig() ?: run {
+            val isSplashTarget = target == RemoteScreens.SPLASH_SCREEN ||
+                target.equals("SplashFragmentScreen", ignoreCase = true) ||
+                target.equals("SplashScreen", ignoreCase = true)
+            if (isSplashTarget) return false
+
             val fallbackValue = getFallbackNativePlacementValue(target, position)
             if (fallbackValue != null) return fallbackValue > 0
             return position.equals("bottom", ignoreCase = true)
@@ -262,23 +267,16 @@ class NativeAdConfigManager(
             buildJsonObject {
                 placementsObj.forEach { (key, value) ->
                     val obj = value.jsonObject
-                    val style = obj["style"]?.jsonObject
+                    val style = obj["style"]?.jsonObject ?: obj["color_config"]?.jsonObject
                     val normalizedPlacement = if (style == null) {
                         obj
                     } else {
                         buildJsonObject {
                             obj.forEach { (k, v) ->
-                                if (k != "style") put(k, v)
+                                if (k != "style" && k != "color_config") put(k, v)
                             }
-                            // add normalized style keys that our model expects directly
-                            put("style", buildJsonObject {
-                                style.forEach { (k, v) -> put(k, v) }
-                                style["cta_bg_color"]?.let { put("cta_background_color", it) }
-                                style["cta_text_size"]?.let { put("cta_text_size_sp", it) }
-                                style["cta_radius"]?.let { put("cta_corner_radius_dp", it) }
-                                style["corner_radius"]?.let { put("corner_radius_dp", it) }
-                                style["stroke_width"]?.let { put("stroke_width_dp", it) }
-                            })
+                            // Accept both `style` and legacy `color_config`, then normalize aliases.
+                            put("style", normalizeColorConfigJson(style))
                         }
                     }
                     put(key, normalizedPlacement)
@@ -298,6 +296,17 @@ class NativeAdConfigManager(
                     else -> put(k, v)
                 }
             }
+        }
+    }
+
+    private fun normalizeColorConfigJson(raw: JsonObject): JsonObject {
+        return buildJsonObject {
+            raw.forEach { (k, v) -> put(k, v) }
+            raw["cta_bg_color"]?.let { put("cta_background_color", it) }
+            raw["cta_text_size"]?.let { put("cta_text_size_sp", it) }
+            raw["cta_radius"]?.let { put("cta_corner_radius_dp", it) }
+            raw["corner_radius"]?.let { put("corner_radius_dp", it) }
+            raw["stroke_width"]?.let { put("stroke_width_dp", it) }
         }
     }
 }

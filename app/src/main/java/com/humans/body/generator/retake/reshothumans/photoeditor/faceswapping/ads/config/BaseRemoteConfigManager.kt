@@ -13,10 +13,22 @@ abstract class BaseRemoteConfigManager<T>(
     private val remoteKey: String
 ) {
     protected var configData: T? = null
-    private var onConfigAvailableCallback: (() -> Unit)? = null
+    private val onConfigAvailableCallbacks = mutableListOf<() -> Unit>()
     protected var isConfigListenerSet = false
+    @Volatile
+    private var isFetching = false
 
     fun fetchConfig() {
+        if (configData != null) {
+            Log.d("ConfigTrace", "fetchConfig skip key=$remoteKey reason=already_loaded")
+            notifyConfigAvailable()
+            return
+        }
+        if (isFetching) {
+            Log.d("ConfigTrace", "fetchConfig skip key=$remoteKey reason=in_flight")
+            return
+        }
+        isFetching = true
         Log.d("ConfigTrace", "fetchConfig start key=$remoteKey manager=${this::class.java.simpleName}")
         firebaseRemoteConfig.fetchAndActivate()
             .addOnCompleteListener { task ->
@@ -35,21 +47,26 @@ abstract class BaseRemoteConfigManager<T>(
                                         "parse result key=$remoteKey parsedNull=${parsedData == null}"
                                     )
                                     postProcessParsedData(json)
-                                    onConfigAvailableCallback?.invoke()
+                                    notifyConfigAvailable()
+                                    isFetching = false
                                 }
                             } catch (e: Exception) {
                                 Timber.e(e, "$remoteKey configuration parse error")
+                                isFetching = false
                             }
                         }
                     } else {
                         Log.e("ConfigTrace", "$remoteKey JSON is blank")
+                        isFetching = false
                     }
                 } else {
                     Timber.e(task.exception, "Remote Config fetch failed for $remoteKey")
+                    isFetching = false
                 }
             }
             .addOnFailureListener {
                 Timber.e(it, "Fetch and activate failed for $remoteKey")
+                isFetching = false
             }
     }
 
@@ -58,14 +75,17 @@ abstract class BaseRemoteConfigManager<T>(
     protected open fun postProcessParsedData(json: String) {}
 
     open fun setOnConfigAvailableListener(callback: () -> Unit) {
-        if (isConfigListenerSet) return
-        isConfigListenerSet = true
-        this.onConfigAvailableCallback = callback
+        onConfigAvailableCallbacks.add(callback)
         if (configData != null) callback()
     }
 
     fun getConfig(): T? {
         if (configData == null) fetchConfig()
         return configData
+    }
+
+    private fun notifyConfigAvailable() {
+        if (onConfigAvailableCallbacks.isEmpty()) return
+        onConfigAvailableCallbacks.forEach { it.invoke() }
     }
 }

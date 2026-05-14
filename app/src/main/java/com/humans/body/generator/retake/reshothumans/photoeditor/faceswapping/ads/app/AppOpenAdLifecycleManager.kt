@@ -18,8 +18,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.Bu
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.AdControlConfigManager
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.dialogs.LoadingDialog
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.managers.AppOpenManager
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS.PROD_ADMOB_APP_OPEN_ID
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS.TEST_ADMOB_APP_OPEN_ID
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS.TEST_ADMOB_APP_OPEN_SPLASH_ID
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdShowCallback
@@ -27,6 +26,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ad
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,11 +39,14 @@ class AppOpenAdLifecycleManager @Inject constructor(
 ) : DefaultLifecycleObserver, Application.ActivityLifecycleCallbacks {
     companion object {
         private const val TAG_AO = "AppOpenTrace"
+        private const val RESUME_LOAD_WAIT_MS = 3000L
+        private const val RESUME_LOAD_POLL_MS = 250L
     }
 
     private var currentActivity: Activity? = null
     private lateinit var appOpenManager: AppOpenManager
     private var backgroundedAtMillis: Long = 0L
+    private val resumeFlowInProgress = AtomicBoolean(false)
     private var resumeLoadingDialog: LoadingDialog? = null
     private val resumeDialogHandler = Handler(Looper.getMainLooper())
 
@@ -57,7 +60,11 @@ class AppOpenAdLifecycleManager @Inject constructor(
                 .getConsentInformation(appContext)
                 .canRequestAds()
             if (canRequestAds && !premiumRepository.isPremiumUser() && adControlConfigManager.shouldShowAppOpenSplash()) {
-                val adId = if (BuildConfig.DEBUG) TEST_ADMOB_APP_OPEN_SPLASH_ID else PROD_ADMOB_APP_OPEN_SPLASH_ID
+                val adId = if (BuildConfig.DEBUG) {
+                    TEST_ADMOB_APP_OPEN_SPLASH_ID
+                } else {
+                    adControlConfigManager.getProdAppOpenSplashAdUnitId(ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID)
+                }
                 if (adId.isNotBlank()) {
                     initializeAppOpenManager()
                     appOpenManager.loadAppOpenAd(adId, adsPref)
@@ -116,6 +123,10 @@ class AppOpenAdLifecycleManager @Inject constructor(
 
     private fun shouldShowAppOpenAd(): Boolean {
         return try {
+            if (currentActivity?.javaClass?.simpleName == "Splash") {
+                Log.d(TAG_AO, "shouldShow check blocked: Splash activity is foreground")
+                return false
+            }
             val canRequestAds = UserMessagingPlatform
                 .getConsentInformation(appContext)
                 .canRequestAds()
@@ -285,7 +296,11 @@ class AppOpenAdLifecycleManager @Inject constructor(
                 }
 
                 override fun onAdFailedToShow(adError: String) {
-                    Timber.w("App Open ad failed: $adError")
+                    if (adError.contains("already showing", ignoreCase = true)) {
+                        Timber.d("App Open show skipped: $adError")
+                    } else {
+                        Timber.w("App Open ad failed: $adError")
+                    }
                     onFinished?.invoke()
                 }
 
@@ -338,38 +353,117 @@ class AppOpenAdLifecycleManager @Inject constructor(
     }
 
     private fun ensureResumeAppOpenLoadedAndShow() {
-        val resumeAdUnitId = if (BuildConfig.DEBUG) TEST_ADMOB_APP_OPEN_ID else PROD_ADMOB_APP_OPEN_ID
-        if (resumeAdUnitId.isBlank()) {
-            Log.w(TAG_AO, "blocked: resume ad unit id is blank")
+        if (!resumeFlowInProgress.compareAndSet(false, true)) {
+            Log.d(TAG_AO, "blocked: resume show flow already in progress")
             return
         }
 
-        if (appOpenManager.hasUsableAd()) {
+        val resumeAdUnitId = if (BuildConfig.DEBUG) {
+            TEST_ADMOB_APP_OPEN_ID
+        } else {
+            adControlConfigManager.getProdAppOpenResumeAdUnitId(ADS.PROD_ADMOB_APP_OPEN_ID)
+        }
+        if (resumeAdUnitId.isBlank()) {
+            Log.w(TAG_AO, "blocked: resume ad unit id is blank")
+            resumeFlowInProgress.set(false)
+            return
+        }
+
+        if (appOpenManager.hasUsableAd(resumeAdUnitId)) {
             Log.d(TAG_AO, "resume path: using cached app-open ad, no loading dialog needed")
-            showAppOpenAdDirect { dismissResumeLoading() }
+            showAppOpenAdDirect {
+                dismissResumeLoading()
+                resumeFlowInProgress.set(false)
+            }
+            return
+        }
+
+        if (appOpenManager.isAdLoading(resumeAdUnitId)) {
+            Log.d(TAG_AO, "resume load already in progress for same unit, polling for readiness")
+            showResumeLoadingIfPossible()
+            waitForResumeAdAndShow(resumeAdUnitId)
             return
         }
 
         if (appOpenManager.isAdLoading()) {
-            Log.d(TAG_AO, "blocked: resume load already in progress")
+            Log.d(TAG_AO, "resume load waiting for another app-open load to finish")
+            showResumeLoadingIfPossible()
+            waitForResumeLoadSlotAndLoad(resumeAdUnitId)
             return
         }
 
         Log.d(TAG_AO, "loading resume app-open ad id=$resumeAdUnitId")
         showResumeLoadingIfPossible()
+        loadResumeAppOpenAndShow(resumeAdUnitId)
+    }
+
+    private fun loadResumeAppOpenAndShow(resumeAdUnitId: String) {
         appOpenManager.loadAppOpenAd(
             adUnitId = resumeAdUnitId,
             adsPref = adsPref,
             onAdLoaded = {
                 Log.d(TAG_AO, "resume load success, calling show")
-                showAppOpenAdDirect { dismissResumeLoading() }
+                showAppOpenAdDirect {
+                    dismissResumeLoading()
+                    resumeFlowInProgress.set(false)
+                }
             },
             onAdFailed = {
                 Log.w(TAG_AO, "resume load failed code=${it.code} message=${it.message}")
                 dismissResumeLoading()
+                resumeFlowInProgress.set(false)
                 Unit
             }
         )
+    }
+
+    private fun waitForResumeAdAndShow(resumeAdUnitId: String) {
+        val checks = (RESUME_LOAD_WAIT_MS / RESUME_LOAD_POLL_MS).toInt()
+        var completed = 0
+        fun poll() {
+            if (appOpenManager.hasUsableAd(resumeAdUnitId)) {
+                showAppOpenAdDirect {
+                    dismissResumeLoading()
+                    resumeFlowInProgress.set(false)
+                }
+                return
+            }
+            completed += 1
+            if (completed >= checks) {
+                dismissResumeLoading()
+                resumeFlowInProgress.set(false)
+                return
+            }
+            resumeDialogHandler.postDelayed({ poll() }, RESUME_LOAD_POLL_MS)
+        }
+        resumeDialogHandler.postDelayed({ poll() }, RESUME_LOAD_POLL_MS)
+    }
+
+    private fun waitForResumeLoadSlotAndLoad(resumeAdUnitId: String) {
+        val checks = (RESUME_LOAD_WAIT_MS / RESUME_LOAD_POLL_MS).toInt()
+        var completed = 0
+        fun poll() {
+            if (appOpenManager.hasUsableAd(resumeAdUnitId)) {
+                showAppOpenAdDirect {
+                    dismissResumeLoading()
+                    resumeFlowInProgress.set(false)
+                }
+                return
+            }
+            if (!appOpenManager.isAdLoading()) {
+                loadResumeAppOpenAndShow(resumeAdUnitId)
+                return
+            }
+            completed += 1
+            if (completed >= checks) {
+                Log.w(TAG_AO, "resume load timed out waiting for app-open load slot")
+                dismissResumeLoading()
+                resumeFlowInProgress.set(false)
+                return
+            }
+            resumeDialogHandler.postDelayed({ poll() }, RESUME_LOAD_POLL_MS)
+        }
+        resumeDialogHandler.postDelayed({ poll() }, RESUME_LOAD_POLL_MS)
     }
 
     private fun showResumeLoadingIfPossible() {

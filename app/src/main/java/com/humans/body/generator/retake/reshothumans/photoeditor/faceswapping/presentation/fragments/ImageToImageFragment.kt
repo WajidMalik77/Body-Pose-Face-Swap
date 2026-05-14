@@ -34,6 +34,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ad
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.getFemaleAdult
@@ -118,15 +119,60 @@ class ImageToImageFragment : Fragment() {
                     0 -> showPoseBottomSheet(name)
 
                     1 -> {
-                        runWithRewardedGate("ImageToImageFragmentScreen", "bg_removal") { performBgRemoval() }
+                        var bgRemovalStarted = false
+                        runWithRewardedGate(
+                            screen = "ImageToImageFragmentScreen",
+                            trigger = "bg_removal",
+                            onAdShowing = {
+                                if (!bgRemovalStarted) {
+                                    bgRemovalStarted = true
+                                    performBgRemoval()
+                                }
+                            }
+                        ) {
+                            if (!bgRemovalStarted) {
+                                bgRemovalStarted = true
+                                performBgRemoval()
+                            }
+                        }
                     }
 
                     2 -> {
-                        runWithRewardedGate("ImageToImageFragmentScreen", "ghibli") { performGhibli() }
+                        var ghibliStarted = false
+                        runWithRewardedGate(
+                            screen = "ImageToImageFragmentScreen",
+                            trigger = "ghibli",
+                            onAdShowing = {
+                                if (!ghibliStarted) {
+                                    ghibliStarted = true
+                                    performGhibli()
+                                }
+                            }
+                        ) {
+                            if (!ghibliStarted) {
+                                ghibliStarted = true
+                                performGhibli()
+                            }
+                        }
                     }
 
                     3 -> {
-                        runWithRewardedGate("ImageToImageFragmentScreen", "upscale") { performUpscale() }
+                        var upscaleStarted = false
+                        runWithRewardedGate(
+                            screen = "ImageToImageFragmentScreen",
+                            trigger = "upscale",
+                            onAdShowing = {
+                                if (!upscaleStarted) {
+                                    upscaleStarted = true
+                                    performUpscale()
+                                }
+                            }
+                        ) {
+                            if (!upscaleStarted) {
+                                upscaleStarted = true
+                                performUpscale()
+                            }
+                        }
                     }
                 }
             }
@@ -142,15 +188,16 @@ class ImageToImageFragment : Fragment() {
                 ""
             ), bitmap
         ) { result ->
-            requireActivity().runOnUiThread {
+            if (!isAdded) return@removeBackgroundWithGemini
+            runWhenRewardedAdClosed {
                 result.onSuccess { bmp ->
-                    if (!isAdded) return@runOnUiThread
+                    if (!isAdded) return@onSuccess
                     binding.loadingOverlay.visibility = View.GONE
                     bitmap1 = bmp
                     binding.generatedImage.setImageBitmap(bmp)
                 }
                 result.onFailure { error ->
-                    if (!isAdded) return@runOnUiThread
+                    if (!isAdded) return@onFailure
                     binding.loadingOverlay.visibility = View.GONE
                     Toast.makeText(requireContext(), "Failed: ${error.message}", Toast.LENGTH_LONG)
                         .show()
@@ -170,16 +217,19 @@ class ImageToImageFragment : Fragment() {
             ),
             prompt = "Re style the ghibli naturally",
         ) { result ->
-            result.onSuccess { bmp ->
-                if (isAdded) {
-                    binding.loadingOverlay.visibility = View.GONE
-                    bitmap1 = bmp
-                    binding.generatedImage.setImageBitmap(bmp)
-                }
-            }.onFailure {
-                if (isAdded) {
-                    binding.loadingOverlay.visibility = View.GONE
-                    it.printStackTrace()
+            if (!isAdded) return@changeFace
+            runWhenRewardedAdClosed {
+                result.onSuccess { bmp ->
+                    if (isAdded) {
+                        binding.loadingOverlay.visibility = View.GONE
+                        bitmap1 = bmp
+                        binding.generatedImage.setImageBitmap(bmp)
+                    }
+                }.onFailure {
+                    if (isAdded) {
+                        binding.loadingOverlay.visibility = View.GONE
+                        it.printStackTrace()
+                    }
                 }
             }
         }
@@ -191,7 +241,8 @@ class ImageToImageFragment : Fragment() {
             SharePref.getString(Constants.new_version_key, ""),
             binding.generatedImage.drawable.toBitmap()
         ) { result ->
-            requireActivity().runOnUiThread {
+            if (!isAdded) return@upscaleImageWithGemini
+            runWhenRewardedAdClosed {
                 result.onSuccess { upscaled ->
                     if (isAdded) {
                         binding.loadingOverlay.visibility = View.GONE
@@ -222,7 +273,22 @@ class ImageToImageFragment : Fragment() {
 
         val adapter = AdapterPose(getMaleTeen()) { faceImage ->
             bottomSheetDialog?.dismiss()
-            runWithRewardedGate("ImageToImageFragmentScreen", "pose_change") { performPoseChange(faceImage) }
+            var poseChangeStarted = false
+            runWithRewardedGate(
+                screen = "ImageToImageFragmentScreen",
+                trigger = "pose_change",
+                onAdShowing = {
+                    if (!poseChangeStarted) {
+                        poseChangeStarted = true
+                        performPoseChange(faceImage)
+                    }
+                }
+            ) {
+                if (!poseChangeStarted) {
+                    poseChangeStarted = true
+                    performPoseChange(faceImage)
+                }
+            }
         }
 
         bottomSheetBinding.recycler.adapter = adapter
@@ -253,8 +319,8 @@ class ImageToImageFragment : Fragment() {
                 targetImage = targetBitmap, faceImage = faceBitmap,
                 prompt = "Replace the pose naturally while preserving identity."
             ) { result ->
-                if (!isAdded || !isVisible) return@changeFace
-                viewLifecycleOwner.lifecycleScope.launch {
+                if (!isAdded) return@changeFace
+                runWhenRewardedAdClosed {
                     binding.loadingOverlay.visibility = View.GONE
                     result.onSuccess { bmp ->
                         bitmap1 = bmp; binding.generatedImage.setImageBitmap(

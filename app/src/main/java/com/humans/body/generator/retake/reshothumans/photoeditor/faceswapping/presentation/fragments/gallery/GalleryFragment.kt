@@ -1,6 +1,7 @@
 package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.gallery
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -316,7 +317,19 @@ class GalleryFragment : Fragment() {
     }
 
     private fun launchCamera() {
-        cameraLauncher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
+        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val packageManager = requireContext().packageManager
+
+        if (cameraIntent.resolveActivity(packageManager) == null) {
+            Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            cameraLauncher.launch(cameraIntent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // ── MediaStore — called only once ──────────────────────────

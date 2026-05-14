@@ -37,10 +37,13 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ut
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.TYPE_DATA
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.SharePref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.Constants
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.core.utils.FunnelAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import androidx.lifecycle.lifecycleScope
 import com.facebook.shimmer.ShimmerFrameLayout
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -65,6 +68,7 @@ class OnBoardingActivity : BaseActivity() {
 
     private lateinit var adapter: OnboardingAdapter
     private var isIntroFullNativeLoaded = false
+    private var introFullNativeLoadJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +84,7 @@ class OnBoardingActivity : BaseActivity() {
         loadOnboardingAds()
         setViewPager()
         binding.nextBtn.setOnClickListener {
+            FunnelAnalytics.logScreenEvent(this, "intro", "click_next")
             val current = binding.viewPager.currentItem
             val total = binding.viewPager.adapter?.itemCount ?: 0
 
@@ -104,6 +109,13 @@ class OnBoardingActivity : BaseActivity() {
                 binding.intoTabLayout.selectIndicator(position)
             }
         })
+
+        FunnelAnalytics.logScreenEvent(this, "intro", "on_create")
+    }
+
+    override fun onDestroy() {
+        FunnelAnalytics.logScreenEvent(this, "intro", "on_destroy")
+        super.onDestroy()
     }
 
     private fun loadOnboardingAds() {
@@ -231,26 +243,61 @@ class OnBoardingActivity : BaseActivity() {
     private fun loadIntroFullScreenNative(adBinding: LayoutFullscreenAdIntroBinding) {
         if (!shouldShowIntroFullScreenNative()) return
         if (isIntroFullNativeLoaded) return
-        val adUnitId = SharePref.getString(Constants.native_onboarding_ful_key, "")
+        if (introFullNativeLoadJob?.isActive == true) return
+        val configuredId = SharePref.getString(Constants.native_onboarding_ful_key, "")
             .takeIf { it.isNotEmpty() }
-            ?: if (BuildConfig.DEBUG) ADS.TEST_ADMOB_NATIVE_ONBOARDING_AD_ID else ADS.PROD_ADMOB_NATIVE_ONBOARDING_AD_ID
-        admobNativeManager.loadNativeFullScreenIntroAd(
-            adContainer = adBinding.admobNativeFullScreenIntro,
-            adUnitId = adUnitId,
-            shimmerContainer = adBinding.shimmerContainer,
-            shouldPreloadNext = false,
-            onLoaded = {
-                isIntroFullNativeLoaded = true
-                adBinding.shimmerContainer.stopShimmer()
-                adBinding.shimmerContainer.visibility = View.GONE
-                adBinding.llSwipeToContinue.visibility = View.VISIBLE
-            },
-            onFailed = {
+        val adUnitId = resolveIntroFullscreenAdUnitId(configuredId)
+        introFullNativeLoadJob = lifecycleScope.launch {
+            var attempts = 0
+            val maxAttempts = 8
+            while (!isIntroFullNativeLoaded && attempts < maxAttempts && !isFinishing) {
+                attempts++
+                adBinding.shimmerContainer.visibility = View.VISIBLE
+                adBinding.shimmerContainer.startShimmer()
+                admobNativeManager.loadNativeFullScreenIntroAd(
+                    adContainer = adBinding.admobNativeFullScreenIntro,
+                    adUnitId = adUnitId,
+                    shimmerContainer = adBinding.shimmerContainer,
+                    shouldPreloadNext = false,
+                    onLoaded = {
+                        isIntroFullNativeLoaded = true
+                        FunnelAnalytics.logScreenEvent(this@OnBoardingActivity, "intro", "on_native_loaded")
+                        adBinding.shimmerContainer.stopShimmer()
+                        adBinding.shimmerContainer.visibility = View.GONE
+                        adBinding.llSwipeToContinue.visibility = View.VISIBLE
+                    },
+                    onFailed = {
+                        FunnelAnalytics.logScreenEvent(this@OnBoardingActivity, "intro", "on_native_failed")
+                        adBinding.llSwipeToContinue.visibility = View.GONE
+                    }
+                )
+                if (!isIntroFullNativeLoaded) delay(900)
+            }
+            if (!isIntroFullNativeLoaded) {
                 adBinding.shimmerContainer.stopShimmer()
                 adBinding.shimmerContainer.visibility = View.GONE
                 adBinding.llSwipeToContinue.visibility = View.GONE
             }
-        )
+        }
+    }
+
+    private fun resolveIntroFullscreenAdUnitId(configuredId: String?): String {
+        val defaultId = if (BuildConfig.DEBUG) {
+            ADS.TEST_ADMOB_NATIVE_ONBOARDING_AD_ID
+        } else {
+            adControlConfigManager.getProdNativeAdUnitId(
+                RemoteScreens.INTRO_SCREEN,
+                ADS.PROD_ADMOB_NATIVE_ONBOARDING_AD_ID
+            )
+        }
+        val candidate = configuredId ?: defaultId
+
+        // Safety net: never allow Google test publisher IDs in release builds.
+        if (!BuildConfig.DEBUG && candidate.startsWith("ca-app-pub-3940256099942544")) {
+            Log.w("OnboardingAdTrace", "Release build received test intro native id. Forcing prod id.")
+            return ADS.PROD_ADMOB_NATIVE_ONBOARDING_AD_ID
+        }
+        return candidate
     }
 
     private fun showBypassInterstitialAndNavigate(screen: String, trigger: String, nextIntent: Intent) {

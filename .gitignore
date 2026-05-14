@@ -13,3 +13,23 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Credentials / secrets
+**/*credentials*.json
+**/*service-account*.json
+**/google-services.json
+**/*.env
+**/.env.*
+**/*secret*
+**/*secrets*
+**/*apikey*
+**/*api_key*
+**/*token*
+
+# Keystores / signing keys
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.pfx
+**/keystore.properties
+**/signing.properties

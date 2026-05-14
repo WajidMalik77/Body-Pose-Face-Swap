@@ -3,12 +3,16 @@ package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.a
 import android.content.Intent
 import android.util.Log
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.activities.PremiumActivity
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.di.AdConfigEntryPoint
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.dialogs.LoadingDialog
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.managers.RewardedAdsManager
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.BuildConfig
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.PrefUtil
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
@@ -17,10 +21,30 @@ import kotlin.math.max
 
 private const val TAG_REWARDED = "RewardedTrace"
 
+fun Fragment.runWhenRewardedAdClosed(action: () -> Unit) {
+    if (!isAdded) return
+    viewLifecycleOwner.lifecycleScope.launch {
+        while (AdStateManager.isRewardedAdShowing) {
+            delay(100L)
+        }
+        while (isAdded && view != null &&
+            !viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        ) {
+            delay(100L)
+        }
+        if (isAdded && view != null &&
+            viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        ) {
+            action()
+        }
+    }
+}
+
 fun Fragment.runWithRewardedGate(
     screen: String,
     trigger: String,
     onAdShowing: (() -> Unit)? = null,
+    onBlocked: (() -> Unit)? = null,
     onAllowed: () -> Unit
 ) {
     if (!isAdded) return
@@ -47,6 +71,7 @@ fun Fragment.runWithRewardedGate(
 
     if (!adControlConfigManager.isRewardedEnabledForPlacement(screen, trigger)) {
         Log.d(TAG_REWARDED, "blocked: rewarded disabled for placement screen=$screen trigger=$trigger")
+        onBlocked?.invoke()
         startActivity(Intent(ctx, PremiumActivity::class.java))
         return
     }
@@ -54,6 +79,7 @@ fun Fragment.runWithRewardedGate(
     val currentGateCount = appPrefsManager.getRewardedGateCount()
     if (currentGateCount >= maxBeforePremium) {
         Log.d(TAG_REWARDED, "blocked: max rewarded generations reached current=$currentGateCount max=$maxBeforePremium")
+        onBlocked?.invoke()
         startActivity(Intent(ctx, PremiumActivity::class.java))
         return
     }
@@ -64,25 +90,33 @@ fun Fragment.runWithRewardedGate(
     loadingDialog.show()
     rewardedManager.showOnDemand(
         activity = activity,
+        configuredAdUnitId = if (BuildConfig.DEBUG) {
+            ADS.TEST_ADMOB_REWARDED_AD_ID
+        } else {
+            adControlConfigManager.getProdRewardedAdUnitId(ADS.PROD_ADMOB_REWARDED_AD_ID)
+        },
         onAdShowing = onAdShowing,
         onRewardEarned = {
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch {
                 val elapsed = System.currentTimeMillis() - loadingStartedAt
                 val remaining = max(0L, 800L - elapsed)
                 if (remaining > 0L) delay(remaining)
                 loadingDialog.dismiss()
                 val newCount = appPrefsManager.incrementRewardedGateCountAndGet()
                 Log.d(TAG_REWARDED, "reward earned: newCount=$newCount screen=$screen trigger=$trigger")
-                onAllowed()
+                // Allowed case #2: rewarded ad was loaded/shown successfully.
+                if (isAdded) onAllowed()
             }
         },
         onFailedOrDismissedWithoutReward = {
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch {
                 val elapsed = System.currentTimeMillis() - loadingStartedAt
                 val remaining = max(0L, 800L - elapsed)
                 if (remaining > 0L) delay(remaining)
                 loadingDialog.dismiss()
                 Log.d(TAG_REWARDED, "failed or dismissed without reward screen=$screen trigger=$trigger")
+                onBlocked?.invoke()
+                // Not allowed: rewarded path failed before a valid show flow.
                 if (isAdded) startActivity(Intent(requireContext(), PremiumActivity::class.java))
             }
         }

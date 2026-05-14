@@ -24,6 +24,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentTemplatesBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.Constants
@@ -98,8 +99,21 @@ class TemplatesFragment : Fragment() {
                 Toast.makeText(requireContext(), "Upload Image first", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            runWithRewardedGate("TemplatesFragmentScreen", "generate") {
-                handleImageUri()
+            var generationStarted = false
+            runWithRewardedGate(
+                screen = "TemplatesFragmentScreen",
+                trigger = "generate",
+                onAdShowing = {
+                    if (!generationStarted) {
+                        generationStarted = true
+                        handleImageUri()
+                    }
+                }
+            ) {
+                if (!generationStarted) {
+                    generationStarted = true
+                    handleImageUri()
+                }
             }
         }
     }
@@ -113,18 +127,21 @@ class TemplatesFragment : Fragment() {
             faceImage = faceImage!!,
             prompt = "Swap the face with given image naturally",
         ) { result ->
-            result.onSuccess { bitmap ->
-                if (isAdded) {
-                    binding.loadingOverlay.visibility = View.GONE
-                    navigateWithBitmap(
-                        bitmap,
-                        R.id.action_templatesFragment_to_generatePictureFragment
-                    )
-                }
-            }.onFailure {
-                if (isAdded) {
-                    binding.loadingOverlay.visibility = View.GONE
-                    it.printStackTrace()
+            if (!isAdded) return@changeFace
+            runWhenRewardedAdClosed {
+                result.onSuccess { bitmap ->
+                    if (isAdded) {
+                        binding.loadingOverlay.visibility = View.GONE
+                        navigateWithBitmap(
+                            bitmap,
+                            R.id.action_templatesFragment_to_generatePictureFragment
+                        )
+                    }
+                }.onFailure {
+                    if (isAdded) {
+                        binding.loadingOverlay.visibility = View.GONE
+                        it.printStackTrace()
+                    }
                 }
             }
         }

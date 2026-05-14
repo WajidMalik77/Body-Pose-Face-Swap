@@ -49,16 +49,28 @@ class NativeAdOrchestrator @Inject constructor(
             return
         }
 
-        // Load each native ad
-        nativeConfigs.forEach { config ->
-            loadSingleNativeAd(screen, config, onEvent)
+        // AdmobNativeManager owns one active load at a time. Load multi-placement
+        // screens sequentially so top/bottom placements do not silently skip each other.
+        loadNativeConfigsSequentially(screen, nativeConfigs, 0, onEvent)
+    }
+
+    private fun loadNativeConfigsSequentially(
+        screen: String,
+        nativeConfigs: List<NativeAdConfig>,
+        index: Int,
+        onEvent: ((NativeAdEvent) -> Unit)?
+    ) {
+        if (index >= nativeConfigs.size) return
+        loadSingleNativeAd(screen, nativeConfigs[index], onEvent) {
+            loadNativeConfigsSequentially(screen, nativeConfigs, index + 1, onEvent)
         }
     }
 
     private fun loadSingleNativeAd(
         screen: String,
         config: NativeAdConfig,
-        onEvent: ((NativeAdEvent) -> Unit)?
+        onEvent: ((NativeAdEvent) -> Unit)?,
+        onFinished: () -> Unit
     ) {
         val position = config.position
         val visible = nativeAdRepository.getNativeVisibility(screen, position)
@@ -66,6 +78,7 @@ class NativeAdOrchestrator @Inject constructor(
         if (!visible) {
             Timber.d("[$screen][$position] Native ad off from config")
             onEvent?.invoke(NativeAdEvent.Off(position))
+            onFinished()
             return
         }
 
@@ -82,8 +95,14 @@ class NativeAdOrchestrator @Inject constructor(
             container = config.container,
             shimmer = config.shimmer,
             shouldPreload = shouldPreload,
-            onLoaded = { onEvent?.invoke(NativeAdEvent.Loaded(position)) },
-            onFailed = { error -> onEvent?.invoke(NativeAdEvent.Failed(position, error)) }
+            onLoaded = {
+                onEvent?.invoke(NativeAdEvent.Loaded(position))
+                onFinished()
+            },
+            onFailed = { error ->
+                onEvent?.invoke(NativeAdEvent.Failed(position, error))
+                onFinished()
+            }
         )
     }
 
@@ -97,15 +116,9 @@ class NativeAdOrchestrator @Inject constructor(
         onLoaded: () -> Unit,
         onFailed: (LoadAdError) -> Unit
     ) {
-        val layout = when (size) {
-            1 -> R.layout.native_ad_shimmer_small
-            2 -> R.layout.native_ad_shimmer_medium
-            else -> R.layout.native_ad_shimmer_small
-        }
-
         if (size == 1) {
             admobNativeManager.loadNativeSmallAd(
-                container, adUnitId, shimmer, layout, theme,shouldPreload,
+                container, adUnitId, shimmer, R.layout.native_ad_shimmer_small, theme, shouldPreload,
                 onLoaded = {
                     Timber.i("Small native ad loaded")
                     onLoaded()
@@ -116,14 +129,32 @@ class NativeAdOrchestrator @Inject constructor(
                 }
             )
         } else {
-            admobNativeManager.loadNativeMediumAd(
-                container, adUnitId, shimmer, layout, shouldPreload,theme,
+            val (layoutRes, shimmerRes) = when (size) {
+                // placement_values:
+                // 0=off, 1=small, 2=medium, 3=medium_top_cta,
+                // 4=medium_side_media, 5=medium_compact, 6=large_center
+                2 -> R.layout.native_medium to R.layout.native_loading_medium
+                3 -> R.layout.native_medium_top_cta to R.layout.native_loading_medium_top_cta
+                4 -> R.layout.native_medium_side_media to R.layout.native_loading_medium_side_media
+                5 -> R.layout.native_medium_compact to R.layout.native_loading_medium_compact
+                6 -> R.layout.native_large_center to R.layout.native_loading_large_center
+                else -> R.layout.native_medium to R.layout.native_loading_medium
+            }
+
+            admobNativeManager.loadNativeCustomAd(
+                adContainer = container,
+                adUnitId = adUnitId,
+                layoutRes = layoutRes,
+                shimmerContainer = shimmer,
+                shimmerLayout = shimmerRes,
+                shouldPreloadNext = shouldPreload,
+                colorConfig = theme,
                 onLoaded = {
-                    Timber.i("Medium native ad loaded")
+                    Timber.i("Native ad loaded for size=$size (layout=$layoutRes)")
                     onLoaded()
                 },
                 onFailed = { error ->
-                    Timber.e("Medium native ad failed: ${error.message}")
+                    Timber.e("Native ad failed for size=$size: ${error.message}")
                     onFailed(error)
                 }
             )

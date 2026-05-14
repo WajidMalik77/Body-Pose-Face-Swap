@@ -327,6 +327,9 @@
         <action
             android:id="@+id/action_aiResizerFragment_to_galleryFragment"
             app:destination="@id/galleryFragment" />
+        <action
+            android:id="@+id/action_aiResizerFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
     </fragment>
 
     <fragment
@@ -348,6 +351,9 @@
         <action
             android:id="@+id/action_bgRemoverFragment_to_galleryFragment"
             app:destination="@id/galleryFragment" />
+        <action
+            android:id="@+id/action_bgRemoverFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
     </fragment>
 
     <fragment
@@ -369,6 +375,9 @@
         <action
             android:id="@+id/action_imageVariationFragment_to_galleryFragment"
             app:destination="@id/galleryFragment" />
+        <action
+            android:id="@+id/action_imageVariationFragment_to_beforeAfterFragment"
+            app:destination="@id/beforeAfterFragment" />
     </fragment>
 
     <fragment

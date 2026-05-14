@@ -12,9 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStateAtLeast
 import androidx.navigation.fragment.findNavController
 import com.facebook.shimmer.ShimmerFrameLayout
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.analytics
-import com.google.firebase.analytics.logEvent
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.di.AdsManagerEntryPoint
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.models.BannerConfig
@@ -319,10 +316,6 @@ suspend fun Fragment.shouldLoadAds(): Boolean {
         adsManager.shouldLoadAds(context)
     } catch (e: Exception) {
         Timber.w(e, "Error checking shouldLoadAds")
-        Firebase.analytics.logEvent("ads_check_error") {
-            param("fragment", this@shouldLoadAds::class.simpleName ?: "Unknown")
-            param("error", e.localizedMessage ?: "unknown")
-        }
         false
     }
 }

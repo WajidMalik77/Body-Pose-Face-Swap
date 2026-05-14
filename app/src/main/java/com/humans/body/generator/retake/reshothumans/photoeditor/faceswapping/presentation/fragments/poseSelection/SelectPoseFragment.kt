@@ -30,6 +30,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ad
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.RetrofitClient
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.getFemaleAdult
@@ -199,8 +200,21 @@ class SelectPoseFragment : Fragment() {
     }
 
     private fun checkPremiumAndGenerate() {
-        runWithRewardedGate("SelectPoseFragmentScreen", "generate") {
-            handleImageUri()
+        var generationStarted = false
+        runWithRewardedGate(
+            screen = "SelectPoseFragmentScreen",
+            trigger = "generate",
+            onAdShowing = {
+                if (!generationStarted) {
+                    generationStarted = true
+                    handleImageUri()
+                }
+            }
+        ) {
+            if (!generationStarted) {
+                generationStarted = true
+                handleImageUri()
+            }
         }
     }
 
@@ -220,15 +234,17 @@ class SelectPoseFragment : Fragment() {
             prompt = "Replace the pose naturally",
         ) { result ->
             if (!isAdded) return@changeFace
-            binding.loadingOverlay.visibility = View.GONE
-            binding.generate.visibility = View.VISIBLE
-            result
-                .onSuccess { bitmap ->
-                    ResultHolder.beforeBitmap = target
-                    ResultHolder.afterBitmap = bitmap
-                    findNavController().navigate(R.id.action_selectPoseFragment_to_beforeAfterFragment)
-                }
-                .onFailure { it.printStackTrace() }
+            runWhenRewardedAdClosed {
+                binding.loadingOverlay.visibility = View.GONE
+                binding.generate.visibility = View.VISIBLE
+                result
+                    .onSuccess { bitmap ->
+                        ResultHolder.beforeBitmap = target
+                        ResultHolder.afterBitmap = bitmap
+                        findNavController().navigate(R.id.action_selectPoseFragment_to_beforeAfterFragment)
+                    }
+                    .onFailure { it.printStackTrace() }
+            }
         }
     }
 

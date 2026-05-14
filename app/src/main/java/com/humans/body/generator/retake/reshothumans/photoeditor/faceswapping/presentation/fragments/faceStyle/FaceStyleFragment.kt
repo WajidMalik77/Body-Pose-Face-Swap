@@ -33,7 +33,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.RetrofitClient
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentFaceStyleBinding
@@ -113,14 +113,12 @@ class FaceStyleFragment : Fragment(), BillingManager.PurchaseListener {
         attachFirstImage()
 
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("FaceStyleFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    FaceStyleFragmentDirections.actionFaceStyleFragmentToGalleryFragment(
-                        featureType = FeatureType.FACE_STYLE,
-                        imageSlot = ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                FaceStyleFragmentDirections.actionFaceStyleFragmentToGalleryFragment(
+                    featureType = FeatureType.FACE_STYLE,
+                    imageSlot = ImageSlot.FIRST
                 )
-            }
+            )
         }
 
         binding.generate.setOnClickListener {
@@ -128,8 +126,21 @@ class FaceStyleFragment : Fragment(), BillingManager.PurchaseListener {
                 Toast.makeText(requireContext(), "Upload Image first", Toast.LENGTH_SHORT)
                     .show(); return@setOnClickListener
             }
-            runWithRewardedGate("FaceStyleFragmentScreen", "generate") {
-                handleImageUri()
+            var generationStarted = false
+            runWithRewardedGate(
+                screen = "FaceStyleFragmentScreen",
+                trigger = "generate",
+                onAdShowing = {
+                    if (!generationStarted) {
+                        generationStarted = true
+                        handleImageUri()
+                    }
+                }
+            ) {
+                if (!generationStarted) {
+                    generationStarted = true
+                    handleImageUri()
+                }
             }
         }
 
@@ -219,15 +230,17 @@ class FaceStyleFragment : Fragment(), BillingManager.PurchaseListener {
             prompt = "Replace the face pose naturally and also " + getCombinedPrompt(),
         ) { result ->
             if (!isAdded) return@changeFace
-            binding.loadingOverlay.visibility = View.GONE
-            binding.generate.visibility = View.VISIBLE
-            result
-                .onSuccess { bitmap ->
-                    ResultHolder.beforeBitmap = target
-                    ResultHolder.afterBitmap = bitmap
-                    findNavController().navigate(R.id.action_faceStyleFragment_to_beforeAfterFragment)
-                }
-                .onFailure { it.printStackTrace() }
+            runWhenRewardedAdClosed {
+                binding.loadingOverlay.visibility = View.GONE
+                binding.generate.visibility = View.VISIBLE
+                result
+                    .onSuccess { bitmap ->
+                        ResultHolder.beforeBitmap = target
+                        ResultHolder.afterBitmap = bitmap
+                        findNavController().navigate(R.id.action_faceStyleFragment_to_beforeAfterFragment)
+                    }
+                    .onFailure { it.printStackTrace() }
+            }
         }
     }
 

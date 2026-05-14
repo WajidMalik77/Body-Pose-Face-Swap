@@ -87,17 +87,8 @@ class GooglePlayBuySubscription {
                 } else if (billingResult.responseCode == ITEM_ALREADY_OWNED) {
 
                     Log.d(TAG, "ITEM_ALREADY_OWNED:" + billingResult.responseCode)
-                    mSharedPrefHelper!!.setBooleanPreferences(
-                        mSharedPrefHelper!!.IS_SUBSCRIBED,
-                        true
-                    )
-
-                    /*mSharedPrefHelper!!.setBooleanPreferences(
-                        mSharedPrefHelper!!.REMOVE_ADS_KEY,
-                        true
-                    )*/
-
-                    purchasesInterface?.productPurchasedSuccessful()
+                    // Re-query so we acknowledge the existing purchase before granting premium.
+                    checkPurchaseState()
 
 
                 } else if (billingResult.responseCode == ITEM_NOT_OWNED) {
@@ -107,7 +98,7 @@ class GooglePlayBuySubscription {
                         mSharedPrefHelper!!.IS_SUBSCRIBED,
                         false
                     )
-                    prefUtil?.setBool("is_premium", false)
+                    PrefUtil.setPremium(mSharedPrefHelper!!.mConext, false)
 
                 } else {
                     Log.d(TAG, "Error:" + billingResult.responseCode)
@@ -134,7 +125,7 @@ class GooglePlayBuySubscription {
         private fun handlePurchase(purchaseToken: String) {
             Log.e(TAG, "HANDLE PURCHASE")
             mSharedPrefHelper!!.setBooleanPreferences(mSharedPrefHelper!!.IS_SUBSCRIBED, true)
-            prefUtil?.setBool("is_premium", true)
+            PrefUtil.setPremium(mSharedPrefHelper!!.mConext, true)
 
             /*mSharedPrefHelper!!.setBooleanPreferences(
                 mSharedPrefHelper!!.REMOVE_ADS_KEY,
@@ -282,46 +273,45 @@ class GooglePlayBuySubscription {
 
 
         private fun acknowledgePurchase(purchase: Purchase) {
+            if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) return
 
-            if (mSkuDetailsList == null) {
-                if (purchase != null) {
-                    acknowledge(purchase.purchaseToken)
-                    return
-                }
+            if (purchase.isAcknowledged) {
+                // Already acknowledged in a prior session — safe to mark premium now.
+                mSharedPrefHelper?.setBooleanPreferences(
+                    mSharedPrefHelper!!.IS_SUBSCRIBED,
+                    true
+                )
+                PrefUtil.setPremium(mSharedPrefHelper!!.mConext, true)
+                handlePurchase(purchase.purchaseToken)
+                purchasesInterface?.productPurchasedSuccessful()
+                return
             }
 
-            if (mSkuDetailsList?.isNotEmpty() == true && purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged) {
-                acknowledge(purchase.purchaseToken)
-            } else {
-                if (purchase.isAcknowledged) {
-//                    mSharedPrefHelper!!.setIsPurchased(true)
-                    mSharedPrefHelper!!.setBooleanPreferences(
-                        mSharedPrefHelper!!.IS_SUBSCRIBED,
-                        true
-                    )
-                }
-                prefUtil?.setBool("is_premium", true)
-            }
-
+            acknowledge(purchase.purchaseToken)
         }
 
-        private fun acknowledge(purchaseToken: String) {
-
-            Log.e(TAG, "acknowledgment")
+        private fun acknowledge(purchaseToken: String, attemptsLeft: Int = 3) {
+            Log.e(TAG, "acknowledgment, attemptsLeft=$attemptsLeft")
             val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                 .setPurchaseToken(purchaseToken)
                 .build()
-            purchasesInterface?.productPurchasedSuccessful()
             billingClient?.acknowledgePurchase(
                 acknowledgePurchaseParams
             ) { billingResult ->
                 when (billingResult.responseCode) {
                     OK -> {
                         subscriptionOkayAndRemoveAds(purchaseToken)
+                        purchasesInterface?.productPurchasedSuccessful()
                     }
                     else -> {
                         Log.d(TAG, "Failed to acknowledge $billingResult")
-                        purchasesInterface?.productPurchaseFailed()
+                        if (attemptsLeft > 1) {
+                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                acknowledge(purchaseToken, attemptsLeft - 1)
+                            }, 2000)
+                        } else {
+                            purchasesInterface?.productPurchaseFailed()
+                        }
                     }
                 }
             }
@@ -340,7 +330,7 @@ class GooglePlayBuySubscription {
             billingClient?.queryPurchasesAsync(params) { _: BillingResult, purchaseList: List<Purchase> ->
                 Log.e(TAG, "checkPurchaseState: " + purchaseList)
                 if (purchaseList.isEmpty())
-                    prefUtil?.setBool("is_premium", false)
+                    PrefUtil.setPremium(mSharedPrefHelper!!.mConext, false)
 
 
                 for (item in purchaseList) {

@@ -11,6 +11,10 @@ data class AdControlConfig(
     val banner: BannerV2Config? = null,
     val interstitial: InterstitialV2Config? = null,
     val rewarded: RewardedV2Config? = null,
+    @SerialName("AdIds")
+    val adIds: RemoteAdIdsConfig? = null,
+    @SerialName("ad_ids")
+    val adIdsSnake: RemoteAdIdsConfig? = null,
     @SerialName("native")
     val nativeV2: NativeAdSettingsConfig? = null,
     @SerialName("show_screens")

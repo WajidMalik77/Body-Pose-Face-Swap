@@ -20,6 +20,7 @@ import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
 import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.core.utils.PurchaseAnalyticsLogger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,11 +49,38 @@ public final class BillingUtilsIAP
                     // Timber.i("getOldPurchases: in Listener");
                     if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && purchases != null) {
                         for (Purchase purchase : purchases) {
+                            PurchaseAnalyticsLogger.logPurchaseResult(
+                                    purchase.getProducts().isEmpty() ? null : purchase.getProducts().get(0),
+                                    BillingClient.ProductType.INAPP,
+                                    "success",
+                                    billingResult,
+                                    purchase.getPurchaseToken(),
+                                    purchase.isAcknowledged(),
+                                    "lifetime_flow"
+                            );
                             handlePurchase(context, purchase);
                         }
                     } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
+                        PurchaseAnalyticsLogger.logPurchaseResult(
+                                LIFETIME,
+                                BillingClient.ProductType.INAPP,
+                                "cancel",
+                                billingResult,
+                                null,
+                                null,
+                                "lifetime_flow"
+                        );
                         //    Timber.i("getOldPurchases: User Cancelled");
                     } else {
+                        PurchaseAnalyticsLogger.logPurchaseResult(
+                                LIFETIME,
+                                BillingClient.ProductType.INAPP,
+                                "error",
+                                billingResult,
+                                null,
+                                null,
+                                "lifetime_flow"
+                        );
                         //Timber.i("getOldPurchases: Other Error");
                     }
                 }
@@ -88,6 +116,7 @@ public final class BillingUtilsIAP
     }
 
     public void purchase(Activity activity, String str) {
+        PurchaseAnalyticsLogger.logPurchaseTap(str, BillingClient.ProductType.INAPP, "activity_purchase", "lifetime_flow");
 
         if (isBillingReady) {
             List<QueryProductDetailsParams.Product> productList = new ArrayList<>();
@@ -111,6 +140,13 @@ public final class BillingUtilsIAP
                             .setProductDetailsParamsList(java.util.Collections.singletonList(detailsParams))
                             .build();
                     BillingResult launchBillingFlow = getBillingClient().launchBillingFlow(activity, build);
+                    PurchaseAnalyticsLogger.logPurchaseFlowLaunched(
+                            str,
+                            BillingClient.ProductType.INAPP,
+                            "activity_purchase",
+                            launchBillingFlow,
+                            "lifetime_flow"
+                    );
                     if (launchBillingFlow.getResponseCode() != BillingClient.BillingResponseCode.OK) {
                         //    Timber.i("getOldPurchases: Please try Again Later1");
                     }
@@ -123,30 +159,85 @@ public final class BillingUtilsIAP
     }
 
     private void handlePurchase(Context context, Purchase purchase) {
-        AcknowledgePurchaseResponseListener acknowledgePurchaseResponseListener = new AcknowledgePurchaseResponseListener() {
-            @Override
-            public void onAcknowledgePurchaseResponse(@NotNull BillingResult billingResult) {
+        if (purchase.getPurchaseState() != Purchase.PurchaseState.PURCHASED) return;
 
-            }
-        };
-        if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-            for (String skus : purchase.getProducts()) {
-                if (skus.equals(LIFETIME)) {
-                    isPremium = true;
-                    new InAppPrefs(context).setPremium(true);
-                    InAppPrefs.getInstance(context).setPremium(true);
-                    PrefUtil.Companion.setPremium(context, true);
-                    // Set ads purchased flag in InterstitialMicAds class
-
-                    Log.i("TAG", "handlePurchase: premium");
-                }
-            }
-
-            if (!purchase.isAcknowledged()) {
-                AcknowledgePurchaseParams build = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.getPurchaseToken()).build();
-                billingClient.acknowledgePurchase(build, acknowledgePurchaseResponseListener);
+        boolean isLifetime = false;
+        for (String skus : purchase.getProducts()) {
+            if (skus.equals(LIFETIME)) {
+                isLifetime = true;
+                break;
             }
         }
+        if (!isLifetime) return;
+
+        if (purchase.isAcknowledged()) {
+            grantLifetime(context);
+            return;
+        }
+
+        acknowledgeWithRetry(context, purchase, 3);
+    }
+
+    private void acknowledgeWithRetry(final Context context, final Purchase purchase, final int attemptsLeft) {
+        PurchaseAnalyticsLogger.logPurchaseAckStarted(
+                purchase.getProducts().isEmpty() ? null : purchase.getProducts().get(0),
+                purchase.getPurchaseToken(),
+                attemptsLeft,
+                "lifetime_flow"
+        );
+        AcknowledgePurchaseParams build = AcknowledgePurchaseParams.newBuilder()
+                .setPurchaseToken(purchase.getPurchaseToken()).build();
+        billingClient.acknowledgePurchase(build, new AcknowledgePurchaseResponseListener() {
+            @Override
+            public void onAcknowledgePurchaseResponse(@NotNull BillingResult billingResult) {
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                    PurchaseAnalyticsLogger.logPurchaseAckSuccess(
+                            purchase.getProducts().isEmpty() ? null : purchase.getProducts().get(0),
+                            purchase.getPurchaseToken(),
+                            billingResult,
+                            "lifetime_flow"
+                    );
+                    grantLifetime(context);
+                } else if (attemptsLeft > 1) {
+                    PurchaseAnalyticsLogger.logPurchaseAckFailed(
+                            purchase.getProducts().isEmpty() ? null : purchase.getProducts().get(0),
+                            purchase.getPurchaseToken(),
+                            attemptsLeft,
+                            billingResult,
+                            "lifetime_flow"
+                    );
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                            new Runnable() {
+                                @Override public void run() {
+                                    acknowledgeWithRetry(context, purchase, attemptsLeft - 1);
+                                }
+                            }, 2000);
+                } else {
+                    PurchaseAnalyticsLogger.logPurchaseAckFailed(
+                            purchase.getProducts().isEmpty() ? null : purchase.getProducts().get(0),
+                            purchase.getPurchaseToken(),
+                            attemptsLeft,
+                            billingResult,
+                            "lifetime_flow"
+                    );
+                    Log.w("TAG", "Failed to acknowledge lifetime purchase: " + billingResult.getDebugMessage());
+                }
+            }
+        });
+    }
+
+    private void grantLifetime(Context context) {
+        isPremium = true;
+        new InAppPrefs(context).setPremium(true);
+        InAppPrefs.getInstance(context).setPremium(true);
+        PrefUtil.Companion.setPremium(context, true);
+        PurchaseAnalyticsLogger.logEntitlementActivated(
+                LIFETIME,
+                BillingClient.ProductType.INAPP,
+                null,
+                "lifetime_flow"
+        );
+        Log.i("TAG", "handlePurchase: premium granted after ack");
     }
 
     public void getOldPurchases(Context context) {
@@ -157,19 +248,10 @@ public final class BillingUtilsIAP
         billingClient.queryPurchasesAsync(queryPurchasesParams, new PurchasesResponseListener() {
             @Override
             public void onQueryPurchasesResponse(@NonNull BillingResult billingResult, @NonNull List<Purchase> list) {
-
+                if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK) return;
                 for (Purchase purchase : list) {
-
-                    for (String skus : purchase.getProducts()) {
-                        if (skus.equals(LIFETIME)) {
-                            isPremium = true;
-                            InAppPrefs instance = InAppPrefs.getInstance(context);
-                            instance.setPremium(true);
-                            PrefUtil.Companion.setPremium(context, true);
-                            Log.i("TAG", "getOldPurchases: premium");
-                        }
-                    }
-                    Log.i("TAG", "handlePurchase: premium");
+                    // Routes through ack-with-retry so unacknowledged purchases don't get auto-refunded.
+                    handlePurchase(context, purchase);
                 }
             }
         });

@@ -22,7 +22,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ac
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.safeShowInterstitialNavigate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.api.GeminiImageService
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.FragmentFaceUploadBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.presentation.fragments.types.FeatureType
@@ -163,26 +163,22 @@ class FaceUploadFragment : Fragment() {
 
         // Upload slot 1 → re-pick user photo
         binding.upload.setOnClickListener {
-            safeShowInterstitialNavigate("FaceUploadFragmentScreen", "upload_first") {
-                findNavController().navigate(
-                    FaceUploadFragmentDirections.actionFaceUploadFragmentToGalleryFragment(
-                        featureType = FeatureType.SWAP_HAIRSTYLE,
-                        imageSlot = ImageSlot.FIRST
-                    )
+            findNavController().navigate(
+                FaceUploadFragmentDirections.actionFaceUploadFragmentToGalleryFragment(
+                    featureType = FeatureType.SWAP_HAIRSTYLE,
+                    imageSlot = ImageSlot.FIRST
                 )
-            }
+            )
         }
 
         // Upload slot 2 → pick hairstyle reference
         binding.upload1.setOnClickListener {
-            safeShowInterstitialNavigate("FaceUploadFragmentScreen", "upload_second") {
-                findNavController().navigate(
-                    FaceUploadFragmentDirections.actionFaceUploadFragmentToGalleryFragment(
-                        featureType = FeatureType.SWAP_HAIRSTYLE,
-                        imageSlot = ImageSlot.SECOND
-                    )
+            findNavController().navigate(
+                FaceUploadFragmentDirections.actionFaceUploadFragmentToGalleryFragment(
+                    featureType = FeatureType.SWAP_HAIRSTYLE,
+                    imageSlot = ImageSlot.SECOND
                 )
-            }
+            )
         }
 
         binding.GenTxt.setOnClickListener {
@@ -197,8 +193,21 @@ class FaceUploadFragment : Fragment() {
     // ── Premium / trial gate ───────────────────────────────────
 
     private fun checkPremiumAndGenerate() {
-        runWithRewardedGate("FaceUploadFragmentScreen", "generate") {
-            generate()
+        var generationStarted = false
+        runWithRewardedGate(
+            screen = "FaceUploadFragmentScreen",
+            trigger = "generate",
+            onAdShowing = {
+                if (!generationStarted) {
+                    generationStarted = true
+                    generate()
+                }
+            }
+        ) {
+            if (!generationStarted) {
+                generationStarted = true
+                generate()
+            }
         }
     }
 
@@ -217,18 +226,20 @@ class FaceUploadFragment : Fragment() {
             prompt = "Swap the hairstyle from the second image onto the person in the first image naturally. Keep the face, skin tone, and everything else exactly the same. Only change the hairstyle.",
         ) { result ->
             if (!isAdded) return@changeFace
-            binding.loadingOverlay.visibility = View.GONE
-            binding.GenTxt.visibility = View.VISIBLE
-            result
-                .onSuccess { bitmap ->
-                    ResultHolder.beforeBitmap = target
-                    ResultHolder.afterBitmap = bitmap
-                    findNavController().navigate(R.id.action_faceUploadFragment_to_beforeAfterFragment)
-                }
-                .onFailure { error ->
-                    Log.e("FaceUploadFragment", "Generation failed", error)
-                    toast("Generation failed. Please try again.")
-                }
+            runWhenRewardedAdClosed {
+                binding.loadingOverlay.visibility = View.GONE
+                binding.GenTxt.visibility = View.VISIBLE
+                result
+                    .onSuccess { bitmap ->
+                        ResultHolder.beforeBitmap = target
+                        ResultHolder.afterBitmap = bitmap
+                        findNavController().navigate(R.id.action_faceUploadFragment_to_beforeAfterFragment)
+                    }
+                    .onFailure { error ->
+                        Log.e("FaceUploadFragment", "Generation failed", error)
+                        toast("Generation failed. Please try again.")
+                    }
+            }
         }
     }
 

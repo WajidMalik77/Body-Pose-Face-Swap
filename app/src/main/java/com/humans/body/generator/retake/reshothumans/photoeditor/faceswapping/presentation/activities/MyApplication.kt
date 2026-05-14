@@ -16,9 +16,10 @@ import timber.log.Timber
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.app.AppInitializer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.app.AppOpenAdLifecycleManager
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.app.BillingManager
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.BillingUtilsIAP
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.AdsConstants
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.PrefUtil
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.RemoteConfig
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.SubscriptionBilling
 import dagger.hilt.android.HiltAndroidApp
 import com.zeugmasolutions.localehelper.LocaleAwareApplication
 import javax.inject.Inject
@@ -40,6 +41,8 @@ open class MyApplication : LocaleAwareApplication(), LifecycleObserver,
     lateinit var billingManager: BillingManager
     @Inject
     lateinit var appOpenAdManager: AppOpenAdLifecycleManager
+    @Inject
+    lateinit var adsPref: AdsPref
 
     override fun onCreate() {
         super.onCreate()
@@ -49,6 +52,7 @@ open class MyApplication : LocaleAwareApplication(), LifecycleObserver,
         Log.d("AppInitTrace", "MyApplication.onCreate entered")
 
         mContext = this
+        logPremiumStatus("startup_before_init")
         FirebaseApp.initializeApp(this)
         Log.d("AppInitTrace", "Firebase initialized")
         RemoteConfig.getRCValues(this) {
@@ -59,10 +63,9 @@ open class MyApplication : LocaleAwareApplication(), LifecycleObserver,
         Log.d("AppInitTrace", "appInitializer.initialize() called")
         billingManager.initialize()
         Log.d("AppInitTrace", "billingManager.initialize() called")
+        logPremiumStatus("after_billing_manager_init")
         appOpenAdManager.initialize()
         Log.d("AppInitTrace", "appOpenAdManager.initialize() called")
-        SubscriptionBilling(this)
-        BillingUtilsIAP(this)
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(appOpenAdManager)
         registerActivityLifecycleCallbacks(appOpenAdManager)
@@ -80,6 +83,20 @@ open class MyApplication : LocaleAwareApplication(), LifecycleObserver,
             val token = task.result
             Log.d("FCM", "FCM Registration Token: $token")
         }
+    }
+
+    private fun logPremiumStatus(stage: String) {
+        val prefPremium = PrefUtil.isPremium(this)
+        val myPrefs = getSharedPreferences(PrefUtil.PREFS_NAME, Context.MODE_PRIVATE)
+        val checkFlag = myPrefs.getBoolean(PrefUtil.premiumCheck, false)
+        val myPrefsPremium = myPrefs.getBoolean("is_premium", false)
+        val adsPrefPremium = adsPref.getIsPremiumStatus()
+        val lifeTimePremium = getSharedPreferences(AdsConstants.LifeTimePref, Context.MODE_PRIVATE)
+            .getBoolean("premium", false)
+        Log.d(
+            "PremiumStatus",
+            "stage=$stage prefUtil=$prefPremium checkFlag=$checkFlag myPrefsPremium=$myPrefsPremium adsPref=$adsPrefPremium lifeTimePref=$lifeTimePremium"
+        )
     }
 
 

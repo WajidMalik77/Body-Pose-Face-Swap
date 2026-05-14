@@ -50,3 +50,54 @@ data class RewardedV2Config(
     val rewardedAdsBeforePremium: Int = 2,
     val placements: Map<String, Int> = emptyMap()
 )
+
+@Serializable
+data class RemoteAdIdsConfig(
+    val appOpen: RemoteAppOpenAdIds = RemoteAppOpenAdIds(),
+    val interstitial: RemoteInterstitialAdIds = RemoteInterstitialAdIds(),
+    val banner: RemoteSingleAdId = RemoteSingleAdId(),
+    @SerialName("native")
+    val nativeIds: RemoteNativeAdIds = RemoteNativeAdIds(),
+    val rewarded: RemoteRewardedAdIds = RemoteRewardedAdIds()
+)
+
+@Serializable
+data class RemoteSingleAdId(
+    @SerialName("default")
+    val defaultId: String = ""
+)
+
+@Serializable
+data class RemoteAppOpenAdIds(
+    @SerialName("default")
+    val defaultId: String = "",
+    val splash: String = "",
+    val resume: String = ""
+)
+
+@Serializable
+data class RemoteInterstitialAdIds(
+    @SerialName("default")
+    val defaultId: String = "",
+    val splash: String = "",
+    val language: String = "",
+    val intro: String = "",
+    val onboarding: String = ""
+)
+
+@Serializable
+data class RemoteNativeAdIds(
+    @SerialName("default")
+    val defaultId: String = "",
+    val splash: String = "",
+    val language: String = "",
+    val intro: String = "",
+    val onboarding: String = ""
+)
+
+@Serializable
+data class RemoteRewardedAdIds(
+    @SerialName("default")
+    val defaultId: String = "",
+    val initial: String = ""
+)

@@ -38,6 +38,7 @@ import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ap
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadBannerAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.loadNativeAds
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWithRewardedGate
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.runWhenRewardedAdClosed
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.BottomAdjustBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.BottomCropBinding
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.BottomRemoveBinding
@@ -259,29 +260,61 @@ class PhotoEditorFragment : Fragment() {
         bottomSheetDialog = BottomSheetDialog(requireContext()).apply { setContentView(b.root) }
         b.title.text = title
         b.recycler.adapter = AdjustAdapter(requireContext().getReStyleList()) { _ ->
+            var restyleStarted = false
             runWithRewardedGate(
                 screen = "PhotoEditorFragmentScreen",
-                trigger = "restyler"
+                trigger = "restyler",
+                onAdShowing = {
+                    if (!restyleStarted) {
+                        restyleStarted = true
+                        binding.progress.visibility = View.VISIBLE
+                        GeminiImageService().changeFace(
+                            apiKey = SharePref.getString(Constants.new_version_key, ""),
+                            targetImage = imageViewToBitmap(binding.generatedImage)!!,
+                            faceImage = BitmapFactory.decodeResource(
+                                requireContext().resources,
+                                R.drawable.ghibili
+                            ),
+                            prompt = "Re style the ghibli naturally",
+                        ) { result ->
+                            if (!isAdded) return@changeFace
+                            runWhenRewardedAdClosed {
+                                result.onSuccess { bitmap ->
+                                    binding.progress.visibility = View.GONE
+                                    bitmap1 = bitmap
+                                    binding.generatedImage.setImageBitmap(bitmap1)
+                                }.onFailure {
+                                    binding.progress.visibility = View.GONE
+                                    it.printStackTrace()
+                                }
+                            }
+                        }
+                    }
+                }
             ) {
-                binding.progress.visibility = View.VISIBLE
-                GeminiImageService().changeFace(
-                    apiKey = SharePref.getString(Constants.new_version_key, ""),
-                    targetImage = imageViewToBitmap(binding.generatedImage)!!,
-                    faceImage = BitmapFactory.decodeResource(
-                        requireContext().resources,
-                        R.drawable.ghibili
-                    ),
-                    prompt = "Re style the ghibli naturally",
-                ) { result ->
-                    result.onSuccess { bitmap ->
-                        if (!isAdded) return@onSuccess
-                        binding.progress.visibility = View.GONE
-                        bitmap1 = bitmap
-                        binding.generatedImage.setImageBitmap(bitmap1)
-                    }.onFailure {
-                        if (!isAdded) return@onFailure
-                        binding.progress.visibility = View.GONE
-                        it.printStackTrace()
+                if (!restyleStarted) {
+                    restyleStarted = true
+                    binding.progress.visibility = View.VISIBLE
+                    GeminiImageService().changeFace(
+                        apiKey = SharePref.getString(Constants.new_version_key, ""),
+                        targetImage = imageViewToBitmap(binding.generatedImage)!!,
+                        faceImage = BitmapFactory.decodeResource(
+                            requireContext().resources,
+                            R.drawable.ghibili
+                        ),
+                        prompt = "Re style the ghibli naturally",
+                    ) { result ->
+                        if (!isAdded) return@changeFace
+                        runWhenRewardedAdClosed {
+                            result.onSuccess { bitmap ->
+                                binding.progress.visibility = View.GONE
+                                bitmap1 = bitmap
+                                binding.generatedImage.setImageBitmap(bitmap1)
+                            }.onFailure {
+                                binding.progress.visibility = View.GONE
+                                it.printStackTrace()
+                            }
+                        }
                     }
                 }
             }
@@ -330,29 +363,60 @@ class PhotoEditorFragment : Fragment() {
         bottomSheetDialog = BottomSheetDialog(requireContext()).apply { setContentView(b.root) }
         b.title.text = title
         b.generate.setOnClickListener {
+            var bgRemoveStarted = false
             runWithRewardedGate(
                 screen = "PhotoEditorFragmentScreen",
-                trigger = "bg_remove"
-            ) {
-                val bitmap = binding.generatedImage.drawable.toBitmap()
-                binding.progress.visibility = View.VISIBLE
-                GeminiImageService().removeBackgroundWithGemini(
-                    SharePref.getString(Constants.new_version_key, ""), bitmap
-                ) { result ->
-                    if (!isAdded || !isVisible) return@removeBackgroundWithGemini
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        result.onSuccess { bmp ->
-                            binding.progress.visibility = View.GONE
-                            bitmap1 = bmp
-                            binding.generatedImage.setImageBitmap(bitmap1)
+                trigger = "bg_remove",
+                onAdShowing = {
+                    if (!bgRemoveStarted) {
+                        bgRemoveStarted = true
+                        val bitmap = binding.generatedImage.drawable.toBitmap()
+                        binding.progress.visibility = View.VISIBLE
+                        GeminiImageService().removeBackgroundWithGemini(
+                            SharePref.getString(Constants.new_version_key, ""), bitmap
+                        ) { result ->
+                            if (!isAdded) return@removeBackgroundWithGemini
+                            runWhenRewardedAdClosed {
+                                result.onSuccess { bmp ->
+                                    binding.progress.visibility = View.GONE
+                                    bitmap1 = bmp
+                                    binding.generatedImage.setImageBitmap(bitmap1)
+                                }
+                                result.onFailure { error ->
+                                    binding.progress.visibility = View.GONE
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Failed: ${error.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
                         }
-                        result.onFailure { error ->
-                            binding.progress.visibility = View.GONE
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed: ${error.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
+                    }
+                }
+            ) {
+                if (!bgRemoveStarted) {
+                    bgRemoveStarted = true
+                    val bitmap = binding.generatedImage.drawable.toBitmap()
+                    binding.progress.visibility = View.VISIBLE
+                    GeminiImageService().removeBackgroundWithGemini(
+                        SharePref.getString(Constants.new_version_key, ""), bitmap
+                    ) { result ->
+                        if (!isAdded) return@removeBackgroundWithGemini
+                        runWhenRewardedAdClosed {
+                            result.onSuccess { bmp ->
+                                binding.progress.visibility = View.GONE
+                                bitmap1 = bmp
+                                binding.generatedImage.setImageBitmap(bitmap1)
+                            }
+                            result.onFailure { error ->
+                                binding.progress.visibility = View.GONE
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed: ${error.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
                     }
                 }

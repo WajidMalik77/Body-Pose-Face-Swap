@@ -164,14 +164,19 @@ class SubscriptionBilling(private val context: Context) {
                     .build()
             ) { billingResult: BillingResult, list: List<Purchase> ->
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    var hasActiveSubscription = false
                     for (purchase in list) {
-                        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged) {
-                            verifySubPurchase(context, purchase)
+                        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                            hasActiveSubscription = true
+                            if (!purchase.isAcknowledged) {
+                                verifySubPurchase(context, purchase)
+                            }
                         }
                     }
                     if (list.isNotEmpty()) {
                         PrefUtil.setPremiumString(list[0].products[0], context)
                     }
+                    PrefUtil.setPremium(context, hasActiveSubscription)
                 }
 
             }

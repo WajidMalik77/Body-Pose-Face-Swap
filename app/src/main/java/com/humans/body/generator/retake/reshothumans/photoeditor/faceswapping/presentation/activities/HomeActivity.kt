@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.databinding.ActivityHomeBinding
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.core.utils.FunnelAnalytics
 
 class HomeActivity : BaseActivity() {
     private var _binding: ActivityHomeBinding? = null
@@ -46,6 +47,7 @@ class HomeActivity : BaseActivity() {
             ContextCompat.getColor(this, R.color.bg_status)
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
         askNotificationPermissionIfNeeded()
+        FunnelAnalytics.logScreenEvent(this, "home", "on_create")
 
         onBackPressedDispatcher.addCallback(this) {
             val navHostFragment = supportFragmentManager
@@ -75,6 +77,11 @@ class HomeActivity : BaseActivity() {
                 ).show()
             }
         }
+    }
+
+    override fun onDestroy() {
+        FunnelAnalytics.logScreenEvent(this, "home", "on_destroy")
+        super.onDestroy()
     }
 
     private fun askNotificationPermissionIfNeeded() {
