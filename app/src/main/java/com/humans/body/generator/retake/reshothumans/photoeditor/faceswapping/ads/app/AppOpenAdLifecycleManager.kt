@@ -106,6 +106,11 @@ class AppOpenAdLifecycleManager @Inject constructor(
                 }
             }
 
+            if (!shouldShowResumeAppOpenByRate()) {
+                Log.d(TAG_AO, "blocked: resume app-open skipped by show rate")
+                return
+            }
+
             Log.d(TAG_AO, "passed lifecycle gates, loading/showing resume app-open")
             ensureResumeAppOpenLoadedAndShow()
         } catch (e: Exception) {
@@ -287,10 +292,17 @@ class AppOpenAdLifecycleManager @Inject constructor(
         }
     }
 
+    private fun shouldShowResumeAppOpenByRate(): Boolean {
+        val showAfter = adControlConfigManager.getAppOpenShowAfter("resume")
+        val limit = adControlConfigManager.getAppOpenLimit("resume")
+        return adsPref.shouldShowAppOpenAd("resume", showAfter, limit)
+    }
+
     private fun showAppOpenAdDirect(onFinished: (() -> Unit)? = null) {
         try {
             appOpenManager.showAppOpenAdIfAvailable(adsPref, object : AdShowCallback {
                 override fun onAdShown() {
+                    adsPref.recordAppOpenAdShown("resume")
                     Timber.d("App Open ad shown")
                     onFinished?.invoke()
                 }

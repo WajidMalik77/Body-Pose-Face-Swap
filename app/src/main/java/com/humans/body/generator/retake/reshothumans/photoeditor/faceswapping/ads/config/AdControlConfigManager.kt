@@ -176,6 +176,32 @@ class AdControlConfigManager(
             ?: configData?.ads?.appOpen?.resumeMinBackgroundSeconds
             ?: 0
 
+    fun getAppOpenShowAfter(position: String): Int {
+        val v2 = configData?.app?.appOpen
+        val legacy = configData?.ads?.appOpen
+        val value = when (position.lowercase()) {
+            "splash" -> v2?.splashShowAfter ?: v2?.showAfter
+                ?: legacy?.splashShowAfter ?: legacy?.showAfter
+            "resume" -> v2?.resumeShowAfter ?: v2?.showAfter
+                ?: legacy?.resumeShowAfter ?: legacy?.showAfter
+            else -> v2?.showAfter ?: legacy?.showAfter
+        }
+        return (value ?: 1).coerceAtLeast(1)
+    }
+
+    fun getAppOpenLimit(position: String): Int {
+        val v2 = configData?.app?.appOpen
+        val legacy = configData?.ads?.appOpen
+        val value = when (position.lowercase()) {
+            "splash" -> v2?.splashLimit ?: v2?.appOpenLimit
+                ?: legacy?.splashLimit ?: legacy?.appOpenLimit
+            "resume" -> v2?.resumeLimit ?: v2?.appOpenLimit
+                ?: legacy?.resumeLimit ?: legacy?.appOpenLimit
+            else -> v2?.appOpenLimit ?: legacy?.appOpenLimit
+        }
+        return value ?: Int.MAX_VALUE
+    }
+
     fun isBannerVisible(activityName: String, position: String): Boolean {
         if ((configData?.app?.ads ?: 1) != 1) return false
 

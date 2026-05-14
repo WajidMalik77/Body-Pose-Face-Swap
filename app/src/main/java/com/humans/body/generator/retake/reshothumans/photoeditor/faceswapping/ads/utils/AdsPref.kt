@@ -19,10 +19,12 @@ class AdsPref @Inject constructor(
         private const val KEY_IS_PREMIUM = "is_premium"
         private const val KEY_TRIAL_START_TIME = "trial_start_time"
         private const val KEY_NPA = "npa"
+        private val nativeRequestCounts = mutableMapOf<String, Int>()
+        private val nativeShownCounts = mutableMapOf<String, Int>()
+        private val appOpenRequestCounts = mutableMapOf<String, Int>()
+        private val appOpenShownCounts = mutableMapOf<String, Int>()
     }
     private var cachedIsPremium: Boolean? = null
-    private val nativeRequestCounts = mutableMapOf<String, Int>()
-    private val nativeShownCounts = mutableMapOf<String, Int>()
 
     fun getIsPremiumStatus(): Boolean {
         return try {
@@ -109,6 +111,22 @@ class AdsPref @Inject constructor(
 
     private fun nativeRateKey(screen: String, position: String): String {
         return "${screen.trim().lowercase()}_${position.trim().lowercase()}"
+    }
+
+    fun shouldShowAppOpenAd(position: String, showAfter: Int, appOpenLimit: Int): Boolean {
+        val key = position.trim().lowercase()
+        val shownCount = appOpenShownCounts[key] ?: 0
+        if (appOpenLimit > 0 && shownCount >= appOpenLimit) return false
+
+        val safeShowAfter = showAfter.coerceAtLeast(1)
+        val requestCount = (appOpenRequestCounts[key] ?: 0) + 1
+        appOpenRequestCounts[key] = requestCount
+        return requestCount % safeShowAfter == 0
+    }
+
+    fun recordAppOpenAdShown(position: String) {
+        val key = position.trim().lowercase()
+        appOpenShownCounts[key] = (appOpenShownCounts[key] ?: 0) + 1
     }
 
     fun isDebugToastBannerEnabled(): Boolean =

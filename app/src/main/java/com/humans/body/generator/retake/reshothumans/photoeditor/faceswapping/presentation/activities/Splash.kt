@@ -81,6 +81,7 @@ class Splash : BaseActivity() {
     private var topNativeResolved = false
     private var bottomNativeResolved = false
     private var splashTimeoutReached = false
+    private var splashAppOpenRateAllowed: Boolean? = null
     private val adsPref by lazy { AdsPref(applicationContext) }
     private val appOpenManager by lazy { AppOpenManager.getInstance(application) }
     private val interstitialManager by lazy { InterstitialAdsManager.getInstance(adsPref) }
@@ -252,7 +253,7 @@ class Splash : BaseActivity() {
     private fun shouldWaitForGetStartedTap(): Boolean {
         return !PrefUtil.isPremium(this) &&
             hasEnabledSplashNative &&
-            adControlConfigManager.shouldShowAppOpenSplash()
+            shouldUseSplashAppOpen()
     }
 
     private fun showGetStartedButton() {
@@ -401,8 +402,10 @@ class Splash : BaseActivity() {
 
     private fun preloadSplashAppOpenForGate() {
         if (PrefUtil.isPremium(this)) return
-        if (!adControlConfigManager.shouldShowAppOpenSplash()) {
+        if (!shouldUseSplashAppOpen()) {
             splashAppOpenFailed = true
+            splashAppOpenReady = true
+            maybeContinueAfterSplashAssets()
             return
         }
 
@@ -439,8 +442,8 @@ class Splash : BaseActivity() {
         if (splashAdAttempted || isNext || PrefUtil.isPremium(this)) return
         splashAdAttempted = true
 
-        if (!adControlConfigManager.shouldShowAppOpenSplash()) {
-            startMainActivity("splash_app_open_disabled")
+        if (!shouldUseSplashAppOpen()) {
+            startMainActivity("splash_app_open_skipped")
             return
         }
 
@@ -494,6 +497,17 @@ class Splash : BaseActivity() {
         }
     }
 
+    private fun shouldUseSplashAppOpen(): Boolean {
+        if (!adControlConfigManager.shouldShowAppOpenSplash()) return false
+        splashAppOpenRateAllowed?.let { return it }
+
+        val showAfter = adControlConfigManager.getAppOpenShowAfter("splash")
+        val limit = adControlConfigManager.getAppOpenLimit("splash")
+        return adsPref.shouldShowAppOpenAd("splash", showAfter, limit).also {
+            splashAppOpenRateAllowed = it
+        }
+    }
+
     private fun showSplashAppOpenOrFallback() {
         if (appOpenShowRequested || isNext) return
         appOpenShowRequested = true
@@ -501,6 +515,7 @@ class Splash : BaseActivity() {
         // Do not mark as showing until SDK confirms onAdShown().
         appOpenManager.showAppOpenAdIfAvailable(this, adsPref, object : AdShowCallback {
             override fun onAdShown() {
+                adsPref.recordAppOpenAdShown("splash")
                 isAdShowing = true
                 awaitingAppOpenDismiss = true
             }
