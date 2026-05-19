@@ -18,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import java.io.FileNotFoundException
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withRotation
@@ -102,13 +103,14 @@ class GeneratePictureFragment : Fragment() {
 
         val uriString = arguments?.getString("BITMAP_BYTES")
         val uri = uriString?.let { Uri.parse(it) }
-        uri?.let {
-            val bitmap = BitmapFactory.decodeStream(
-                requireContext().contentResolver.openInputStream(it)
-            )
-            generatedBitmap = bitmap
-            binding.generatedImage.setImageBitmap(bitmap)
+        val bitmap = uri?.let { safeDecodeBitmap(it) }
+        if (bitmap == null) {
+            Toast.makeText(requireContext(), "Image not found. Please generate again.", Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack()
+            return
         }
+        generatedBitmap = bitmap
+        binding.generatedImage.setImageBitmap(bitmap)
 
         // ── Save button: save in background + navigate to SavedFragment ─
         binding.saveBtn.setOnClickListener {
@@ -266,5 +268,17 @@ class GeneratePictureFragment : Fragment() {
                 callback(snapshot.child("isSubscribed").getValue(Boolean::class.java) == true)
             }
             .addOnFailureListener { callback(false) }
+    }
+
+    private fun safeDecodeBitmap(uri: Uri): Bitmap? {
+        return try {
+            requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
+            }
+        } catch (_: FileNotFoundException) {
+            null
+        } catch (_: SecurityException) {
+            null
+        }
     }
 }

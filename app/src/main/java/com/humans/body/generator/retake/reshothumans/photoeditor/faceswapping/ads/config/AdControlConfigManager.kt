@@ -11,7 +11,7 @@ import timber.log.Timber
 
 class AdControlConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig
-) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v16") {
+) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v18") {
 
     companion object {
         private const val TAG_CFG = "ConfigTrace"
@@ -64,6 +64,17 @@ class AdControlConfigManager(
 
     private fun getRemoteAdIds(): RemoteAdIdsConfig? = configData?.adIds ?: configData?.adIdsSnake
 
+    private fun resolveFromMap(ids: Map<String, String>?, fallbackIds: Map<String, String>?, vararg keys: String): String {
+        keys.forEach { key ->
+            val value = ids?.get(key)?.trim().orEmpty().ifEmpty { fallbackIds?.get(key)?.trim().orEmpty() }
+            if (value.isNotEmpty()) return value
+        }
+        val defaultValue = ids?.get("default")?.trim().orEmpty().ifEmpty { fallbackIds?.get("default")?.trim().orEmpty() }
+        if (defaultValue.isNotEmpty()) return defaultValue
+        return ids?.values?.firstOrNull { it.isNotBlank() }?.trim().orEmpty()
+            .ifEmpty { fallbackIds?.values?.firstOrNull { it.isNotBlank() }?.trim().orEmpty() }
+    }
+
     private fun resolveProdAdId(configuredId: String?, fallbackProdId: String): String {
         if (BuildConfig.DEBUG) return fallbackProdId
         val candidate = configuredId?.trim().orEmpty()
@@ -71,48 +82,55 @@ class AdControlConfigManager(
     }
 
     fun getProdBannerAdUnitId(fallbackProdId: String): String {
-        return resolveProdAdId(getRemoteAdIds()?.banner?.defaultId, fallbackProdId)
+        val ids = getRemoteAdIds()?.banner
+        return resolveProdAdId(resolveFromMap(ids, HardcodedAdIds.banner, "default"), fallbackProdId)
     }
 
     fun getProdAppOpenSplashAdUnitId(fallbackProdId: String): String {
         val ids = getRemoteAdIds()?.appOpen
-        return resolveProdAdId(ids?.splash?.ifEmpty { ids.defaultId }, fallbackProdId)
+        return resolveProdAdId(resolveFromMap(ids, HardcodedAdIds.appOpen, "splash", "default"), fallbackProdId)
     }
 
     fun getProdAppOpenResumeAdUnitId(fallbackProdId: String): String {
         val ids = getRemoteAdIds()?.appOpen
-        return resolveProdAdId(ids?.resume?.ifEmpty { ids.defaultId }, fallbackProdId)
+        return resolveProdAdId(resolveFromMap(ids, HardcodedAdIds.appOpen, "resume", "default"), fallbackProdId)
     }
 
     fun getProdInterstitialAdUnitId(screen: String, fallbackProdId: String): String {
         val ids = getRemoteAdIds()?.interstitial
         val configuredId = when (screen) {
-            RemoteScreens.SPLASH_SCREEN -> ids?.splash
-            RemoteScreens.INTRO_SCREEN -> ids?.intro?.ifEmpty { ids.onboarding }
-            RemoteScreens.LANGUAGE_SCREEN -> ids?.language
-            else -> ids?.defaultId
+            RemoteScreens.SPLASH_SCREEN -> resolveFromMap(ids, HardcodedAdIds.interstitial, "splash", "default")
+            RemoteScreens.INTRO_SCREEN -> resolveFromMap(ids, HardcodedAdIds.interstitial, "intro", "onboarding", "default")
+            RemoteScreens.LANGUAGE_SCREEN -> resolveFromMap(ids, HardcodedAdIds.interstitial, "language", "default")
+            else -> resolveFromMap(ids, HardcodedAdIds.interstitial, screen, "default")
         }
-        return resolveProdAdId(configuredId?.ifEmpty { ids?.defaultId.orEmpty() }, fallbackProdId)
+        return resolveProdAdId(configuredId, fallbackProdId)
     }
 
-    fun getProdNativeAdUnitId(screen: String, fallbackProdId: String): String {
+    fun getProdNativeAdUnitId(screen: String, fallbackProdId: String, position: String? = null): String {
         val ids = getRemoteAdIds()?.nativeIds
+        val normalizedPosition = position?.trim()?.lowercase().orEmpty()
         val configuredId = when (screen) {
-            RemoteScreens.SPLASH_SCREEN -> ids?.splash
-            RemoteScreens.INTRO_SCREEN -> ids?.intro?.ifEmpty { ids.onboarding }
-            RemoteScreens.LANGUAGE_SCREEN -> ids?.language
-            else -> ids?.defaultId
+            RemoteScreens.SPLASH_SCREEN -> when (normalizedPosition) {
+                "top" -> resolveFromMap(ids, HardcodedAdIds.nativeIds, "splash_top", "splash", "default")
+                "bottom" -> resolveFromMap(ids, HardcodedAdIds.nativeIds, "splash_bottom", "splash", "default")
+                else -> resolveFromMap(ids, HardcodedAdIds.nativeIds, "splash", "default")
+            }
+            RemoteScreens.INTRO_SCREEN -> resolveFromMap(ids, HardcodedAdIds.nativeIds, "intro", "onboarding", "default")
+            RemoteScreens.LANGUAGE_SCREEN -> resolveFromMap(ids, HardcodedAdIds.nativeIds, "language", "default")
+            else -> resolveFromMap(ids, HardcodedAdIds.nativeIds, screen, "default")
         }
-        return resolveProdAdId(configuredId?.ifEmpty { ids?.defaultId.orEmpty() }, fallbackProdId)
+        return resolveProdAdId(configuredId, fallbackProdId)
     }
 
     fun getProdRewardedAdUnitId(fallbackProdId: String): String {
-        return resolveProdAdId(getRemoteAdIds()?.rewarded?.defaultId, fallbackProdId)
+        val ids = getRemoteAdIds()?.rewarded
+        return resolveProdAdId(resolveFromMap(ids, HardcodedAdIds.rewarded, "default"), fallbackProdId)
     }
 
     fun getProdInitialRewardedAdUnitId(fallbackProdId: String): String {
         val ids = getRemoteAdIds()?.rewarded
-        return resolveProdAdId(ids?.initial?.ifEmpty { ids.defaultId }, fallbackProdId)
+        return resolveProdAdId(resolveFromMap(ids, HardcodedAdIds.rewarded, "initial", "default"), fallbackProdId)
     }
 
     fun shouldShowScreen(screenName: String, isFirstLaunch: Boolean): Boolean {

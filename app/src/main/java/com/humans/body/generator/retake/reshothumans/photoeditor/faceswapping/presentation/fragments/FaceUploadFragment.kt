@@ -133,14 +133,27 @@ class FaceUploadFragment : Fragment() {
     // ── Second image (savedStateHandle) ───────────────────────
 
     private fun observeSecondImage() {
-        findNavController()
-            .currentBackStackEntry
-            ?.savedStateHandle
-            ?.getLiveData<String>("secondImageUri")
+        val handle = findNavController().currentBackStackEntry?.savedStateHandle
+
+        handle?.getLiveData<String>("secondImageUri")
             ?.observe(viewLifecycleOwner) { uri ->
                 if (uri.isNullOrEmpty()) return@observe
-                binding.addImg1.visibility = View.GONE
-                binding.emptyBg1.visibility = View.GONE
+                loadSecondImage(uri = uri)
+            }
+
+        handle?.getLiveData<Int>("secondImageResId")
+            ?.observe(viewLifecycleOwner) { resId ->
+                if (resId == null || resId == -1) return@observe
+                loadSecondImage(resId = resId)
+            }
+    }
+
+    private fun loadSecondImage(uri: String? = null, resId: Int = -1) {
+        if (!isAdded) return
+        binding.addImg1.visibility = View.GONE
+        binding.emptyBg1.visibility = View.GONE
+        when {
+            uri != null -> {
                 Glide.with(this).load(Uri.parse(uri)).centerCrop().into(binding.generatedImage1)
                 lifecycleScope.launch {
                     secondBitmap = withContext(Dispatchers.IO) {
@@ -149,6 +162,16 @@ class FaceUploadFragment : Fragment() {
                     syncGenerateButton()
                 }
             }
+            resId != -1 -> {
+                Glide.with(this).load(resId).centerCrop().into(binding.generatedImage1)
+                lifecycleScope.launch {
+                    secondBitmap = withContext(Dispatchers.IO) {
+                        runCatching { drawableToBitmap(resId) }.getOrNull()
+                    }
+                    syncGenerateButton()
+                }
+            }
+        }
     }
 
     private fun syncGenerateButton() {

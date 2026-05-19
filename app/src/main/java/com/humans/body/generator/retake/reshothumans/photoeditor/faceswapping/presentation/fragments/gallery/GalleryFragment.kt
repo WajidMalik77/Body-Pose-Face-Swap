@@ -183,8 +183,14 @@ class GalleryFragment : Fragment() {
             ImageSlot.SECOND -> {
                 val handle = findNavController().previousBackStackEntry?.savedStateHandle
                 when {
-                    uri != null -> handle?.set("secondImageUri", uri)
-                    resId != -1 -> handle?.set("secondImageResId", resId)
+                    uri != null -> {
+                        handle?.set("secondImageResId", -1)
+                        handle?.set("secondImageUri", uri)
+                    }
+                    resId != -1 -> {
+                        handle?.set("secondImageUri", "")
+                        handle?.set("secondImageResId", resId)
+                    }
                 }
                 findNavController().popBackStack()
             }
@@ -211,7 +217,7 @@ class GalleryFragment : Fragment() {
         selectedUri = null
         (binding.rvTemplates.adapter as? TemplateAdapter)?.setSelected(setOf(resId))
         (binding.rvGallery.adapter as? GalleryAdapter)?.clearSelection()
-        (binding.rvRecents.adapter as? RecentsAdapter)?.setSelected(resId.toString())
+        (binding.rvRecents.adapter as? RecentsAdapter)?.setSelected(null)
         syncDoneButton()
     }
 
@@ -246,7 +252,7 @@ class GalleryFragment : Fragment() {
             // This recent was saved from a drawable resource
             selectedResId = asResId
             selectedUri = null
-            (binding.rvTemplates.adapter as? TemplateAdapter)?.setSelected(setOf(asResId))
+            (binding.rvTemplates.adapter as? TemplateAdapter)?.setSelected(emptySet())
             (binding.rvGallery.adapter as? GalleryAdapter)?.clearSelection()
             syncDoneButton()
         } else {

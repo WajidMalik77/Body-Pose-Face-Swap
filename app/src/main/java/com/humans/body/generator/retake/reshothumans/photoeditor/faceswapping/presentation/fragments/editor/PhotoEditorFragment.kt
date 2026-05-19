@@ -216,7 +216,9 @@ class PhotoEditorFragment : Fragment() {
             }
         }
         b.recycler.adapter = AdjustAdapter(requireContext().getRatioList()) { pos ->
-            startUCropFromBitmap(imageViewToBitmap(binding.generatedImage)!!, pos)
+            val currentBinding = _binding ?: return@AdjustAdapter
+            val sourceBitmap = imageViewToBitmap(currentBinding.generatedImage) ?: return@AdjustAdapter
+            startUCropFromBitmap(sourceBitmap, pos)
         }
         b.done.setOnClickListener { bottomSheetDialog?.dismiss() }
         b.cancel.setOnClickListener { bottomSheetDialog?.dismiss() }
@@ -231,7 +233,9 @@ class PhotoEditorFragment : Fragment() {
         bottomSheetDialog = BottomSheetDialog(requireContext()).apply { setContentView(b.root) }
         b.title.text = title
         b.recycler.adapter = AdjustAdapter(requireContext().getRatioList()) { pos ->
-            startUCropFromBitmap(imageViewToBitmap(binding.generatedImage)!!, pos)
+            val currentBinding = _binding ?: return@AdjustAdapter
+            val sourceBitmap = imageViewToBitmap(currentBinding.generatedImage) ?: return@AdjustAdapter
+            startUCropFromBitmap(sourceBitmap, pos)
         }
         b.done.setOnClickListener { bottomSheetDialog?.dismiss() }
         b.cancel.setOnClickListener { bottomSheetDialog?.dismiss() }
@@ -277,14 +281,14 @@ class PhotoEditorFragment : Fragment() {
                             ),
                             prompt = "Re style the ghibli naturally",
                         ) { result ->
-                            if (!isAdded) return@changeFace
+                            val currentBinding = _binding ?: return@changeFace
                             runWhenRewardedAdClosed {
                                 result.onSuccess { bitmap ->
-                                    binding.progress.visibility = View.GONE
+                                    currentBinding.progress.visibility = View.GONE
                                     bitmap1 = bitmap
-                                    binding.generatedImage.setImageBitmap(bitmap1)
+                                    currentBinding.generatedImage.setImageBitmap(bitmap1)
                                 }.onFailure {
-                                    binding.progress.visibility = View.GONE
+                                    currentBinding.progress.visibility = View.GONE
                                     it.printStackTrace()
                                 }
                             }
@@ -304,14 +308,14 @@ class PhotoEditorFragment : Fragment() {
                         ),
                         prompt = "Re style the ghibli naturally",
                     ) { result ->
-                        if (!isAdded) return@changeFace
+                        val currentBinding = _binding ?: return@changeFace
                         runWhenRewardedAdClosed {
                             result.onSuccess { bitmap ->
-                                binding.progress.visibility = View.GONE
+                                currentBinding.progress.visibility = View.GONE
                                 bitmap1 = bitmap
-                                binding.generatedImage.setImageBitmap(bitmap1)
+                                currentBinding.generatedImage.setImageBitmap(bitmap1)
                             }.onFailure {
-                                binding.progress.visibility = View.GONE
+                                currentBinding.progress.visibility = View.GONE
                                 it.printStackTrace()
                             }
                         }
@@ -375,15 +379,15 @@ class PhotoEditorFragment : Fragment() {
                         GeminiImageService().removeBackgroundWithGemini(
                             SharePref.getString(Constants.new_version_key, ""), bitmap
                         ) { result ->
-                            if (!isAdded) return@removeBackgroundWithGemini
+                            val currentBinding = _binding ?: return@removeBackgroundWithGemini
                             runWhenRewardedAdClosed {
                                 result.onSuccess { bmp ->
-                                    binding.progress.visibility = View.GONE
+                                    currentBinding.progress.visibility = View.GONE
                                     bitmap1 = bmp
-                                    binding.generatedImage.setImageBitmap(bitmap1)
+                                    currentBinding.generatedImage.setImageBitmap(bitmap1)
                                 }
                                 result.onFailure { error ->
-                                    binding.progress.visibility = View.GONE
+                                    currentBinding.progress.visibility = View.GONE
                                     Toast.makeText(
                                         requireContext(),
                                         "Failed: ${error.message}",
@@ -402,15 +406,15 @@ class PhotoEditorFragment : Fragment() {
                     GeminiImageService().removeBackgroundWithGemini(
                         SharePref.getString(Constants.new_version_key, ""), bitmap
                     ) { result ->
-                        if (!isAdded) return@removeBackgroundWithGemini
+                        val currentBinding = _binding ?: return@removeBackgroundWithGemini
                         runWhenRewardedAdClosed {
                             result.onSuccess { bmp ->
-                                binding.progress.visibility = View.GONE
+                                currentBinding.progress.visibility = View.GONE
                                 bitmap1 = bmp
-                                binding.generatedImage.setImageBitmap(bitmap1)
+                                currentBinding.generatedImage.setImageBitmap(bitmap1)
                             }
                             result.onFailure { error ->
-                                binding.progress.visibility = View.GONE
+                                currentBinding.progress.visibility = View.GONE
                                 Toast.makeText(
                                     requireContext(),
                                     "Failed: ${error.message}",
@@ -483,6 +487,8 @@ class PhotoEditorFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        bottomSheetDialog?.dismiss()
+        bottomSheetDialog = null
         super.onDestroyView()
         _binding = null
     }

@@ -7,8 +7,10 @@ import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdRevenueLogger
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
@@ -100,6 +102,15 @@ class InterstitialAdsManager private constructor(private val adsPref: AdsPref) {
                         return
                     }
                     interstitialAd = ad
+                    ad.setOnPaidEventListener(OnPaidEventListener { adValue ->
+                        AdRevenueLogger.logPaidAdImpression(
+                            adSource = ad.responseInfo?.loadedAdapterResponseInfo?.adSourceName,
+                            adUnitName = resolvedInterstitialAdUnitId,
+                            adFormat = "interstitial",
+                            adValue = adValue,
+                            responseInfo = ad.responseInfo
+                        )
+                    })
                     isLoading = false
 //                    adLoadCount++
                     DebugToaster.showAdDebugCard(activity, adsPref.isDebugToastInterstitialEnabled(), "Interstitial: Loaded")

@@ -17,6 +17,8 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdRevenueLogger
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
@@ -118,6 +120,8 @@ class BannerAdsManager(
                 }
             }
 
+            bindPaidEventListener(adView, resolvedAdUnitId)
+
             adView.loadAd(adRequest)
         }
     }
@@ -200,6 +204,8 @@ class BannerAdsManager(
                     DebugToaster.showAdDebugCard(activity, adsPref.isDebugToastBannerEnabled(), "Banner (Bottom Col): Shown")
                 }
             }
+
+            bindPaidEventListener(adView, resolvedAdUnitId)
 
             adView.loadAd(adRequest)
         }
@@ -304,6 +310,8 @@ class BannerAdsManager(
                 }
             }
 
+            bindPaidEventListener(adView, resolvedAdUnitId)
+
             adView.loadAd(buildAdRequest())
         }
     }
@@ -364,7 +372,21 @@ class BannerAdsManager(
             }
         }
 
+        bindPaidEventListener(adView, resolvedAdUnitId)
+
         adView.loadAd(adRequest)
+    }
+
+    private fun bindPaidEventListener(adView: AdView, adUnitId: String) {
+        adView.setOnPaidEventListener(OnPaidEventListener { adValue ->
+            AdRevenueLogger.logPaidAdImpression(
+                adSource = adView.responseInfo?.loadedAdapterResponseInfo?.adSourceName,
+                adUnitName = adUnitId,
+                adFormat = "banner",
+                adValue = adValue,
+                responseInfo = adView.responseInfo
+            )
+        })
     }
 
     /**

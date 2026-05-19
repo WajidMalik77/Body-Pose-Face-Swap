@@ -15,26 +15,26 @@ android {
     namespace = "com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping"
     compileSdk = 36
 
-    flavorDimensions += "env"
-    productFlavors {
-        create("prod") {
-            dimension = "env"
-            applicationId = "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
-            versionNameSuffix = ""
-        }
-        create("dev") {
-            dimension = "env"
-            applicationId = "com.test.human"
-            versionNameSuffix = "-debug"
-        }
-    }
+//    flavorDimensions += "env"
+//    productFlavors {
+//        create("prod") {
+//            dimension = "env"
+//            applicationId = "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
+//            versionNameSuffix = ""
+//        }
+//        create("dev") {
+//            dimension = "env"
+//            applicationId = "com.test.human"
+//            versionNameSuffix = "-debug"
+//        }
+//    }
 
     defaultConfig {
         applicationId = "com.hni.faceapp.bodyeditor.bodytune.photoeditor.humanart.bodypose"
         minSdk = 24
         targetSdk = 35
-        versionCode = 16
-        versionName = "1.1.6"
+        versionCode = 18
+        versionName = "1.1.8"
         setProperty("archivesBaseName", "Human Body Generator $versionName ($versionCode)")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -50,13 +50,13 @@ android {
                 "proguard-rules.pro"
             )
             resValue("string", "admobSDKKey", "ca-app-pub-2925173722220817~3882439959")
-            resValue("string", "admob_banner_id", "ca-app-pub-2925173722220817/6675668372")
-            resValue("string", "admob_native_id", "ca-app-pub-2925173722220817/2993296431")
+            resValue("string", "admob_banner_id", "ca-app-pub-2925173722220817/4801148227")
+            resValue("string", "admob_native_id", "ca-app-pub-2925173722220817/3228637138")
             resValue("string", "admob_interstitial_id", "ca-app-pub-2925173722220817/3728735558")
             resValue("string", "admobRewardAd", "ca-app-pub-2925173722220817/7971232899")
             resValue("string", "admobRewardAdsInitialID", "ca-app-pub-2925173722220817/7971232899")
             resValue("string", "admob_openAd_id", "ca-app-pub-2925173722220817/3136880636")
-            resValue("string", "admobOnboardingNativeAd", "ca-app-pub-2925173722220817/2993296431")
+            resValue("string", "admobOnboardingNativeAd", "ca-app-pub-2925173722220817/9271928937")
         }
 
 
@@ -98,7 +98,7 @@ android {
 }
 
 dependencies {
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
+    implementation(platform(libs.kotlin.bom))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -129,20 +129,20 @@ dependencies {
     implementation(libs.billing.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.facebook.shimmer)
-    implementation("com.airbnb.android:lottie:6.7.1")
+    implementation(libs.lottie)
 
     implementation(libs.timber)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
     implementation(libs.play.services.ads)
-    implementation("com.google.android.play:app-update-ktx:2.1.0")
-    implementation("com.zeugmasolutions.localehelper:locale-helper-android:1.5.1") {
+    implementation(libs.play.app.update.ktx)
+    implementation(libs.locale.helper.android) {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
     }
 
-    implementation("com.google.ai.client.generativeai:generativeai:0.4.0")
-    implementation("com.github.yalantis:ucrop:2.2.6")
-    implementation("com.github.skydoves:colorpickerview:2.4.0")
+//    implementation(libs.google.generativeai)
+    implementation(libs.ucrop)
+//    implementation(libs.colorpickerview)
     implementation(project(":sticker"))
 }

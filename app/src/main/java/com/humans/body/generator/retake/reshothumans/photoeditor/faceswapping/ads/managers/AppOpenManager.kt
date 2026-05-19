@@ -11,9 +11,11 @@ import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdShowCallback
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdRevenueLogger
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
@@ -173,6 +175,16 @@ class AppOpenManager private constructor(context: Context) {
             ad.fullScreenContentCallback = null
             return
         }
+
+        ad.setOnPaidEventListener(OnPaidEventListener { adValue ->
+            AdRevenueLogger.logPaidAdImpression(
+                adSource = ad.responseInfo?.loadedAdapterResponseInfo?.adSourceName,
+                adUnitName = lastAdUnitId,
+                adFormat = "app_open",
+                adValue = adValue,
+                responseInfo = ad.responseInfo
+            )
+        })
 
         // Lock-free updates
         appOpenAdRef.set(ad)

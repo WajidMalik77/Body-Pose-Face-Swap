@@ -10,11 +10,13 @@ import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.BuildConfig
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.ADS
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdRevenueLogger
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdStateManager
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
@@ -98,6 +100,15 @@ class RewardedAdsManager private constructor(private val adsPref: AdsPref) {
                 override fun onAdLoaded(ad: RewardedAd) {
                     synchronized(this@RewardedAdsManager) {
                         rewardedAd = ad
+                        ad.setOnPaidEventListener(OnPaidEventListener { adValue ->
+                            AdRevenueLogger.logPaidAdImpression(
+                                adSource = ad.responseInfo?.loadedAdapterResponseInfo?.adSourceName,
+                                adUnitName = adId,
+                                adFormat = "rewarded",
+                                adValue = adValue,
+                                responseInfo = ad.responseInfo
+                            )
+                        })
                         isLoading = false
                     }
                     completePendingWithSuccess()

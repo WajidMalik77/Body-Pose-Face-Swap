@@ -14,8 +14,9 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
-import androidx.core.view.ViewCompat
 import androidx.core.graphics.toColorInt
+import androidx.core.view.ViewCompat
+import androidx.core.view.isEmpty
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdListener
@@ -26,11 +27,12 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.models.NativeAdColorConfig
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.helpers.models.AdLoadParams
+import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdRevenueLogger
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdUnitIdSanitizer
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.AdsPref
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.utils.DebugToaster
-import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.ads.config.models.NativeAdColorConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -66,6 +68,7 @@ class AdmobNativeManager(
         shimmerLayout: Int = R.layout.native_ad_shimmer_small,
         colorConfig: NativeAdColorConfig? = null,
         shouldPreloadNext: Boolean = true,
+        onImpression: (() -> Unit)? = null,
         onLoaded: (() -> Unit)? = null,
         onFailed: ((LoadAdError) -> Unit)? = null
     ) {
@@ -79,6 +82,7 @@ class AdmobNativeManager(
                 shimmerLayoutRes = shimmerLayout,
                 colorConfig = colorConfig,
                 shouldPreloadNext = shouldPreloadNext,
+                onImpression = onImpression,
                 onLoaded = onLoaded,
                 onFailed = onFailed
             )
@@ -92,6 +96,7 @@ class AdmobNativeManager(
         shimmerLayout: Int = R.layout.native_ad_shimmer_medium,
         shouldPreloadNext: Boolean = true,
         colorConfig: NativeAdColorConfig? = null,
+        onImpression: (() -> Unit)? = null,
         onLoaded: (() -> Unit)? = null,
         onFailed: ((LoadAdError) -> Unit)? = null
     ) {
@@ -105,6 +110,7 @@ class AdmobNativeManager(
                 shimmerLayoutRes = shimmerLayout,
                 colorConfig = colorConfig,
                 shouldPreloadNext = shouldPreloadNext,
+                onImpression = onImpression,
                 onLoaded = onLoaded,
                 onFailed = onFailed
             )
@@ -119,6 +125,7 @@ class AdmobNativeManager(
         shimmerLayout: Int = R.layout.native_loading_medium,
         shouldPreloadNext: Boolean = true,
         colorConfig: NativeAdColorConfig? = null,
+        onImpression: (() -> Unit)? = null,
         onLoaded: (() -> Unit)? = null,
         onFailed: ((LoadAdError) -> Unit)? = null
     ) {
@@ -132,6 +139,7 @@ class AdmobNativeManager(
                 shimmerLayoutRes = shimmerLayout,
                 colorConfig = colorConfig,
                 shouldPreloadNext = shouldPreloadNext,
+                onImpression = onImpression,
                 onLoaded = onLoaded,
                 onFailed = onFailed
             )
@@ -144,6 +152,7 @@ class AdmobNativeManager(
         shimmerContainer: FrameLayout? = null,
         colorConfig: NativeAdColorConfig? = null,
         shouldPreloadNext: Boolean = true,
+        onImpression: (() -> Unit)? = null,
         onLoaded: (() -> Unit)? = null,
         onFailed: ((LoadAdError) -> Unit)? = null
     ) {
@@ -157,6 +166,7 @@ class AdmobNativeManager(
                 shimmerLayoutRes = R.layout.native_ad_fullscreen_intro,
                 colorConfig = colorConfig,
                 shouldPreloadNext = shouldPreloadNext,
+                onImpression = onImpression,
                 onLoaded = onLoaded,
                 onFailed = onFailed
             )
@@ -183,13 +193,8 @@ class AdmobNativeManager(
         val activity = activityRef.get() ?: return
         val sanitizedParams = params.copy(adUnitId = AdUnitIdSanitizer.sanitizeNative(params.adUnitId))
 
-        // Fast path: an ad is already loaded for this activity (e.g. fragment was popped
-        // and recreated). Re-bind it to the new empty container instead of running a
-        // fresh load + shimmer cycle.
-        // Layout must match — re-binding a NativeAd to a different NativeAdView size
-        // unregisters it from the previous view, which corrupts the other native render.
         if (!isDestroyed && !activity.isFinishing && !activity.isDestroyed
-            && nativeAd != null && sanitizedParams.adContainer.childCount == 0
+            && nativeAd != null && sanitizedParams.adContainer.isEmpty()
             && lastLoadParams?.layoutRes == sanitizedParams.layoutRes
         ) {
             lastLoadParams = sanitizedParams
@@ -271,6 +276,16 @@ class AdmobNativeManager(
     private fun handleAdReceived(ad: NativeAd, params: AdLoadParams, isPreloaded: Boolean) {
         isLoading = false
 
+        ad.setOnPaidEventListener { adValue ->
+            AdRevenueLogger.logPaidAdImpression(
+                adSource = ad.responseInfo?.loadedAdapterResponseInfo?.adSourceName,
+                adUnitName = params.adUnitId,
+                adFormat = "native",
+                adValue = adValue,
+                responseInfo = ad.responseInfo
+            )
+        }
+
         // Don't destroy current ad if this is from preload
         if (!isPreloaded) {
             nativeAd?.destroy()
@@ -294,6 +309,8 @@ class AdmobNativeManager(
     }
 
     private fun createAdListener(params: AdLoadParams, isPreload: Boolean) = object : AdListener() {
+        private var impressionTracked = false
+
         override fun onAdFailedToLoad(error: LoadAdError) {
             if (isPreload) {
                 isPreloading = false
@@ -306,7 +323,11 @@ class AdmobNativeManager(
             }
         }
 
-        override fun onAdImpression() {}
+        override fun onAdImpression() {
+            if (isPreload || impressionTracked) return
+            impressionTracked = true
+            params.onImpression?.invoke()
+        }
 
         override fun onAdClicked() {}
 
@@ -459,7 +480,7 @@ class AdmobNativeManager(
     private fun getCachedCtaBackground(config: NativeAdColorConfig): Drawable {
         val colorString =
             config.ctaBackgroundColorHex ?: config.backgroundColorHex
-            ?: return createSolidBackground(Color.parseColor("#09265A"), config)
+            ?: return createSolidBackground("#09265A".toColorInt(), config)
         val cacheKey = "$colorString-${config.ctaCornerRadiusDp}"
 
         return gradientCache.get(cacheKey) ?: run {
@@ -486,7 +507,7 @@ class AdmobNativeManager(
 
             colors.size == 1 -> createSolidBackground(colors[0], config)
 
-            else -> createSolidBackground(Color.parseColor("#09265A"), config)
+            else -> createSolidBackground("#09265A".toColorInt(), config)
         }
     }
 

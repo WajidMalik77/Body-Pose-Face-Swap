@@ -5,5 +5,5 @@ interface AdConfigRepository {
     fun isConfigLoaded(): Boolean
     fun getInterstitialAdUnitId(screen: String): String
     fun getBannerAdUnitId(): String
-    fun getNativeAdUnitId(screen: String): String
+    fun getNativeAdUnitId(screen: String, position: String? = null): String
  }

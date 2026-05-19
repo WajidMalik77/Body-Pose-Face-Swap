@@ -12,6 +12,7 @@ data class AdLoadParams(
     val shimmerLayoutRes: Int,
     val colorConfig: NativeAdColorConfig?,
     val shouldPreloadNext: Boolean = true,
+    val onImpression: (() -> Unit)? = null,
     val onLoaded: (() -> Unit)?,
     val onFailed: ((LoadAdError) -> Unit)?
 )

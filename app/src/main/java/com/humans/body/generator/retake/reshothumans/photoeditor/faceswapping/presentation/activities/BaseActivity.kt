@@ -3,6 +3,8 @@ package com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.a
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
+import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import com.zeugmasolutions.localehelper.LocaleHelper
 import com.zeugmasolutions.localehelper.LocaleHelperActivityDelegate
@@ -60,5 +62,20 @@ open class BaseActivity : AppCompatActivity() {
 
     open fun updateLocale(locale: Locale) {
         localeDelegate.setLocale(this, locale)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        return try {
+            super.dispatchKeyEvent(event)
+        } catch (securityException: SecurityException) {
+            // Some OEM/framework builds can throw when fallback key handling attempts to
+            // close system dialogs without privileged permission.
+            Log.w(
+                "BaseActivity",
+                "Blocked framework key fallback SecurityException (keyCode=${event.keyCode})",
+                securityException
+            )
+            true
+        }
     }
 }

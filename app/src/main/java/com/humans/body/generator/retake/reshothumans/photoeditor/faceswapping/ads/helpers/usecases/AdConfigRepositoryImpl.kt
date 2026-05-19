@@ -57,7 +57,7 @@ class AdConfigRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getNativeAdUnitId(screen: String): String {
+    override fun getNativeAdUnitId(screen: String, position: String?): String {
         if (BuildConfig.DEBUG) {
             return when (screen) {
                 RemoteScreens.INTRO_SCREEN -> ADS.TEST_ADMOB_NATIVE_ONBOARDING_AD_ID
@@ -67,10 +67,10 @@ class AdConfigRepositoryImpl @Inject constructor(
             }
         }
         return when (screen) {
-            RemoteScreens.INTRO_SCREEN -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_ONBOARDING_AD_ID)
-            RemoteScreens.SPLASH_SCREEN -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_SPLASH_AD_ID)
-            RemoteScreens.LANGUAGE_SCREEN -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_LANGUAGE_AD_ID)
-            else -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_AD_ID)
+            RemoteScreens.INTRO_SCREEN -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_ONBOARDING_AD_ID, position)
+            RemoteScreens.SPLASH_SCREEN -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_SPLASH_AD_ID, position)
+            RemoteScreens.LANGUAGE_SCREEN -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_LANGUAGE_AD_ID, position)
+            else -> adControlConfigManager.getProdNativeAdUnitId(screen, ADS.PROD_ADMOB_NATIVE_AD_ID, position)
         }
     }
 }

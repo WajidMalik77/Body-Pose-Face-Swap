@@ -18,8 +18,8 @@ import timber.log.Timber
 
 class NativeAdConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v16") {
-    private val configKey = "Config_v16"
+) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v18") {
+    private val configKey = "Config_v18"
     companion object {
         private val jsonParser by lazy {
             Json {

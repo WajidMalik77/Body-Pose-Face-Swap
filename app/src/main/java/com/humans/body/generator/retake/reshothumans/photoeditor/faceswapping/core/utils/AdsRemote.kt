@@ -8,8 +8,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.net.toUri
 import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.BuildConfig
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.R
 import com.humans.body.generator.retake.reshothumans.photoeditor.faceswapping.utils.AdsConstants.Is_full_native_ad_key

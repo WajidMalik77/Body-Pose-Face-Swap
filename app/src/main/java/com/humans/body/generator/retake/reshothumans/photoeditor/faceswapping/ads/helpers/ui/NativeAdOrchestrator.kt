@@ -99,7 +99,7 @@ class NativeAdOrchestrator @Inject constructor(
 
         val size = nativeAdRepository.getNativeAdSize(screen, position)
         val theme = nativeAdRepository.getNativeAdColorConfig(screen, position)
-        val adUnitId = adConfigRepository.getNativeAdUnitId(screen)
+        val adUnitId = adConfigRepository.getNativeAdUnitId(screen, position)
         val shouldPreload = nativeAdRepository.shouldNativePreload(screen, position)
 
         Timber.d("Should Native Preload: $screen : $position : $shouldPreload")
@@ -110,8 +110,10 @@ class NativeAdOrchestrator @Inject constructor(
             container = config.container,
             shimmer = config.shimmer,
             shouldPreload = shouldPreload,
-            onLoaded = {
+            onImpression = {
                 adsPref.recordNativeAdShown(screen, position)
+            },
+            onLoaded = {
                 onEvent?.invoke(NativeAdEvent.Loaded(position))
                 onFinished()
             },
@@ -129,12 +131,14 @@ class NativeAdOrchestrator @Inject constructor(
         container: FrameLayout,
         shimmer: FrameLayout,
         shouldPreload: Boolean = true,
+        onImpression: () -> Unit,
         onLoaded: () -> Unit,
         onFailed: (LoadAdError) -> Unit
     ) {
         if (size == 1) {
             admobNativeManager.loadNativeSmallAd(
                 container, adUnitId, shimmer, R.layout.native_ad_shimmer_small, theme, shouldPreload,
+                onImpression = onImpression,
                 onLoaded = {
                     Timber.i("Small native ad loaded")
                     onLoaded()
@@ -165,6 +169,7 @@ class NativeAdOrchestrator @Inject constructor(
                 shimmerLayout = shimmerRes,
                 shouldPreloadNext = shouldPreload,
                 colorConfig = theme,
+                onImpression = onImpression,
                 onLoaded = {
                     Timber.i("Native ad loaded for size=$size (layout=$layoutRes)")
                     onLoaded()
